@@ -14,9 +14,9 @@ type OrderItemWithProduct = {
 export default async function AdminOrderDetailPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }) {
-  const { id } = await params;
+  const { id } = params;
 
   const order = await prisma.order.findUnique({
     where: { id },
@@ -61,19 +61,13 @@ export default async function AdminOrderDetailPage({
     <div>
       <h1>Commande #{order.orderNumber}</h1>
 
-      <p>
-        <strong>Client:</strong> {order.user?.email ?? "—"}
-      </p>
-
-      <p>
-        <strong>Total:</strong> {order.total}€
-      </p>
+      <p><strong>Client:</strong> {order.user?.email ?? "—"}</p>
+      <p><strong>Total:</strong> {order.total}€</p>
 
       <p>
         Statut : <strong>{order.status}</strong>
       </p>
 
-      {/* UPDATE STATUS */}
       <form action={updateStatus}>
         <select name="status" defaultValue={order.status}>
           <option value="PENDING">PENDING</option>
@@ -83,15 +77,10 @@ export default async function AdminOrderDetailPage({
           <option value="CANCELLED">CANCELLED</option>
         </select>
 
-        <button type="submit">
-          Mettre à jour
-        </button>
+        <button type="submit">Mettre à jour</button>
       </form>
 
-      {/* ITEMS */}
-      <h3 style={{ marginTop: 20 }}>
-        Produits
-      </h3>
+      <h3 style={{ marginTop: 20 }}>Produits</h3>
 
       <ul>
         {order.items.map((item: OrderItemWithProduct) => (
@@ -101,11 +90,8 @@ export default async function AdminOrderDetailPage({
         ))}
       </ul>
 
-      {/* BACK */}
       <div className="mt-5">
-        <Link href="/admin/orders">
-          ← Retour commandes
-        </Link>
+        <Link href="/admin/orders">← Retour commandes</Link>
       </div>
     </div>
   );

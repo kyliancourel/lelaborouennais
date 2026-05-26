@@ -6,9 +6,9 @@ import { notFound } from "next/navigation";
 export default async function ProductPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: { slug: string };
 }) {
-  const { slug } = await params;
+  const { slug } = params;
 
   if (!slug) return notFound();
 
