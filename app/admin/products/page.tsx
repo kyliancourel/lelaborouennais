@@ -14,22 +14,24 @@ export default async function AdminProductsPage() {
         ➕ Créer un produit
       </Link>
 
-      <div>
-        {products.map((p) => (
+      <div style={{ marginTop: 20 }}>
+        {products.map((p: any) => (
           <div
             key={p.id}
+            style={{
+              border: "1px solid #ddd",
+              padding: 12,
+              marginBottom: 12,
+              borderRadius: 6,
+            }}
           >
             <h3>{p.name}</h3>
 
-            <p>
+            <p style={{ margin: "4px 0" }}>
               {p.price}€
             </p>
 
-            <p>
-              Stock: {p.stock}
-            </p>
-
-            <div>
+            <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
               <Link href={`/admin/products/${p.id}`}>
                 ✏️ Modifier
               </Link>

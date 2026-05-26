@@ -7,8 +7,7 @@ async function main() {
       slug: "vase-design",
       description: "Vase 3D imprimé premium",
       price: 49,
-      stock: 10,
-      image: "/vase.jpg",
+      image: "https://via.placeholder.com/600x600.png?text=No+Image",
     },
   });
 }
