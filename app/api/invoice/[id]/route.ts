@@ -2,11 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
-  const { id } = params;
-
   try {
+    const { id } = context.params;
+
+    if (!id) {
+      return NextResponse.json(
+        { error: "ID manquant" },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json({ id });
   } catch (error) {
     return NextResponse.json(
