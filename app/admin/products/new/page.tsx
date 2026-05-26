@@ -14,6 +14,9 @@ export default function NewProductPage() {
     image: "",
   });
 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -23,16 +26,26 @@ export default function NewProductPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    await fetch("/api/products", {
+    setLoading(true);
+    setError("");
+
+    const res = await fetch("/api/products", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         ...form,
         price: Number(form.price),
       }),
     });
+
+    const data = await res.json();
+
+    setLoading(false);
+
+    if (!res.ok) {
+      setError(data.error || "Erreur création produit");
+      return;
+    }
 
     router.push("/admin/products");
   };
@@ -43,7 +56,7 @@ export default function NewProductPage() {
 
       <form className="form" onSubmit={handleSubmit}>
         <input className="input" name="name" placeholder="Nom" onChange={handleChange} />
-        <input className="input" name="slug" placeholder="Slug" onChange={handleChange} />
+        <input className="input" name="slug" placeholder="Slug (unique)" onChange={handleChange} />
         <input className="input" name="price" type="number" placeholder="Prix" onChange={handleChange} />
         <input className="input" name="image" placeholder="Image URL" onChange={handleChange} />
 
@@ -54,8 +67,10 @@ export default function NewProductPage() {
           onChange={handleChange}
         />
 
-        <button className="btn btn-primary" type="submit">
-          Créer
+        {error && <p className="auth-error">{error}</p>}
+
+        <button className="btn btn-primary" type="submit" disabled={loading}>
+          {loading ? "Création..." : "Créer"}
         </button>
       </form>
     </div>
