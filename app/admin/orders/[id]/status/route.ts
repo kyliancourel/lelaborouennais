@@ -16,7 +16,10 @@ export async function PATCH(
   const { status } = await req.json();
 
   if (!status) {
-    return NextResponse.json({ error: "Missing status" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Missing status" },
+      { status: 400 }
+    );
   }
 
   const order = await prisma.order.update({

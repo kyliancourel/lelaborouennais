@@ -6,7 +6,8 @@ import { useRouter, useParams } from "next/navigation";
 export default function EditProductPage() {
   const router = useRouter();
   const params = useParams();
-const id = typeof params?.id === "string" ? params.id : null;
+
+  const id = typeof params?.id === "string" ? params.id : null;
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -19,38 +20,29 @@ const id = typeof params?.id === "string" ? params.id : null;
     image: "",
   });
 
-  // =========================
-  // FETCH
-  // =========================
   useEffect(() => {
     if (!id) return;
 
     const fetchProduct = async () => {
       const res = await fetch(`/api/products/${id}`);
-
-      const text = await res.text();
+      const data = await res.json();
 
       if (!res.ok) {
-        console.error("GET ERROR:", text);
         setError("Erreur chargement produit");
         return;
       }
 
-      setForm(JSON.parse(text));
+      setForm(data);
     };
 
     fetchProduct();
   }, [id]);
 
-  // =========================
-  // UPDATE
-  // =========================
   const handleUpdate = async (e: any) => {
     e.preventDefault();
     if (!id) return;
 
     setLoading(true);
-    setError("");
 
     const res = await fetch(`/api/products/${id}`, {
       method: "PUT",
@@ -66,31 +58,17 @@ const id = typeof params?.id === "string" ? params.id : null;
     }
 
     router.push("/admin/products");
-    router.refresh();
   };
 
-  // =========================
-  // DELETE
-  // =========================
   const handleDelete = async () => {
     if (!id) return;
+    if (!confirm("Supprimer ?")) return;
 
-    if (!confirm("Supprimer ce produit ?")) return;
-
-    const res = await fetch(`/api/products/${id}`, {
+    await fetch(`/api/products/${id}`, {
       method: "DELETE",
     });
 
-    const text = await res.text();
-
-    if (!res.ok) {
-      console.error("DELETE ERROR:", text);
-      setError("Erreur suppression");
-      return;
-    }
-
     router.push("/admin/products");
-    router.refresh();
   };
 
   if (!id) return <p>Chargement...</p>;
@@ -98,8 +76,6 @@ const id = typeof params?.id === "string" ? params.id : null;
   return (
     <div>
       <h1>Modifier produit</h1>
-
-      {error && <p style={{ color: "red" }}>{error}</p>}
 
       <form onSubmit={handleUpdate}>
         <input
@@ -124,15 +100,11 @@ const id = typeof params?.id === "string" ? params.id : null;
         />
 
         <button disabled={loading}>
-          {loading ? "..." : "Mettre à jour"}
+          {loading ? "..." : "Update"}
         </button>
       </form>
 
-      <button
-        onClick={handleDelete}
-      >
-        Supprimer
-      </button>
+      <button onClick={handleDelete}>Delete</button>
     </div>
   );
 }

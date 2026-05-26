@@ -52,19 +52,9 @@ export default async function ProductPage({
         </div>
 
         <div>
-          <h1 className="product-title">{product.name}</h1>
-
-          <p className="product-description">
-            {product.description}
-          </p>
-
-          <h2 className="product-price">
-            {product.price}€
-          </h2>
-
-          <p className="product-stock">
-            En stock {product.stock}
-          </p>
+          <h1>{product.name}</h1>
+          <p>{product.description}</p>
+          <h2>{product.price}€</h2>
 
           <AddToCart
             product={{

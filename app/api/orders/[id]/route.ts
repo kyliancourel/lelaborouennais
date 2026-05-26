@@ -1,50 +1,34 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-// =========================
-// UPDATE ORDER STATUS
-// =========================
 export async function PUT(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   const data = await req.json();
 
   const order = await prisma.order.update({
-    where: { id: params.id },
-    data: {
-      status: data.status,
-    },
+    where: { id },
+    data: { status: data.status },
   });
 
   return NextResponse.json(order);
 }
 
-// =========================
-// DELETE ORDER
-// =========================
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  try {
-    // 🔥 supprimer les items d'abord (relation Prisma)
-    await prisma.orderItem.deleteMany({
-      where: { orderId: params.id },
-    });
+  const { id } = await params;
 
-    // 🔥 supprimer la commande
-    await prisma.order.delete({
-      where: { id: params.id },
-    });
+  await prisma.orderItem.deleteMany({
+    where: { orderId: id },
+  });
 
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error("DELETE ORDER ERROR:", error);
+  await prisma.order.delete({
+    where: { id },
+  });
 
-    return NextResponse.json(
-      { error: "Failed to delete order" },
-      { status: 500 }
-    );
-  }
+  return NextResponse.json({ success: true });
 }
