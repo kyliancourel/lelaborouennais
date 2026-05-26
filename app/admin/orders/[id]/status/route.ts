@@ -4,7 +4,7 @@ import { auth } from "@/auth";
 
 export async function PATCH(
   req: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
 
@@ -15,7 +15,7 @@ export async function PATCH(
     );
   }
 
-  const { id } = context.params;
+  const { id } = await params;
   const { status } = await req.json();
 
   if (!status) {
