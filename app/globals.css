@@ -1,26 +1,539 @@
+/* =========================
+   BASE
+========================= */
+
 @import "tailwindcss";
 
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  --font-geist-sans: "Geist", sans-serif;
+  --font-geist-mono: "Geist Mono", monospace;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  height: 100%;
+  -webkit-font-smoothing: antialiased;
 }
 
 body {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* =========================
+   DESIGN SYSTEM - BUTTONS
+========================= */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+
+  padding: 0.6rem 1rem;
+
+  border-radius: 0.75rem;
+  border: 1px solid black;
+
+  font-weight: 500;
+
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.btn:hover {
+  transform: scale(1.02);
+}
+
+.btn-primary {
+  background: black;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: white;
+  color: black;
+}
+
+.btn-outline {
+  background: transparent;
+  color: black;
+}
+
+.btn-outline:hover {
+  background: black;
+  color: white;
+}
+
+.btn-danger {
+  background: #dc2626;
+  color: white;
+  border-color: #dc2626;
+}
+
+/* =========================
+   CARDS
+========================= */
+
+.card {
+  border: 1px solid #e5e5e5;
+  border-radius: 1rem;
+  padding: 1rem;
+  background: white;
+}
+
+/* =========================
+   BADGES
+========================= */
+
+.badge {
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge-pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.badge-paid {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.badge-shipped {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.badge-cancelled {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* =========================
+   PAGE HELPERS
+========================= */
+
+.page-container {
+  padding: 2rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.page-title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+}
+
+/* =========================
+   SKELETON
+========================= */
+
+.skeleton {
+  background-color: #e5e5e5;
+  border-radius: 0.75rem;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.4; }
+  100% { opacity: 1; }
+}
+
+.skeleton-sm { height: 24px; width: 120px; margin-bottom: 20px; }
+.skeleton-md { height: 35px; width: 250px; margin-bottom: 15px; }
+.skeleton-lg { height: 300px; width: 300px; margin-bottom: 20px; }
+.skeleton-btn { height: 45px; width: 150px; }
+
+/* =========================
+   PRODUCT PAGE
+========================= */
+
+.product-page {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.5rem;
+}
+
+.product-image {
+  width: 100%;
+  border-radius: 1rem;
+  object-fit: cover;
+}
+
+.product-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1.25rem;
+}
+
+.product-description {
+  color: #666;
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+}
+
+.product-price {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.product-stock {
+  margin-bottom: 1.5rem;
+  color: #444;
+}
+
+/* =========================
+   EMPTY STATES
+========================= */
+
+.empty-state {
+  padding: 2.5rem;
+  text-align: center;
+  color: #666;
+}
+
+.empty-state-title {
+  font-size: 1.375rem;
+  font-weight: 600;
+}
+
+.empty-state-description {
+  margin-top: 0.75rem;
+}
+
+.empty-state-action {
+  margin-top: 1.25rem;
+}
+
+/* =========================
+   HOME
+========================= */
+
+.home-page {
+  padding: 2rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.home-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 0.75rem;
+}
+
+.home-subtitle {
+  color: #666;
+  font-size: 1.125rem;
+}
+
+/* =========================
+   FORM
+========================= */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 420px;
+}
+
+.input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.input-label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.input {
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+}
+
+.input:focus {
+  border-color: #000;
+}
+
+/* =========================
+   NAVBAR (DESKTOP)
+========================= */
+
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+
+  background: white;
+  border-bottom: 1px solid #eee;
+}
+
+.navbar-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px 20px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar-logo {
+  font-weight: 800;
+  font-size: 20px;
+  color: black;
+  text-decoration: none;
+}
+
+.navbar-links {
+  display: flex;
+  gap: 22px;
+  align-items: center;
+}
+
+.navbar-link {
+  color: black;
+  opacity: 0.75;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.navbar-link:hover {
+  opacity: 1;
+}
+
+.navbar-cart {
+  position: relative;
+}
+
+.navbar-badge {
+  position: absolute;
+  top: -8px;
+  right: -12px;
+
+  background: black;
+  color: white;
+
+  font-size: 11px;
+  min-width: 18px;
+  height: 18px;
+
+  border-radius: 999px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.navbar-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 6px 10px;
+  border: 1px solid #eee;
+  border-radius: 999px;
+  background: #fafafa;
+}
+
+.navbar-status {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.navbar-status.admin { background: red; }
+.navbar-status.user { background: green; }
+
+.navbar-logout {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #e11d48;
+  font-weight: 600;
+}
+
+/* =========================
+   MOBILE BURGER BUTTON
+========================= */
+
+.navbar-mobile-button {
+  display: none;
+  font-size: 26px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* =========================
+   DRAWER OVERLAY (PRO UX)
+========================= */
+
+.nav-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.25s ease;
+
+  z-index: 90;
+}
+
+.nav-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* =========================
+   DRAWER MENU
+========================= */
+
+.nav-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+
+  width: 320px;
+  height: 100vh;
+
+  background: white;
+  z-index: 100;
+
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.nav-drawer.open {
+  transform: translateX(0);
+}
+
+.nav-drawer-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 700;
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+.nav-drawer-links {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.nav-drawer-links a {
+  text-decoration: none;
+  color: black;
+  font-weight: 500;
+}
+
+.drawer-logout {
+  margin-top: 20px;
+  background: none;
+  border: none;
+  color: red;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* =========================
+   SPINNER
+========================= */
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #eee;
+  border-top: 4px solid black;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px auto;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 1024px) {
+  .product-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+
+  .navbar-links {
+    display: none;
+  }
+
+  .navbar-mobile-button {
+    display: block;
+  }
+
+  .page-container,
+  .home-page,
+  .product-page {
+    padding: 1rem;
+  }
+
+  .product-title {
+    font-size: 1.8rem;
+  }
+
+  .home-title {
+    font-size: 2rem;
+  }
+
+  .product-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .home-title {
+    font-size: 1.6rem;
+  }
+
+  .product-title {
+    font-size: 1.5rem;
+  }
 }
