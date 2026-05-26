@@ -6,5 +6,12 @@ export async function GET(
 ) {
   const { id } = params;
 
-  return NextResponse.json({ id });
+  try {
+    return NextResponse.json({ id });
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Erreur serveur" },
+      { status: 500 }
+    );
+  }
 }
