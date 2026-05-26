@@ -15,7 +15,6 @@ export default function NewProductPage() {
   });
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -27,7 +26,6 @@ export default function NewProductPage() {
     e.preventDefault();
 
     setLoading(true);
-    setError("");
 
     const res = await fetch("/api/products", {
       method: "POST",
@@ -38,16 +36,16 @@ export default function NewProductPage() {
       }),
     });
 
-    const data = await res.json();
-
     setLoading(false);
 
     if (!res.ok) {
-      setError(data.error || "Erreur création produit");
+      const err = await res.json();
+      alert("Erreur: " + err.error);
       return;
     }
 
     router.push("/admin/products");
+    router.refresh();
   };
 
   return (
@@ -56,20 +54,12 @@ export default function NewProductPage() {
 
       <form className="form" onSubmit={handleSubmit}>
         <input className="input" name="name" placeholder="Nom" onChange={handleChange} />
-        <input className="input" name="slug" placeholder="Slug (unique)" onChange={handleChange} />
-        <input className="input" name="price" type="number" placeholder="Prix" onChange={handleChange} />
+        <input className="input" name="slug" placeholder="Slug" onChange={handleChange} />
+        <input className="input" name="price" placeholder="Prix" onChange={handleChange} />
         <input className="input" name="image" placeholder="Image URL" onChange={handleChange} />
+        <textarea className="input" name="description" placeholder="Description" onChange={handleChange} />
 
-        <textarea
-          className="input"
-          name="description"
-          placeholder="Description"
-          onChange={handleChange}
-        />
-
-        {error && <p className="auth-error">{error}</p>}
-
-        <button className="btn btn-primary" type="submit" disabled={loading}>
+        <button className="btn btn-primary" disabled={loading}>
           {loading ? "Création..." : "Créer"}
         </button>
       </form>

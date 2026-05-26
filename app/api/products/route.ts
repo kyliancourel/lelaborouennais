@@ -1,9 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-// =========================
-// GET ALL PRODUCTS
-// =========================
 export async function GET() {
   try {
     const products = await prisma.product.findMany({
@@ -21,45 +18,37 @@ export async function GET() {
   }
 }
 
-// =========================
-// CREATE PRODUCT (FIXED + SAFE)
-// =========================
 export async function POST(req: Request) {
   try {
     const data = await req.json();
 
-    // 🔥 VALIDATION MINIMALE (IMPORTANT)
+    console.log("📦 CREATE PRODUCT BODY:", data);
+
     if (!data.name || !data.slug || !data.price) {
       return NextResponse.json(
-        { error: "Missing fields (name, slug, price)" },
+        { error: "Missing fields" },
         { status: 400 }
       );
     }
 
     const product = await prisma.product.create({
       data: {
-        name: data.name.trim(),
-        slug: data.slug.trim(),
-        description: data.description || "",
+        name: data.name,
+        slug: data.slug,
+        description: data.description ?? "",
         price: Number(data.price),
-        image: data.image || "",
+        image: data.image ?? "",
       },
     });
 
+    console.log("✅ PRODUCT CREATED:", product.id);
+
     return NextResponse.json(product);
   } catch (error: any) {
-    console.error("CREATE PRODUCT ERROR:", error);
-
-    // 🔥 CAS TRÈS IMPORTANT (slug duplicate)
-    if (error?.code === "P2002") {
-      return NextResponse.json(
-        { error: "Slug déjà utilisé" },
-        { status: 409 }
-      );
-    }
+    console.error("❌ CREATE PRODUCT ERROR:", error);
 
     return NextResponse.json(
-      { error: "Failed to create product" },
+      { error: error?.message || "Failed to create product" },
       { status: 500 }
     );
   }

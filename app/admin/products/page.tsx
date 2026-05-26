@@ -4,7 +4,6 @@ type Product = {
   id: string;
   name: string;
   price: number;
-  slug: string;
 };
 
 export default async function AdminProductsPage() {
@@ -24,7 +23,7 @@ export default async function AdminProductsPage() {
 
       <div className="admin-table">
         {products.length === 0 ? (
-          <p>Aucun produit</p>
+          <p className="admin-empty">Aucun produit</p>
         ) : (
           products.map((p: Product) => (
             <div className="card" key={p.id}>
@@ -33,14 +32,9 @@ export default async function AdminProductsPage() {
                 <p>{p.price}€</p>
               </div>
 
-              <div style={{ display: "flex", gap: 10 }}>
-                <a
-                  className="btn btn-outline"
-                  href={`/admin/products/${p.id}`}
-                >
-                  Modifier
-                </a>
-              </div>
+              <a className="btn btn-outline" href={`/admin/products/${p.id}`}>
+                Modifier
+              </a>
             </div>
           ))
         )}
