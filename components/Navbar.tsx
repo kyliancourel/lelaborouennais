@@ -8,6 +8,10 @@ import { signOut, useSession } from "next-auth/react";
 export default function Navbar() {
   const { cartCount } = useCart();
   const { data: session, status } = useSession();
+
+  console.log("SESSION:", session);
+  console.log("SESSION ROLE:", session?.user?.role);
+  
   const [open, setOpen] = useState(false);
 
   const isLoading = status === "loading";

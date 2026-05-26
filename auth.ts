@@ -52,12 +52,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           email?: string;
           role?: string;
         };
-
+      
         token.id = u.id;
-        token.role = u.role ?? "USER";
         token.email = u.email ?? "";
+        token.role = u.role && u.role.length > 0 ? u.role : "USER";
       }
-
+      
       return token;
     },
 
