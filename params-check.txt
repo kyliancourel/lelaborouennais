@@ -1,0 +1,25 @@
+app/products/[slug]/page.tsx:  params,
+app/products/[slug]/page.tsx:  params: { slug: string };
+app/products/[slug]/page.tsx:  const { slug } = params;
+app/admin/products/[id]/page.tsx:  const params = useParams();
+app/admin/products/[id]/page.tsx:  const id = typeof params?.id === "string" ? params.id : null;
+app/admin/orders/[id]/status/route.ts:  { params }: { params: Promise<{ id: string }> }
+app/admin/orders/[id]/status/route.ts:  const { id } = await params;
+app/admin/orders/[id]/page.tsx:  params,
+app/admin/orders/[id]/page.tsx:  params: { id: string };
+app/admin/orders/[id]/page.tsx:  const { id } = params;
+app/api/products/[id]/route.ts:  { params }: { params: Promise<{ id: string }> }
+app/api/products/[id]/route.ts:  const { id } = await params;
+app/api/products/[id]/route.ts:  { params }: { params: Promise<{ id: string }> }
+app/api/products/[id]/route.ts:  const { id } = await params;
+app/api/products/[id]/route.ts:  { params }: { params: Promise<{ id: string }> }
+app/api/products/[id]/route.ts:  const { id } = await params;
+app/api/orders/[id]/route.ts:  { params }: { params: Promise<{ id: string }> }
+app/api/orders/[id]/route.ts:  const { id } = await params;
+app/api/orders/[id]/route.ts:  { params }: { params: Promise<{ id: string }> }
+app/api/orders/[id]/route.ts:  const { id } = await params;
+app/api/invoice/[id]/route.ts:  { params }: { params: Promise<{ id: string }> }
+app/api/invoice/[id]/route.ts:  const { id } = await params;
+app/orders/[id]/page.tsx:  params,
+app/orders/[id]/page.tsx:  params: { id: string };
+app/orders/[id]/page.tsx:  const { id } = params;
