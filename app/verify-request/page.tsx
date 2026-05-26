@@ -4,92 +4,61 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function VerifyRequestPage() {
-    const searchParams = useSearchParams();
-    const email = searchParams.get("email");
+  const email = useSearchParams().get("email");
 
-    const [cooldown, setCooldown] = useState(30);
-    const [loading, setLoading] = useState(false);
-    const [message, setMessage] = useState("");
+  const [cooldown, setCooldown] = useState(30);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
 
-    useEffect(() => {
-        if (cooldown <= 0) return;
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const t = setInterval(() => setCooldown((c) => c - 1), 1000);
+    return () => clearInterval(t);
+  }, [cooldown]);
 
-        const timer = setInterval(() => {
-            setCooldown((prev) => prev - 1);
-        }, 1000);
+  async function resendEmail() {
+    if (!email) return;
 
-        return () => clearInterval(timer);
-    }, [cooldown]);
+    setLoading(true);
+    setMessage("");
 
-    async function resendEmail() {
-        if (!email) return;
+    const res = await fetch("/api/auth/resend-verification", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
 
-        setLoading(true);
-        setMessage("");
+    const data = await res.json();
+    setLoading(false);
 
-        try {
-            const res = await fetch("/api/auth/resend-verification", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ email }),
-            });
-
-            const data = await res.json();
-
-            if (!res.ok) {
-                setMessage(data.error || "Erreur envoi email");
-                return;
-            }
-
-            setMessage("Un nouvel email de vérification a été envoyé.");
-            setCooldown(30);
-        } catch (error) {
-            console.error(error);
-            setMessage("Erreur serveur");
-        } finally {
-            setLoading(false);
-        }
+    if (!res.ok) {
+      setMessage(data.error);
+      return;
     }
 
-    return (
-        <div className="auth-page">
-            <div className="auth-container text-center">
-                <h1 className="auth-title">📩 Vérifie ton email</h1>
+    setMessage("Email renvoyé !");
+    setCooldown(30);
+  }
 
-                <p style={{ marginTop: 10 }}>
-                    Un email de confirmation a été envoyé à :
-                </p>
+  return (
+    <div className="auth-page">
+      <div className="auth-container verify-box">
+        <h1 className="auth-title">📩 Vérifie ton email</h1>
 
-                <p style={{ fontWeight: 600 }}>{email}</p>
+        <p className="verify-text">
+          Un email a été envoyé à <strong>{email}</strong>
+        </p>
 
-                <p style={{ marginTop: 20 }}>
-                    Clique sur le lien dans l’email pour activer ton compte.
-                </p>
+        {message && <p className="auth-error">{message}</p>}
 
-                {message && <p className="auth-error">{message}</p>}
+        <button className="btn btn-primary" onClick={resendEmail} disabled={loading || cooldown > 0}>
+          {loading ? "Envoi..." : cooldown > 0 ? `Renvoyer (${cooldown}s)` : "Renvoyer"}
+        </button>
 
-                <button
-                    className="btn btn-primary"
-                    onClick={resendEmail}
-                    disabled={loading || cooldown > 0}
-                    style={{ marginTop: 20 }}
-                >
-                    {loading
-                        ? "Envoi..."
-                        : cooldown > 0
-                            ? `Renvoyer (${cooldown}s)`
-                            : "Renvoyer email"}
-                </button>
-
-                {cooldown > 0 && (
-                    <p className="text-sm text-gray-500 mt-2">
-                        Nouveau lien disponible dans {cooldown}s
-                    </p>
-                )}
-
-            </div>
-        </div>
-    );
+        <p className="verify-timer">
+          {cooldown > 0 && `Disponible dans ${cooldown}s`}
+        </p>
+      </div>
+    </div>
+  );
 }

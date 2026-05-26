@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/prisma";
-import Link from "next/link";
 
 type Product = {
   id: string;
@@ -13,33 +12,16 @@ export default async function AdminProductsPage() {
   });
 
   return (
-    <div>
-      <h1>Produits (Admin)</h1>
+    <div className="admin-main">
+      <div className="admin-header">
+        <h1 className="admin-title">Produits</h1>
+      </div>
 
-      <Link href="/admin/products/new">
-        ➕ Créer un produit
-      </Link>
-
-      <div style={{ marginTop: 20 }}>
-        {products.map((p) => (
-          <div
-            key={p.id}
-            style={{
-              border: "1px solid #ddd",
-              padding: 12,
-              marginBottom: 12,
-              borderRadius: 6,
-            }}
-          >
-            <h3>{p.name}</h3>
-
+      <div className="admin-table">
+        {products.map((p: Product) => (
+          <div className="card" key={p.id}>
+            <strong>{p.name}</strong>
             <p>{p.price}€</p>
-
-            <div style={{ display: "flex", gap: 10 }}>
-              <Link href={`/admin/products/${p.id}`}>
-                ✏️ Modifier
-              </Link>
-            </div>
           </div>
         ))}
       </div>

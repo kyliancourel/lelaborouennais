@@ -4,10 +4,6 @@
 
 @import "tailwindcss";
 
-body {
-  background: red !important;
-}
-
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -26,60 +22,58 @@ body {
   display: flex;
   flex-direction: column;
 
-  background: var(--background);
+  background: #f6f7fb;
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
 
 /* =========================
-   DESIGN SYSTEM - BUTTONS
+   TYPO HELPERS
+========================= */
+
+.text-muted {
+  color: #666;
+}
+
+.text-small {
+  font-size: 13px;
+}
+
+/* =========================
+   BUTTON SYSTEM
 ========================= */
 
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+
   gap: 0.5rem;
+  padding: 0.65rem 1rem;
 
-  padding: 0.6rem 1rem;
-
-  border-radius: 0.75rem;
+  border-radius: 10px;
   border: 1px solid black;
 
-  font-weight: 500;
+  font-weight: 600;
+  font-size: 14px;
 
   transition: all 0.2s ease;
   cursor: pointer;
 }
 
 .btn:hover {
-  transform: scale(1.02);
+  transform: translateY(-1px);
 }
 
-.btn-primary {
-  background: black;
-  color: white;
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
 
-.btn-primary:hover {
-  background: white;
-  color: black;
-}
-
-.btn-outline {
-  background: transparent;
-  color: black;
-}
-
-.btn-outline:hover {
-  background: black;
-  color: white;
-}
-
-.btn-danger {
-  background: #dc2626;
-  color: white;
-  border-color: #dc2626;
+.btn.loading {
+  position: relative;
+  pointer-events: none;
 }
 
 /* =========================
@@ -105,32 +99,17 @@ body {
   font-weight: 600;
 }
 
-.badge-pending {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.badge-paid {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.badge-shipped {
-  background: #dbeafe;
-  color: #1d4ed8;
-}
-
-.badge-cancelled {
-  background: #fee2e2;
-  color: #b91c1c;
-}
+.badge-pending { background: #fef3c7; color: #92400e; }
+.badge-paid { background: #dcfce7; color: #166534; }
+.badge-shipped { background: #dbeafe; color: #1d4ed8; }
+.badge-cancelled { background: #fee2e2; color: #b91c1c; }
 
 /* =========================
-   PAGE HELPERS
+   PAGE LAYOUT
 ========================= */
 
 .page-container {
-  padding: 2rem;
+  padding: 2.5rem 1.5rem;
   max-width: 1100px;
   margin: 0 auto;
 }
@@ -163,96 +142,7 @@ body {
 .skeleton-btn { height: 45px; width: 150px; }
 
 /* =========================
-   PRODUCT PAGE
-========================= */
-
-.product-page {
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.product-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2.5rem;
-}
-
-.product-image {
-  width: 100%;
-  border-radius: 1rem;
-  object-fit: cover;
-}
-
-.product-title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 1.25rem;
-}
-
-.product-description {
-  color: #666;
-  line-height: 1.7;
-  margin-bottom: 1.5rem;
-}
-
-.product-price {
-  font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-}
-
-.product-stock {
-  margin-bottom: 1.5rem;
-  color: #444;
-}
-
-/* =========================
-   EMPTY STATES
-========================= */
-
-.empty-state {
-  padding: 2.5rem;
-  text-align: center;
-  color: #666;
-}
-
-.empty-state-title {
-  font-size: 1.375rem;
-  font-weight: 600;
-}
-
-.empty-state-description {
-  margin-top: 0.75rem;
-}
-
-.empty-state-action {
-  margin-top: 1.25rem;
-}
-
-/* =========================
-   HOME
-========================= */
-
-.home-page {
-  padding: 2rem;
-  max-width: 1100px;
-  margin: 0 auto;
-}
-
-.home-title {
-  font-size: 2.5rem;
-  font-weight: 800;
-  margin-bottom: 0.75rem;
-}
-
-.home-subtitle {
-  color: #666;
-  font-size: 1.125rem;
-}
-
-/* =========================
-   FORM
+   INPUT SYSTEM (AUTH + FORMS)
 ========================= */
 
 .form {
@@ -268,24 +158,96 @@ body {
   gap: 6px;
 }
 
-.input-label {
-  font-size: 14px;
-  font-weight: 500;
-}
-
 .input {
-  padding: 10px 12px;
-  border-radius: 6px;
-  border: 1px solid #ddd;
+  width: 100%;
+  padding: 11px 12px;
+
+  border-radius: 10px;
+  border: 1px solid #e5e5e5;
+
   font-size: 14px;
+
+  transition: all 0.2s ease;
+  outline: none;
+  background: white;
 }
 
 .input:focus {
-  border-color: #000;
+  border-color: black;
+  box-shadow: 0 0 0 3px rgba(0,0,0,0.05);
+}
+
+.input-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
 }
 
 /* =========================
-   NAVBAR (DESKTOP)
+   AUTH PAGES
+========================= */
+
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #f6f7fb;
+  padding: 2rem;
+}
+
+.auth-container {
+  width: 100%;
+  max-width: 440px;
+
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 18px;
+
+  padding: 2.2rem;
+
+  box-shadow: 0 12px 40px rgba(0,0,0,0.06);
+}
+
+.auth-title {
+  font-size: 1.9rem;
+  font-weight: 800;
+  text-align: center;
+
+  margin-bottom: 1.8rem;
+}
+
+.auth-error {
+  margin-top: 12px;
+  padding: 10px 12px;
+
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+
+  color: #b91c1c;
+  font-size: 13px;
+
+  border-radius: 10px;
+  text-align: center;
+}
+
+.auth-success {
+  margin-top: 12px;
+  padding: 10px 12px;
+
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+
+  color: #166534;
+  font-size: 13px;
+
+  border-radius: 10px;
+  text-align: center;
+}
+
+/* =========================
+   NAVBAR (PRO E-COMMERCE)
 ========================= */
 
 .navbar {
@@ -293,14 +255,15 @@ body {
   top: 0;
   z-index: 50;
 
-  background: white;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
   border-bottom: 1px solid #eee;
 }
 
 .navbar-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 16px 20px;
+  padding: 14px 20px;
 
   display: flex;
   justify-content: space-between;
@@ -309,27 +272,41 @@ body {
 
 .navbar-logo {
   font-weight: 800;
-  font-size: 20px;
-  color: black;
+  font-size: 18px;
   text-decoration: none;
+  color: black;
+  letter-spacing: -0.3px;
 }
 
 .navbar-links {
   display: flex;
-  gap: 22px;
+  gap: 18px;
   align-items: center;
 }
 
-.navbar-link {
-  color: black;
-  opacity: 0.75;
-  text-decoration: none;
-  font-weight: 500;
+.navbar-links a,
+.navbar-links button {
+  font-size: 14px;
+  color: #444;
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  padding: 6px 10px;
+  border-radius: 8px;
+
+  transition: 0.2s ease;
 }
 
-.navbar-link:hover {
-  opacity: 1;
+.navbar-links a:hover,
+.navbar-links button:hover {
+  color: black;
+  background: #f2f2f2;
 }
+
+/* =========================
+   CART BADGE
+========================= */
 
 .navbar-cart {
   position: relative;
@@ -337,15 +314,15 @@ body {
 
 .navbar-badge {
   position: absolute;
-  top: -8px;
-  right: -12px;
+  top: -6px;
+  right: -10px;
 
   background: black;
   color: white;
 
-  font-size: 11px;
-  min-width: 18px;
-  height: 18px;
+  font-size: 10px;
+  min-width: 16px;
+  height: 16px;
 
   border-radius: 999px;
 
@@ -354,143 +331,136 @@ body {
   justify-content: center;
 }
 
-.navbar-user {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+/* =========================
+   PRODUCTS GRID
+========================= */
 
-  padding: 6px 10px;
+.products-page {
+  padding: 2.5rem 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 22px;
+}
+
+/* =========================
+   PRODUCT CARD
+========================= */
+
+.product-card {
+  background: white;
   border: 1px solid #eee;
-  border-radius: 999px;
-  background: #fafafa;
-}
+  border-radius: 16px;
 
-.navbar-status {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-}
+  overflow: hidden;
 
-.navbar-status.admin { background: red; }
-.navbar-status.user { background: green; }
-
-.navbar-logout {
-  border: none;
-  background: transparent;
+  transition: 0.25s ease;
   cursor: pointer;
-  color: #e11d48;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.product-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 40px rgba(0,0,0,0.08);
+}
+
+.product-image-wrapper {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: #f5f5f5;
+}
+
+.product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.product-card:hover .product-image {
+  transform: scale(1.05);
+}
+
+.product-info {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.product-name {
+  font-size: 15px;
   font-weight: 600;
 }
 
-/* =========================
-   MOBILE BURGER BUTTON
-========================= */
-
-.navbar-mobile-button {
-  display: none;
-  font-size: 26px;
-  background: none;
-  border: none;
-  cursor: pointer;
+.product-price {
+  font-size: 16px;
+  font-weight: 700;
 }
 
 /* =========================
-   DRAWER OVERLAY (PRO UX)
+   CART
 ========================= */
 
-.nav-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.4);
-
-  opacity: 0;
-  pointer-events: none;
-  transition: 0.25s ease;
-
-  z-index: 90;
+.cart-page {
+  padding: 2.5rem 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.nav-overlay.open {
-  opacity: 1;
-  pointer-events: auto;
+.cart-layout {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 2rem;
 }
 
-/* =========================
-   DRAWER MENU
-========================= */
-
-.nav-drawer {
-  position: fixed;
-  top: 0;
-  right: 0;
-
-  width: 320px;
-  height: 100vh;
+.cart-summary {
+  position: sticky;
+  top: 90px;
 
   background: white;
-  z-index: 100;
+  border: 1px solid #eee;
+  border-radius: 16px;
 
-  transform: translateX(100%);
-  transition: transform 0.3s ease;
-
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-}
-
-.nav-drawer.open {
-  transform: translateX(0);
-}
-
-.nav-drawer-header {
-  display: flex;
-  justify-content: space-between;
-  font-weight: 700;
-  font-size: 18px;
-  margin-bottom: 20px;
-}
-
-.nav-drawer-links {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.nav-drawer-links a {
-  text-decoration: none;
-  color: black;
-  font-weight: 500;
-}
-
-.drawer-logout {
-  margin-top: 20px;
-  background: none;
-  border: none;
-  color: red;
-  font-weight: 600;
-  cursor: pointer;
+  padding: 18px;
 }
 
 /* =========================
-   SPINNER
+   ORDERS
 ========================= */
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #eee;
-  border-top: 4px solid black;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 20px auto;
+
+.orders-page {
+  padding: 2.5rem 1.5rem;
+  max-width: 1100px;
+  margin: 0 auto;
 }
 
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+/* =========================
+   ADMIN DASHBOARD
+========================= */
+
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+  background: #f6f7fb;
+}
+
+.admin-sidebar {
+  width: 260px;
+  background: white;
+  border-right: 1px solid #eee;
+  padding: 20px;
+}
+
+.admin-main {
+  flex: 1;
+  padding: 30px;
 }
 
 /* =========================
@@ -498,46 +468,27 @@ body {
 ========================= */
 
 @media (max-width: 1024px) {
-  .product-grid {
-    grid-template-columns: 1fr;
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 768px) {
-
   .navbar-links {
     display: none;
   }
 
-  .navbar-mobile-button {
-    display: block;
+  .products-grid {
+    grid-template-columns: 1fr;
   }
 
-  .page-container,
-  .home-page,
-  .product-page {
-    padding: 1rem;
-  }
-
-  .product-title {
-    font-size: 1.8rem;
-  }
-
-  .home-title {
-    font-size: 2rem;
-  }
-
-  .product-grid {
+  .cart-layout {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 480px) {
-  .home-title {
+  .auth-title {
     font-size: 1.6rem;
-  }
-
-  .product-title {
-    font-size: 1.5rem;
   }
 }

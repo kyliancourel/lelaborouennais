@@ -1,17 +1,14 @@
 "use client";
 
 import { useCart } from "@/context/CartContext";
-import Link from "next/link";
 import { useState } from "react";
-import Button from "@/components/ui/Button";
-import { motion } from "framer-motion";
 
 export default function CartPage() {
-  const { cart, addToCart, removeOne, remove, clear, total } = useCart();
+  const { cart, addToCart, removeOne, remove, total } = useCart();
 
   const [loading, setLoading] = useState(false);
 
-  const handleCheckout = async () => {
+  async function handleCheckout() {
     try {
       setLoading(true);
 
@@ -20,9 +17,7 @@ export default function CartPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          cart,
-        }),
+        body: JSON.stringify({ cart }),
       });
 
       const data = await res.json();
@@ -30,122 +25,93 @@ export default function CartPage() {
       if (data.url) {
         window.location.href = data.url;
       } else {
-        alert(data.error || "Erreur Stripe checkout");
+        alert(data.error || "Erreur checkout");
       }
     } catch (err) {
       console.error(err);
-      alert("Erreur lors du paiement");
+      alert("Erreur serveur");
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   if (cart.length === 0) {
     return (
-      <div className="empty-cart">
-        <div className="empty-cart-content">
-          <div className="empty-cart-icon">🛒</div>
-
-          <h1 className="empty-cart-title">
-            Ton panier est vide
-          </h1>
-
-          <p className="empty-cart-text">
-            Découvre nos créations premium imprimées en 3D.
-          </p>
-
-          <Link
-            href="/products"
-            className="btn btn-primary"
-          >
-            Voir les produits
-          </Link>
-        </div>
+      <div className="empty-state">
+        <h2 className="empty-state-title">Ton panier est vide</h2>
+        <p className="empty-state-description">
+          Ajoute des produits pour commencer.
+        </p>
       </div>
     );
   }
 
   return (
     <div className="cart-page">
-      <h1 className="cart-title">Panier</h1>
+      <h1 className="page-title">Panier</h1>
 
-      <div className="cart-list">
-        {cart.map((item) => (
-          <motion.div
-            key={item.id}
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.2 }}
-            className="cart-item"
-          >
-            {item.image && (
-              <img
-                src={item.image}
-                alt={item.name}
-                className="cart-image"
-              />
-            )}
+      <div className="cart-layout">
 
-            <div className="cart-item-content">
-              <h3 className="cart-item-title">
-                {item.name}
-              </h3>
+        {/* ITEMS */}
+        <div className="cart-items">
+          {cart.map((item) => (
+            <div className="cart-item" key={item.id}>
+              <img className="cart-item-image" src={item.image} />
 
-              <p className="cart-item-price">
-                {item.price}€
-              </p>
+              <div className="cart-item-info">
+                <h3 className="cart-item-title">{item.name}</h3>
 
-              <p className="cart-item-quantity">
-                Quantité : {item.quantity}
-              </p>
+                <p className="cart-item-price">
+                  {item.price}€
+                </p>
 
-              <div className="cart-actions">
-                <Button
-                  variant="secondary"
-                  onClick={() => removeOne(item.id)}
-                >
-                  -
-                </Button>
+                <div className="cart-item-actions">
+                  <button
+                    className="qty-btn"
+                    onClick={() => removeOne(item.id)}
+                  >
+                    -
+                  </button>
 
-                <Button
-                  variant="secondary"
-                  onClick={() => addToCart(item)}
-                >
-                  +
-                </Button>
+                  <span className="qty-value">
+                    {item.quantity}
+                  </span>
 
-                <Button
-                  variant="danger"
+                  <button
+                    className="qty-btn"
+                    onClick={() => addToCart(item)}
+                  >
+                    +
+                  </button>
+                </div>
+
+                <button
+                  className="cart-remove"
                   onClick={() => remove(item.id)}
                 >
                   Supprimer
-                </Button>
+                </button>
               </div>
             </div>
-          </motion.div>
-        ))}
-      </div>
+          ))}
+        </div>
 
-      <hr className="cart-divider" />
+        {/* SUMMARY */}
+        <div className="cart-summary">
+          <div className="cart-total-line">
+            <span>Total</span>
+            <strong>{total}€</strong>
+          </div>
 
-      <h2 className="cart-total">
-        Total : {total}€
-      </h2>
+          <button
+            className="checkout-btn"
+            disabled={loading}
+            onClick={handleCheckout}
+          >
+            {loading ? "Redirection..." : "Payer"}
+          </button>
+        </div>
 
-      <div className="cart-footer">
-        <Button variant="secondary" onClick={clear}>
-          Vider le panier
-        </Button>
-
-        <Button
-          variant="primary"
-          onClick={handleCheckout}
-          disabled={loading}
-        >
-          {loading
-            ? "Redirection vers Stripe..."
-            : "Payer"}
-        </Button>
       </div>
     </div>
   );

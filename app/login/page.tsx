@@ -18,7 +18,6 @@ export default function LoginPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-
     setLoading(true);
     setError("");
 
@@ -41,9 +40,7 @@ export default function LoginPage() {
   return (
     <div className="auth-page">
       <div className="auth-container">
-        <h1 className="auth-title">
-          Connexion
-        </h1>
+        <h1 className="auth-title">Connexion</h1>
 
         <Form onSubmit={handleLogin}>
           <Input
@@ -64,11 +61,7 @@ export default function LoginPage() {
             {loading ? "Connexion..." : "Se connecter"}
           </Button>
 
-          {error && (
-            <p className="auth-error">
-              {error}
-            </p>
-          )}
+          {error && <p className="auth-error">{error}</p>}
         </Form>
       </div>
     </div>
