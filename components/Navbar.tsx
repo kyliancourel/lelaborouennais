@@ -7,9 +7,11 @@ import { signOut, useSession } from "next-auth/react";
 
 export default function Navbar() {
   const { cartCount } = useCart();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [open, setOpen] = useState(false);
 
+  const isLoading = status === "loading";
+  const isLoggedIn = status === "authenticated";
   const isAdmin = session?.user?.role === "ADMIN";
 
   useEffect(() => {
@@ -30,10 +32,12 @@ export default function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-container">
+        {/* LOGO */}
         <Link href="/" className="navbar-logo">
           Laboratoire de la Seine
         </Link>
 
+        {/* LINKS */}
         <div className="navbar-links">
           <Link href="/products">Produits</Link>
           <Link href="/orders">Mes commandes</Link>
@@ -42,11 +46,13 @@ export default function Navbar() {
             Panier ({cartCount})
           </Link>
 
-          {isAdmin && (
+          {/* ADMIN */}
+          {isLoggedIn && isAdmin && (
             <Link href="/admin">Admin</Link>
           )}
 
-          {!session ? (
+          {/* AUTH */}
+          {isLoading ? null : !isLoggedIn ? (
             <>
               <Link href="/login">Connexion</Link>
               <Link href="/register">Inscription</Link>
