@@ -1,23 +1,28 @@
-import { auth } from "@/auth";
 import { NextResponse } from "next/server";
+import { getToken } from "next-auth/jwt";
 import type { NextRequest } from "next/server";
 
 export async function middleware(req: NextRequest) {
-  const session = await auth();
+  const token = await getToken({
+    req,
+    secret: process.env.NEXTAUTH_SECRET,
+  });
 
-  const { pathname } = req.nextUrl;
-  const isAdminRoute = pathname.startsWith("/admin");
+  const isAdminRoute = req.nextUrl.pathname.startsWith("/admin");
 
-  console.log("MIDDLEWARE SESSION:", session);
+  console.log("MW TOKEN:", token);
 
-  // ❌ pas connecté
-  if (isAdminRoute && !session) {
-    return NextResponse.redirect(new URL("/login", req.url));
-  }
+  // 🔥 DEBUG IMPORTANT
+  console.log("MW ROLE:", token?.role);
 
-  // ❌ pas admin
-  if (isAdminRoute && session?.user?.role !== "ADMIN") {
-    return NextResponse.redirect(new URL("/", req.url));
+  if (isAdminRoute) {
+    if (!token) {
+      return NextResponse.redirect(new URL("/login", req.url));
+    }
+
+    if (token.role !== "ADMIN") {
+      return NextResponse.redirect(new URL("/", req.url));
+    }
   }
 
   return NextResponse.next();
