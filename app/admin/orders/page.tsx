@@ -1,94 +1,82 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { auth } from "@/auth";
 
-export default async function OrdersPage() {
-  const session = await auth();
+// Type simple (sans Prisma import problématique)
+type OrderItem = {
+  id: string;
+  quantity: number;
+  product: {
+    name: string | null;
+  } | null;
+};
 
-  if (!session?.user?.email) {
-    return (
-      <div>
-        <h1>Mes commandes</h1>
-        <p>Tu dois être connecté.</p>
-        <Link href="/login">Se connecter</Link>
-      </div>
-    );
-  }
+type Order = {
+  id: string;
+  orderNumber: string | null;
+  status: string;
+  total: number;
+  user: {
+    email: string | null;
+  } | null;
+  items: OrderItem[];
+};
 
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
+export default async function AdminOrdersPage() {
+  const orders = (await prisma.order.findMany({
+    orderBy: { createdAt: "desc" },
     include: {
-      orders: {
+      user: true,
+      items: {
         include: {
-          items: {
-            include: {
-              product: true,
-            },
-          },
-        },
-        orderBy: {
-          createdAt: "desc",
+          product: true,
         },
       },
     },
-  });
-
-  if (!user || user.orders.length === 0) {
-    return (
-      <div>
-        <h1>Mes commandes</h1>
-        <p>Aucune commande.</p>
-      </div>
-    );
-  }
+  })) as Order[];
 
   return (
-    <div>
-      <h1>Mes commandes</h1>
+    <div style={{ padding: 20 }}>
+      <h1>Commandes</h1>
 
-      {user.orders.map(
-        (order: {
-          id: string;
-          orderNumber: string;
-          status: string;
-          total: number;
-          items: {
-            id: string;
-            quantity: number;
-            price: number;
-            product: { name: string };
-          }[];
-        }) => (
+      <div style={{ marginTop: 20 }}>
+        {orders.map((order) => (
           <div
             key={order.id}
+            style={{
+              border: "1px solid #ddd",
+              padding: 15,
+              marginBottom: 15,
+            }}
           >
-            <p>Commande #{order.orderNumber}</p>
-            <p>Statut: {order.status}</p>
+            <h3>
+              Commande #{order.orderNumber ?? order.id}
+            </h3>
+
+            <p>Client: {order.user?.email ?? "Inconnu"}</p>
+
             <p>Total: {order.total}€</p>
 
-            <ul>
-              {order.items.map(
-                (item: {
-                  id: string;
-                  quantity: number;
-                  price: number;
-                  product: { name: string };
-                }) => (
-                  <li key={item.id}>
-                    {item.product.name} × {item.quantity}
-                  </li>
-                )
-              )}
-            </ul>
+            <p>Statut: {order.status}</p>
 
-            <Link
-              href={`/orders/${order.id}`}
-            >
-              Voir détails →
+            <div style={{ marginTop: 10 }}>
+              <strong>Produits :</strong>
+
+              <ul>
+                {order.items.map((item) => (
+                  <li key={item.id}>
+                    {item.product?.name ?? "Produit supprimé"} x{" "}
+                    {item.quantity}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <Link href={`/admin/orders/${order.id}`}>
+              Gérer commande
             </Link>
           </div>
-        )
-      )}
+        ))}
+      </div>
     </div>
   );
 }
