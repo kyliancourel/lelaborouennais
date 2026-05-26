@@ -23,7 +23,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
 
-
   providers: [
     Credentials({
       credentials: {

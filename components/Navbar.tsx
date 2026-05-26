@@ -38,7 +38,7 @@ export default function Navbar() {
       <div className="navbar-container">
         {/* LOGO */}
         <Link href="/" className="navbar-logo">
-          Laboratoire de la Seine
+          Le Labo Rouennais
         </Link>
 
         {/* LINKS */}

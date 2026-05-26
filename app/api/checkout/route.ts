@@ -4,35 +4,23 @@ import { auth } from "@/auth";
 
 export async function POST(req: Request) {
   try {
-    // ✅ SIMPLE ET CORRECT
     const session = await auth();
 
-    console.log("SESSION DEBUG:", session);
-
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: "Not authenticated" },
-        { status: 401 }
-      );
+    if (!session?.user?.id || !session?.user?.email) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
     const { cart } = await req.json();
 
     if (!Array.isArray(cart) || cart.length === 0) {
-      return NextResponse.json(
-        { error: "Cart is empty" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Cart empty" }, { status: 400 });
     }
-
-    const userId = session.user.id;
-    const email = session.user.email!;
 
     const stripeSession = await stripe.checkout.sessions.create({
       mode: "payment",
       payment_method_types: ["card"],
 
-      customer_email: email,
+      customer_email: session.user.email,
 
       line_items: cart.map((item: any) => ({
         quantity: item.quantity,
@@ -50,18 +38,14 @@ export async function POST(req: Request) {
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/cart`,
 
       metadata: {
-        userId,
+        userId: session.user.id,
         cart: JSON.stringify(cart),
       },
     });
 
     return NextResponse.json({ url: stripeSession.url });
   } catch (err) {
-    console.error("Stripe checkout error:", err);
-
-    return NextResponse.json(
-      { error: "Checkout failed" },
-      { status: 500 }
-    );
+    console.error(err);
+    return NextResponse.json({ error: "Checkout failed" }, { status: 500 });
   }
 }
