@@ -8,10 +8,11 @@ export const runtime = "nodejs";
 
 export async function POST(req: Request) {
   const body = await req.text();
+
   const sig = (await headers()).get("stripe-signature");
 
   if (!sig) {
-    console.log("❌ Missing Stripe signature");
+    console.log("❌ Missing signature");
     return NextResponse.json({ error: "Missing signature" }, { status: 400 });
   }
 
@@ -24,11 +25,9 @@ export async function POST(req: Request) {
       process.env.STRIPE_WEBHOOK_SECRET!
     );
   } catch (err) {
-    console.error("❌ Webhook signature error:", err);
+    console.log("❌ Stripe webhook error", err);
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
-
-  console.log("🔥 WEBHOOK EVENT:", event.type);
 
   if (event.type !== "checkout.session.completed") {
     return NextResponse.json({ received: true });
@@ -36,16 +35,13 @@ export async function POST(req: Request) {
 
   const session = event.data.object as Stripe.Checkout.Session;
 
-  console.log("📦 SESSION:", session);
+  console.log("🔥 SESSION RECEIVED:", session.id);
 
   const userId = session.metadata?.userId;
   const cartRaw = session.metadata?.cart;
 
-  console.log("👤 userId:", userId);
-  console.log("🛒 cartRaw:", cartRaw);
-
   if (!userId) {
-    console.log("❌ NO USER ID → STOP");
+    console.log("❌ Missing userId in metadata");
     return NextResponse.json({ received: true });
   }
 
@@ -54,7 +50,7 @@ export async function POST(req: Request) {
   });
 
   if (!user) {
-    console.log("❌ USER NOT FOUND");
+    console.log("❌ User not found");
     return NextResponse.json({ received: true });
   }
 
@@ -62,20 +58,11 @@ export async function POST(req: Request) {
 
   try {
     cart = cartRaw ? JSON.parse(cartRaw) : [];
-  } catch (e) {
-    console.log("❌ CART PARSE ERROR");
+  } catch {
+    console.log("❌ Cart parse error");
   }
 
-  console.log("🛒 CART:", cart);
-
-  // =========================
-  // ORDER NUMBER (PRO VERSION)
-  // =========================
-  const date = new Date();
-
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-
+  // 🔢 ORDER NUMBER FORMAT PRO
   const lastOrder = await prisma.order.findFirst({
     orderBy: { createdAt: "desc" },
   });
@@ -83,45 +70,33 @@ export async function POST(req: Request) {
   let nextNumber = 1;
 
   if (lastOrder?.orderNumber) {
-    const lastPart = lastOrder.orderNumber.split("-").pop();
-    const parsed = Number(lastPart);
-
-    if (!isNaN(parsed)) {
-      nextNumber = parsed + 1;
-    }
+    const last = lastOrder.orderNumber.split("-").pop();
+    nextNumber = Number(last) + 1;
   }
 
-  const orderNumber = `LR-${year}-${month}-${String(nextNumber).padStart(
-    6,
-    "0"
-  )}`;
+  const date = new Date();
+  const orderNumber = `LR-${date.getFullYear()}-${String(
+    date.getMonth() + 1
+  ).padStart(2, "0")}-${String(nextNumber).padStart(6, "0")}`;
 
-  console.log("🧾 ORDER NUMBER:", orderNumber);
-
-  // =========================
-  // CREATE ORDER
-  // =========================
-  try {
-    const order = await prisma.order.create({
-      data: {
-        orderNumber,
-        userId: user.id,
-        total: (session.amount_total ?? 0) / 100,
-        status: "PAID",
-        items: {
-          create: cart.map((item: any) => ({
-            productId: item.id,
-            quantity: item.quantity,
-            price: item.price,
-          })),
-        },
+  // 🧾 CREATE ORDER
+  const order = await prisma.order.create({
+    data: {
+      orderNumber,
+      userId: user.id,
+      total: (session.amount_total ?? 0) / 100,
+      status: "PAID",
+      items: {
+        create: cart.map((item: any) => ({
+          productId: item.id,
+          quantity: item.quantity,
+          price: item.price,
+        })),
       },
-    });
+    },
+  });
 
-    console.log("✅ ORDER CREATED:", order.id);
-  } catch (err) {
-    console.error("❌ PRISMA ORDER ERROR:", err);
-  }
+  console.log("✅ ORDER CREATED:", order.id);
 
   return NextResponse.json({ received: true });
 }

@@ -16,6 +16,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Cart empty" }, { status: 400 });
     }
 
+    // 🚨 SAFE CART (ONLY WHAT WE NEED)
+    const safeCart = cart.map((item: any) => ({
+      id: item.id,
+      q: item.quantity,
+      p: item.price,
+    }));
+
     const stripeSession = await stripe.checkout.sessions.create({
       mode: "payment",
       payment_method_types: ["card"],
@@ -39,13 +46,13 @@ export async function POST(req: Request) {
 
       metadata: {
         userId: session.user.id,
-        cart: JSON.stringify(cart),
+        cart: JSON.stringify(safeCart), // 🔥 CLEAN + SMALL
       },
     });
 
     return NextResponse.json({ url: stripeSession.url });
   } catch (err) {
-    console.error(err);
+    console.error("Checkout error:", err);
     return NextResponse.json({ error: "Checkout failed" }, { status: 500 });
   }
 }
