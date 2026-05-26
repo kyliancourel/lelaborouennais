@@ -36,9 +36,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         return {
           id: user.id,
-          email: user.email ?? "",
-          name: user.name ?? "",
-          role: user.role,
+          email: user.email || "",
+          name: user.name || "",
+          role: user.role || "USER",
         };
       },
     }),
@@ -46,11 +46,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
   callbacks: {
     async jwt({ token, user }) {
-      // 🔥 IMPORTANT: check user exists first
       if (user) {
-        token.id = (user as any).id ?? "";
-        token.role = (user as any).role ?? "USER";
-        token.email = (user as any).email ?? "";
+        const u = user as {
+          id: string;
+          email?: string;
+          role?: string;
+        };
+
+        token.id = u.id;
+        token.role = u.role ?? "USER";
+        token.email = u.email ?? "";
       }
 
       return token;

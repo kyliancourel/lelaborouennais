@@ -12,7 +12,6 @@ export default function Navbar() {
 
   const isAdmin = session?.user?.role === "ADMIN";
 
-  // ESC + LOCK SCROLL
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOpen(false);
@@ -20,11 +19,7 @@ export default function Navbar() {
 
     window.addEventListener("keydown", handleEsc);
 
-    if (open) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
+    document.body.style.overflow = open ? "hidden" : "auto";
 
     return () => {
       window.removeEventListener("keydown", handleEsc);
@@ -33,102 +28,36 @@ export default function Navbar() {
   }, [open]);
 
   return (
-    <>
-      {/* NAVBAR */}
-      <nav className="navbar">
-        <div className="navbar-container">
+    <nav className="navbar">
+      <div className="navbar-container">
+        <Link href="/" className="navbar-logo">
+          Laboratoire de la Seine
+        </Link>
 
-          {/* LOGO */}
-          <Link href="/" className="navbar-logo">
-            Laboratoire de la Seine
-          </Link>
+        <div className="navbar-links">
+          <Link href="/products">Produits</Link>
+          <Link href="/orders">Mes commandes</Link>
 
-          {/* DESKTOP LINKS */}
-          <div className="navbar-links">
-            <Link href="/products" className="navbar-link">Produits</Link>
-            <Link href="/orders" className="navbar-link">Mes commandes</Link>
-
-            <Link href="/cart" className="navbar-link navbar-cart">
-              🛒 Panier
-              {cartCount > 0 && (
-                <span className="navbar-badge">{cartCount}</span>
-              )}
-            </Link>
-
-            {isAdmin && (
-              <Link href="/admin/products" className="navbar-link navbar-admin">
-                Admin
-              </Link>
-            )}
-
-            {!session ? (
-              <>
-                <Link href="/login" className="navbar-link">Connexion</Link>
-                <Link href="/register" className="navbar-link">Inscription</Link>
-              </>
-            ) : (
-              <button onClick={() => signOut()} className="navbar-logout">
-                Déconnexion
-              </button>
-            )}
-          </div>
-
-          {/* BURGER */}
-          <button
-            onClick={() => setOpen(true)}
-            className="navbar-mobile-button"
-          >
-            ☰
-          </button>
-
-        </div>
-      </nav>
-
-      {/* OVERLAY */}
-      <div
-        className={`nav-overlay ${open ? "open" : ""}`}
-        onClick={() => setOpen(false)}
-      />
-
-      {/* DRAWER */}
-      <aside className={`nav-drawer ${open ? "open" : ""}`}>
-        <div className="nav-drawer-header">
-          <span>Menu</span>
-          <button onClick={() => setOpen(false)}>✕</button>
-        </div>
-
-        <div className="nav-drawer-links">
-          <Link href="/products" onClick={() => setOpen(false)}>Produits</Link>
-          <Link href="/orders" onClick={() => setOpen(false)}>Mes commandes</Link>
-
-          <Link href="/cart" onClick={() => setOpen(false)}>
+          <Link href="/cart">
             Panier ({cartCount})
           </Link>
 
           {isAdmin && (
-            <Link href="/admin/products" onClick={() => setOpen(false)}>
-              Admin
-            </Link>
+            <Link href="/admin">Admin</Link>
           )}
 
           {!session ? (
             <>
-              <Link href="/login" onClick={() => setOpen(false)}>Connexion</Link>
-              <Link href="/register" onClick={() => setOpen(false)}>Inscription</Link>
+              <Link href="/login">Connexion</Link>
+              <Link href="/register">Inscription</Link>
             </>
           ) : (
-            <button
-              onClick={() => {
-                signOut();
-                setOpen(false);
-              }}
-              className="drawer-logout"
-            >
+            <button onClick={() => signOut()}>
               Déconnexion
             </button>
           )}
         </div>
-      </aside>
-    </>
+      </div>
+    </nav>
   );
 }

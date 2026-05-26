@@ -5,14 +5,17 @@ import type { NextRequest } from "next/server";
 export async function middleware(req: NextRequest) {
   const token = await getToken({
     req,
-    secret: process.env.NEXTAUTH_SECRET, // 🔥 IMPORTANT
+    secret: process.env.NEXTAUTH_SECRET,
   });
 
   const isAdminRoute = req.nextUrl.pathname.startsWith("/admin");
 
-  console.log("PATH:", req.nextUrl.pathname);
-  console.log("TOKEN:", token);
+  // ❌ pas connecté
+  if (isAdminRoute && !token) {
+    return NextResponse.redirect(new URL("/login", req.url));
+  }
 
+  // ❌ pas admin
   if (isAdminRoute && token?.role !== "ADMIN") {
     return NextResponse.redirect(new URL("/", req.url));
   }

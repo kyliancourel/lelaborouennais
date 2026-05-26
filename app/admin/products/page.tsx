@@ -1,8 +1,14 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 
+type Product = {
+  id: string;
+  name: string;
+  price: number;
+};
+
 export default async function AdminProductsPage() {
-  const products = await prisma.product.findMany({
+  const products: Product[] = await prisma.product.findMany({
     orderBy: { createdAt: "desc" },
   });
 
@@ -15,7 +21,7 @@ export default async function AdminProductsPage() {
       </Link>
 
       <div style={{ marginTop: 20 }}>
-        {products.map((p: any) => (
+        {products.map((p) => (
           <div
             key={p.id}
             style={{
@@ -27,11 +33,9 @@ export default async function AdminProductsPage() {
           >
             <h3>{p.name}</h3>
 
-            <p style={{ margin: "4px 0" }}>
-              {p.price}€
-            </p>
+            <p>{p.price}€</p>
 
-            <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
+            <div style={{ display: "flex", gap: 10 }}>
               <Link href={`/admin/products/${p.id}`}>
                 ✏️ Modifier
               </Link>
