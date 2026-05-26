@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 
+type Context = {
+  params: Promise<{ id: string }>;
+};
+
 export async function GET(
   req: NextRequest,
-  context: { params: { id: string } }
+  context: Context
 ) {
   try {
-    const { id } = context.params;
+    const { id } = await context.params;
 
     if (!id) {
       return NextResponse.json(
