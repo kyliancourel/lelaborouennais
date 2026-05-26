@@ -19,8 +19,8 @@ export async function POST(req: Request) {
     // 🚨 SAFE CART (ONLY WHAT WE NEED)
     const safeCart = cart.map((item: any) => ({
       id: item.id,
-      q: item.quantity,
-      p: item.price,
+      quantity: item.quantity,
+      price: item.price,
     }));
 
     const stripeSession = await stripe.checkout.sessions.create({
