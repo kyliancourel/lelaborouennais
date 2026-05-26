@@ -56,8 +56,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.id = u.id;
         token.email = u.email ?? "";
         token.role = u.role && u.role.length > 0 ? u.role : "USER";
+
+        console.log("JWT ROLE:", token.role);
       }
-      
+
       return token;
     },
 
