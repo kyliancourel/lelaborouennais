@@ -2,6 +2,15 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
 
+type OrderItemWithProduct = {
+  id: string;
+  quantity: number;
+  price: number;
+  product: {
+    name: string;
+  };
+};
+
 export default async function AdminOrderDetailPage({
   params,
 }: {
@@ -25,9 +34,8 @@ export default async function AdminOrderDetailPage({
     return <div>Commande introuvable</div>;
   }
 
-  // =========================
-  // SERVER ACTION
-  // =========================
+  const orderId = order.id;
+
   async function updateStatus(formData: FormData) {
     "use server";
 
@@ -36,7 +44,7 @@ export default async function AdminOrderDetailPage({
     if (!status) return;
 
     await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/orders/${order.id}`,
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/orders/${orderId}`,
       {
         method: "PUT",
         headers: {
@@ -46,8 +54,7 @@ export default async function AdminOrderDetailPage({
       }
     );
 
-    // 🔥 refresh page data après update
-    revalidatePath(`/admin/orders/${order.id}`);
+    revalidatePath(`/admin/orders/${orderId}`);
   }
 
   return (
@@ -66,9 +73,7 @@ export default async function AdminOrderDetailPage({
         Statut : <strong>{order.status}</strong>
       </p>
 
-      {/* ========================= */}
-      {/* UPDATE STATUS FORM */}
-      {/* ========================= */}
+      {/* UPDATE STATUS */}
       <form action={updateStatus}>
         <select name="status" defaultValue={order.status}>
           <option value="PENDING">PENDING</option>
@@ -83,32 +88,20 @@ export default async function AdminOrderDetailPage({
         </button>
       </form>
 
-      {/* ========================= */}
       {/* ITEMS */}
-      {/* ========================= */}
       <h3 style={{ marginTop: 20 }}>
         Produits
       </h3>
 
       <ul>
-        {order.items.map(
-          (item: {
-            id: string;
-            quantity: number;
-            price: number;
-            product: {
-              name: string;
-            };
-          }) => (
+        {order.items.map((item: OrderItemWithProduct) => (
           <li key={item.id}>
             {item.product.name} × {item.quantity} — {item.price}€
           </li>
         ))}
       </ul>
 
-      {/* ========================= */}
       {/* BACK */}
-      {/* ========================= */}
       <div className="mt-5">
         <Link href="/admin/orders">
           ← Retour commandes
