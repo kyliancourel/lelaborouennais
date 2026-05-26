@@ -1,7 +1,9 @@
-export default async function AdminLayout({
+import { ReactNode } from "react";
+
+export default function AdminLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <div className="admin-layout">
@@ -9,9 +11,15 @@ export default async function AdminLayout({
         <div className="admin-logo">Admin</div>
 
         <nav className="admin-nav">
-          <a className="admin-link" href="/admin">Dashboard</a>
-          <a className="admin-link" href="/admin/products">Produits</a>
-          <a className="admin-link" href="/admin/orders">Commandes</a>
+          <a className="admin-link" href="/admin">
+            Dashboard
+          </a>
+          <a className="admin-link" href="/admin/products">
+            Produits
+          </a>
+          <a className="admin-link" href="/admin/orders">
+            Commandes
+          </a>
         </nav>
       </aside>
 

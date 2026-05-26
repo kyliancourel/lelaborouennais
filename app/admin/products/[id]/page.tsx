@@ -1,16 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 export default function EditProductPage() {
   const router = useRouter();
   const params = useParams();
 
-  const id = typeof params?.id === "string" ? params.id : null;
+  const id = params?.id as string;
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
   const [form, setForm] = useState({
     name: "",
@@ -23,46 +22,30 @@ export default function EditProductPage() {
   useEffect(() => {
     if (!id) return;
 
-    const fetchProduct = async () => {
-      const res = await fetch(`/api/products/${id}`);
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError("Erreur chargement produit");
-        return;
-      }
-
-      setForm(data);
-    };
-
-    fetchProduct();
+    fetch(`/api/products/${id}`)
+      .then((res) => res.json())
+      .then((data) => setForm(data));
   }, [id]);
 
-  const handleUpdate = async (e: any) => {
+  const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!id) return;
 
     setLoading(true);
 
-    const res = await fetch(`/api/products/${id}`, {
+    await fetch(`/api/products/${id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify(form),
     });
 
     setLoading(false);
-
-    if (!res.ok) {
-      setError("Erreur update");
-      return;
-    }
-
     router.push("/admin/products");
   };
 
   const handleDelete = async () => {
-    if (!id) return;
-    if (!confirm("Supprimer ?")) return;
+    if (!confirm("Supprimer ce produit ?")) return;
 
     await fetch(`/api/products/${id}`, {
       method: "DELETE",
@@ -71,40 +54,40 @@ export default function EditProductPage() {
     router.push("/admin/products");
   };
 
-  if (!id) return <p>Chargement...</p>;
-
   return (
-    <div>
-      <h1>Modifier produit</h1>
+    <div className="admin-main">
+      <h1 className="admin-title">Modifier produit</h1>
 
-      <form onSubmit={handleUpdate}>
+      <form className="form" onSubmit={handleUpdate}>
         <input
+          className="input"
           value={form.name}
-          onChange={(e) =>
-            setForm({ ...form, name: e.target.value })
-          }
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
         />
 
         <input
+          className="input"
           value={form.slug}
-          onChange={(e) =>
-            setForm({ ...form, slug: e.target.value })
-          }
+          onChange={(e) => setForm({ ...form, slug: e.target.value })}
         />
 
         <input
+          className="input"
+          type="number"
           value={form.price}
           onChange={(e) =>
             setForm({ ...form, price: Number(e.target.value) })
           }
         />
 
-        <button disabled={loading}>
-          {loading ? "..." : "Update"}
+        <button className="btn btn-primary" disabled={loading}>
+          {loading ? "..." : "Modifier"}
         </button>
       </form>
 
-      <button onClick={handleDelete}>Delete</button>
+      <button className="btn btn-danger" onClick={handleDelete}>
+        Supprimer
+      </button>
     </div>
   );
 }
