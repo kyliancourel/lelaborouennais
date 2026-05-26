@@ -86,7 +86,7 @@ export async function POST(req: Request) {
   });
 
   // 📧 EMAIL PRO SIMPLE (SHOPIFY STYLE)
-  await resend.emails.send({
+  await resend().emails.send({
     from: "Laboratoire de la Seine <onboarding@resend.dev>",
     to: user.email,
     subject: `Commande confirmée ${orderNumber}`,
