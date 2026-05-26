@@ -3,26 +3,27 @@ import { getToken } from "next-auth/jwt";
 import type { NextRequest } from "next/server";
 
 export async function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+
+  if (!pathname.startsWith("/admin")) {
+    return NextResponse.next();
+  }
+
   const token = await getToken({
     req,
     secret: process.env.NEXTAUTH_SECRET,
+    cookieName: "next-auth.session-token",
   });
 
-  const isAdminRoute = req.nextUrl.pathname.startsWith("/admin");
-
+  console.log("MW PATH:", pathname);
   console.log("MW TOKEN:", token);
 
-  // 🔥 DEBUG IMPORTANT
-  console.log("MW ROLE:", token?.role);
+  if (!token) {
+    return NextResponse.redirect(new URL("/login", req.url));
+  }
 
-  if (isAdminRoute) {
-    if (!token) {
-      return NextResponse.redirect(new URL("/login", req.url));
-    }
-
-    if (token.role !== "ADMIN") {
-      return NextResponse.redirect(new URL("/", req.url));
-    }
+  if (token.role !== "ADMIN") {
+    return NextResponse.redirect(new URL("/", req.url));
   }
 
   return NextResponse.next();
