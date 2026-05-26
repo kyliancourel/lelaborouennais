@@ -14,8 +14,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     Credentials({
       credentials: {
-        email: {},
-        password: {},
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
       },
 
       async authorize(credentials) {
@@ -34,11 +34,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         if (!ok) return null;
 
-        // 🔥 IMPORTANT: return FULL SAFE OBJECT
         return {
           id: user.id,
-          email: user.email,
-          name: user.name,
+          email: user.email ?? "",
+          name: user.name ?? "",
           role: user.role,
         };
       },
@@ -47,11 +46,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
   callbacks: {
     async jwt({ token, user }) {
-      // 🔥 IMPORTANT FIX: persist ONLY on first login
+      // 🔥 IMPORTANT: check user exists first
       if (user) {
-        token.id = user.id;
-        token.role = user.role;
-        token.email = user.email;
+        token.id = (user as any).id ?? "";
+        token.role = (user as any).role ?? "USER";
+        token.email = (user as any).email ?? "";
       }
 
       return token;
@@ -59,9 +58,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id as string;
-        session.user.role = token.role as string;
-        session.user.email = token.email as string;
+        session.user.id = String(token.id ?? "");
+        session.user.role = String(token.role ?? "USER");
+        session.user.email = String(token.email ?? "");
       }
 
       return session;
