@@ -47,12 +47,13 @@ model Order {
   id String @id @default(cuid())
 
   orderNumber String? @unique
-  stripeSessionId String? @unique
+
+  stripeSessionId String? @unique  // 👈 AJOUTE ÇA
 
   userId String?
   user   User? @relation(fields: [userId], references: [id])
 
-  status OrderStatus @default(PAID)
+  status OrderStatus @default(PENDING)
   total  Float
 
   items OrderItem[]
