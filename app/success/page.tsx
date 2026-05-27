@@ -10,6 +10,12 @@ export default function SuccessPage() {
 
   useEffect(() => {
     clear();
+
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 800);
+
+    return () => clearTimeout(timer);
   }, []);
 
   if (loading) {
