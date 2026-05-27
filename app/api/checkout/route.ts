@@ -9,7 +9,10 @@ export async function POST(req: Request) {
     const { cart } = await req.json();
 
     if (!Array.isArray(cart) || cart.length === 0) {
-      return NextResponse.json({ error: "Cart empty" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Cart empty" },
+        { status: 400 }
+      );
     }
 
     const userId = session?.user?.id || null;
@@ -21,37 +24,63 @@ export async function POST(req: Request) {
       price: item.price,
     }));
 
-    const stripeSession = await stripe.checkout.sessions.create({
-      mode: "payment",
-      payment_method_types: ["card"],
+    const stripeSession =
+      await stripe.checkout.sessions.create({
+        mode: "payment",
 
-      customer_email: email || undefined,
+        payment_method_types: ["card"],
 
-      line_items: cart.map((item: any) => ({
-        quantity: item.quantity,
-        price_data: {
-          currency: "eur",
-          unit_amount: Math.round(item.price * 100),
-          product_data: {
-            name: item.name,
-            images: item.image ? [item.image] : [],
+        /*
+         * ✅ utilisateur connecté
+         * Stripe pré-remplit l'email
+         */
+        customer_email: email || undefined,
+
+        /*
+         * ✅ invité
+         * Stripe demandera automatiquement l'email
+         */
+        billing_address_collection: "auto",
+
+        line_items: cart.map((item: any) => ({
+          quantity: item.quantity,
+
+          price_data: {
+            currency: "eur",
+
+            unit_amount: Math.round(item.price * 100),
+
+            product_data: {
+              name: item.name,
+              images: item.image
+                ? [item.image]
+                : [],
+            },
           },
+        })),
+
+        success_url:
+          `${process.env.NEXT_PUBLIC_APP_URL}` +
+          `/success?session_id={CHECKOUT_SESSION_ID}`,
+
+        cancel_url:
+          `${process.env.NEXT_PUBLIC_APP_URL}/cart`,
+
+        metadata: {
+          userId: userId || "",
+          cart: JSON.stringify(safeCart),
         },
-      })),
+      });
 
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/cart`,
-
-      metadata: {
-        userId: userId || "",
-        email: email || "",
-        cart: JSON.stringify(safeCart),
-      },
+    return NextResponse.json({
+      url: stripeSession.url,
     });
-
-    return NextResponse.json({ url: stripeSession.url });
   } catch (err) {
     console.error("Checkout error:", err);
-    return NextResponse.json({ error: "Checkout failed" }, { status: 500 });
+
+    return NextResponse.json(
+      { error: "Checkout failed" },
+      { status: 500 }
+    );
   }
 }
