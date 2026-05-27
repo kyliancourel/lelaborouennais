@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import Link from "next/link";
 
 export default function AdminLayout({
   children,
@@ -11,19 +12,21 @@ export default function AdminLayout({
         <div className="admin-logo">Admin</div>
 
         <nav className="admin-nav">
-          <a className="admin-link" href="/admin">
+          <Link className="admin-link" href="/admin">
             Dashboard
-          </a>
-          <a className="admin-link" href="/admin/products">
+          </Link>
+
+          <Link className="admin-link" href="/admin/products">
             Produits
-          </a>
-          <a className="admin-link" href="/admin/orders">
+          </Link>
+
+          <Link className="admin-link" href="/admin/orders">
             Commandes
-          </a>
+          </Link>
         </nav>
       </aside>
 
-      <main className="admin-main">{children}</main>
+      <main className="admin-content">{children}</main>
     </div>
   );
 }

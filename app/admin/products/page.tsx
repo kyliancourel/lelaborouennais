@@ -12,7 +12,7 @@ export default async function AdminProductsPage() {
   });
 
   return (
-    <div className="admin-main">
+    <div className="admin-page">
       <div className="admin-header">
         <h1 className="admin-title">Produits</h1>
 
@@ -21,20 +21,27 @@ export default async function AdminProductsPage() {
         </a>
       </div>
 
-      <div className="admin-table">
+      <div className="card-list">
         {products.length === 0 ? (
-          <p className="admin-empty">Aucun produit</p>
+          <div className="admin-empty">
+            Aucun produit pour le moment
+          </div>
         ) : (
           products.map((p: Product) => (
-            <div className="card" key={p.id}>
-              <div>
-                <strong>{p.name}</strong>
-                <p>{p.price}€</p>
+            <div className="card-row" key={p.id}>
+              <div className="card-info">
+                <strong className="card-title">{p.name}</strong>
+                <span className="card-subtitle">{p.price} €</span>
               </div>
 
-              <a className="btn btn-outline" href={`/admin/products/${p.id}`}>
-                Modifier
-              </a>
+              <div className="card-actions">
+                <a
+                  className="btn btn-outline"
+                  href={`/admin/products/${p.id}`}
+                >
+                  Modifier
+                </a>
+              </div>
             </div>
           ))
         )}

@@ -15,7 +15,7 @@ export default function EmptyState({
 }: Props) {
   return (
     <div className="empty-state">
-      <h2 className="empty-state-title">{title}</h2>
+      <h2 className="empty-state-title">😶 {title}</h2>
 
       {description && (
         <p className="empty-state-description">{description}</p>

@@ -24,7 +24,15 @@ export default function EditProductPage() {
 
     fetch(`/api/products/${id}`)
       .then((res) => res.json())
-      .then((data) => setForm(data));
+      .then((data) =>
+        setForm({
+          name: data.name ?? "",
+          slug: data.slug ?? "",
+          description: data.description ?? "",
+          price: data.price ?? 0,
+          image: data.image ?? "",
+        })
+      );
   }, [id]);
 
   const handleUpdate = async (e: React.FormEvent) => {
@@ -45,7 +53,8 @@ export default function EditProductPage() {
   };
 
   const handleDelete = async () => {
-    if (!confirm("Supprimer ce produit ?")) return;
+    const confirmDelete = confirm("Supprimer ce produit ?");
+    if (!confirmDelete) return;
 
     await fetch(`/api/products/${id}`, {
       method: "DELETE",
@@ -55,39 +64,62 @@ export default function EditProductPage() {
   };
 
   return (
-    <div className="admin-main">
-      <h1 className="admin-title">Modifier produit</h1>
+    <div className="admin-page">
+      <div className="admin-header">
+        <h1 className="admin-title">Modifier produit</h1>
+      </div>
 
-      <form className="form" onSubmit={handleUpdate}>
-        <input
-          className="input"
-          value={form.name}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
-        />
+      <div className="card">
+        <form className="form" onSubmit={handleUpdate}>
+          <input
+            className="input"
+            placeholder="Nom du produit"
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+          />
 
-        <input
-          className="input"
-          value={form.slug}
-          onChange={(e) => setForm({ ...form, slug: e.target.value })}
-        />
+          <input
+            className="input"
+            placeholder="Slug"
+            value={form.slug}
+            onChange={(e) => setForm({ ...form, slug: e.target.value })}
+          />
 
-        <input
-          className="input"
-          type="number"
-          value={form.price}
-          onChange={(e) =>
-            setForm({ ...form, price: Number(e.target.value) })
-          }
-        />
+          <textarea
+            className="input"
+            placeholder="Description"
+            value={form.description}
+            onChange={(e) =>
+              setForm({ ...form, description: e.target.value })
+            }
+          />
 
-        <button className="btn btn-primary" disabled={loading}>
-          {loading ? "..." : "Modifier"}
+          <input
+            className="input"
+            type="number"
+            placeholder="Prix"
+            value={form.price}
+            onChange={(e) =>
+              setForm({ ...form, price: Number(e.target.value) })
+            }
+          />
+
+          <input
+            className="input"
+            placeholder="Image URL"
+            value={form.image}
+            onChange={(e) => setForm({ ...form, image: e.target.value })}
+          />
+
+          <button className="btn btn-primary" disabled={loading}>
+            {loading ? "Mise à jour..." : "Modifier"}
+          </button>
+        </form>
+
+        <button className="btn btn-danger mt-3" onClick={handleDelete}>
+          Supprimer le produit
         </button>
-      </form>
-
-      <button className="btn btn-danger" onClick={handleDelete}>
-        Supprimer
-      </button>
+      </div>
     </div>
   );
 }

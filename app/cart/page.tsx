@@ -5,7 +5,6 @@ import { useState } from "react";
 
 export default function CartPage() {
   const { cart, addToCart, removeOne, remove, total } = useCart();
-
   const [loading, setLoading] = useState(false);
 
   async function handleCheckout() {
@@ -38,9 +37,9 @@ export default function CartPage() {
   if (cart.length === 0) {
     return (
       <div className="empty-state">
-        <h2 className="empty-state-title">Ton panier est vide</h2>
-        <p className="empty-state-description">
-          Ajoute des produits pour commencer.
+        <h2 className="empty-title">Ton panier est vide</h2>
+        <p className="empty-subtitle">
+          Ajoute des produits pour commencer tes créations.
         </p>
       </div>
     );
@@ -51,7 +50,6 @@ export default function CartPage() {
       <h1 className="page-title">Panier</h1>
 
       <div className="cart-layout">
-
         {/* ITEMS */}
         <div className="cart-items">
           {cart.map((item) => (
@@ -61,21 +59,17 @@ export default function CartPage() {
               <div className="cart-item-info">
                 <h3 className="cart-item-title">{item.name}</h3>
 
-                <p className="cart-item-price">
-                  {item.price}€
-                </p>
+                <p className="cart-item-price">{item.price} €</p>
 
-                <div className="cart-item-actions">
+                <div className="cart-qty">
                   <button
                     className="qty-btn"
                     onClick={() => removeOne(item.id)}
                   >
-                    -
+                    −
                   </button>
 
-                  <span className="qty-value">
-                    {item.quantity}
-                  </span>
+                  <span className="qty-value">{item.quantity}</span>
 
                   <button
                     className="qty-btn"
@@ -98,9 +92,9 @@ export default function CartPage() {
 
         {/* SUMMARY */}
         <div className="cart-summary">
-          <div className="cart-total-line">
+          <div className="summary-row">
             <span>Total</span>
-            <strong>{total}€</strong>
+            <strong>{total} €</strong>
           </div>
 
           <button
@@ -108,10 +102,9 @@ export default function CartPage() {
             disabled={loading}
             onClick={handleCheckout}
           >
-            {loading ? "Redirection..." : "Payer"}
+            {loading ? "Redirection..." : "Payer maintenant"}
           </button>
         </div>
-
       </div>
     </div>
   );

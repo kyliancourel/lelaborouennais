@@ -30,7 +30,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body>
+      <body className="site-body">
         <Providers>
           <CartProvider>
             <Navbar />

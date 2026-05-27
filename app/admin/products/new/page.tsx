@@ -49,20 +49,53 @@ export default function NewProductPage() {
   };
 
   return (
-    <div className="admin-main">
-      <h1 className="admin-title">Créer un produit</h1>
+    <div className="admin-page">
+      <div className="admin-header">
+        <h1 className="admin-title">Créer un produit</h1>
+      </div>
 
-      <form className="form" onSubmit={handleSubmit}>
-        <input className="input" name="name" placeholder="Nom" onChange={handleChange} />
-        <input className="input" name="slug" placeholder="Slug" onChange={handleChange} />
-        <input className="input" name="price" placeholder="Prix" onChange={handleChange} />
-        <input className="input" name="image" placeholder="Image URL" onChange={handleChange} />
-        <textarea className="input" name="description" placeholder="Description" onChange={handleChange} />
+      <div className="card">
+        <form className="form" onSubmit={handleSubmit}>
+          <input
+            className="input"
+            name="name"
+            placeholder="Nom du produit"
+            onChange={handleChange}
+          />
 
-        <button className="btn btn-primary" disabled={loading}>
-          {loading ? "Création..." : "Créer"}
-        </button>
-      </form>
+          <input
+            className="input"
+            name="slug"
+            placeholder="Slug (ex: vase-3d)"
+            onChange={handleChange}
+          />
+
+          <textarea
+            className="input"
+            name="description"
+            placeholder="Description du produit"
+            onChange={handleChange}
+          />
+
+          <input
+            className="input"
+            name="price"
+            placeholder="Prix (€)"
+            onChange={handleChange}
+          />
+
+          <input
+            className="input"
+            name="image"
+            placeholder="URL image"
+            onChange={handleChange}
+          />
+
+          <button className="btn btn-primary" disabled={loading}>
+            {loading ? "Création..." : "Créer le produit"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

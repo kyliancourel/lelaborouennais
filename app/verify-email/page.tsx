@@ -29,8 +29,10 @@ export default function VerifyEmailPage() {
   }
 
   useEffect(() => {
+    if (!token) return;
+
     verify();
-  }, []);
+  }, [token]);
 
   return (
     <div className="auth-page">

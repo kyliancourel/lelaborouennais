@@ -1,7 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 
-// Type simple (sans Prisma import problématique)
 type OrderItem = {
   id: string;
   quantity: number;
@@ -35,44 +34,51 @@ export default async function AdminOrdersPage() {
   })) as Order[];
 
   return (
-    <div style={{ padding: 20 }}>
-      <h1>Commandes</h1>
+    <div className="admin-page">
+      <div className="admin-header">
+        <h1 className="admin-title">Commandes</h1>
+      </div>
 
-      <div style={{ marginTop: 20 }}>
+      <div className="admin-grid">
         {orders.map((order) => (
-          <div
-            key={order.id}
-            style={{
-              border: "1px solid #ddd",
-              padding: 15,
-              marginBottom: 15,
-            }}
-          >
-            <h3>
-              Commande #{order.orderNumber ?? order.id}
-            </h3>
+          <div key={order.id} className="card order-card">
+            <div className="order-top">
+              <h3 className="order-number">
+                #{order.orderNumber ?? order.id}
+              </h3>
 
-            <p>Client: {order.user?.email ?? "Inconnu"}</p>
+              <span className={`badge status-${order.status.toLowerCase()}`}>
+                {order.status}
+              </span>
+            </div>
 
-            <p>Total: {order.total}€</p>
+            <div className="order-info">
+              <p>
+                <span className="label">Client :</span>{" "}
+                {order.user?.email ?? "Inconnu"}
+              </p>
 
-            <p>Statut: {order.status}</p>
+              <p>
+                <span className="label">Total :</span>{" "}
+                <strong>{order.total}€</strong>
+              </p>
+            </div>
 
-            <div style={{ marginTop: 10 }}>
-              <strong>Produits :</strong>
+            <div className="order-items">
+              <p className="label">Produits :</p>
 
               <ul>
                 {order.items.map((item) => (
                   <li key={item.id}>
-                    {item.product?.name ?? "Produit supprimé"} x{" "}
+                    {item.product?.name ?? "Produit supprimé"} ×{" "}
                     {item.quantity}
                   </li>
                 ))}
               </ul>
             </div>
 
-            <Link href={`/admin/orders/${order.id}`}>
-              Gérer commande
+            <Link className="btn btn-secondary" href={`/admin/orders/${order.id}`}>
+              Gérer la commande
             </Link>
           </div>
         ))}

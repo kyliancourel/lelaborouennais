@@ -6,6 +6,7 @@ import {
   useState,
   useCallback,
   useMemo,
+  useEffect,
 } from "react";
 
 type CartItem = {
@@ -30,8 +31,37 @@ type CartContextType = {
 
 const CartContext = createContext<CartContextType | null>(null);
 
+const STORAGE_KEY = "cart-storage";
+
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [hydrated, setHydrated] = useState(false);
+
+  // =========================
+  // LOAD FROM LOCALSTORAGE
+  // =========================
+  useEffect(() => {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      try {
+        setCart(JSON.parse(stored));
+      } catch {}
+    }
+    setHydrated(true);
+  }, []);
+
+  // =========================
+  // SAVE TO LOCALSTORAGE
+  // =========================
+  useEffect(() => {
+    if (hydrated) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
+    }
+  }, [cart, hydrated]);
+
+  // =========================
+  // ACTIONS
+  // =========================
 
   const addToCart = useCallback((item: Omit<CartItem, "quantity">) => {
     setCart((prev) => {
@@ -67,14 +97,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const clear = useCallback(() => {
     setCart([]);
+    localStorage.removeItem(STORAGE_KEY);
   }, []);
+
+  // =========================
+  // DERIVED VALUES
+  // =========================
 
   const total = useMemo(
     () =>
-      cart.reduce(
-        (sum, item) => sum + item.price * item.quantity,
-        0
-      ),
+      cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
     [cart]
   );
 

@@ -39,8 +39,12 @@ export default function LoginPage() {
 
   return (
     <div className="auth-page">
-      <div className="auth-container">
+      <div className="auth-card">
         <h1 className="auth-title">Connexion</h1>
+
+        <p className="auth-subtitle">
+          Accède à ton espace client
+        </p>
 
         <Form onSubmit={handleLogin}>
           <Input

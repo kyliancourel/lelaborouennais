@@ -29,35 +29,44 @@ export default async function Page({
   }
 
   return (
-    <div className="page-container">
-      <h1 className="page-title">Commande #{order.orderNumber}</h1>
+    <div className="order-page">
+      <h1 className="page-title">
+        Commande #{order.orderNumber}
+      </h1>
 
-      <p className="order-meta">
-        <strong>Client :</strong> {order.user?.email ?? "—"}
-      </p>
+      <div className="order-card">
+        <p className="order-meta">
+          <strong>Client :</strong> {order.user?.email ?? "—"}
+        </p>
 
-      <p className="order-meta">
-        <strong>Total :</strong> {order.total}€
-      </p>
+        <p className="order-meta">
+          <strong>Total :</strong> {order.total} €
+        </p>
 
-      <h3 style={{ marginTop: 20 }}>Produits</h3>
+        <p className="order-meta">
+          <strong>Statut :</strong> {order.status}
+        </p>
+      </div>
 
-      <ul className="order-items">
-        {order.items.map(
-          (
-            item: {
-              id: string;
-              quantity: number;
-              price: number;
-              product: { name: string };
-            }
-          ) => (
-            <li key={item.id}>
-              {item.product.name} × {item.quantity} — {item.price}€
-            </li>
-          )
-        )}
-      </ul>
+      <h3 className="section-title">Produits</h3>
+
+      <div className="order-items">
+        {order.items.map((item) => (
+          <div className="order-item" key={item.id}>
+            <span className="order-item-name">
+              {item.product.name}
+            </span>
+
+            <span className="order-item-qty">
+              x{item.quantity}
+            </span>
+
+            <span className="order-item-price">
+              {item.price} €
+            </span>
+          </div>
+        ))}
+      </div>
 
       <Link href="/orders" className="btn btn-outline">
         ← Retour

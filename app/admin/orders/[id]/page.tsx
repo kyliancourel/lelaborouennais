@@ -7,8 +7,8 @@ type OrderItemWithProduct = {
   quantity: number;
   price: number;
   product: {
-    name: string;
-  };
+    name: string | null;
+  } | null;
 };
 
 export default async function AdminOrderDetailPage({
@@ -16,10 +16,8 @@ export default async function AdminOrderDetailPage({
 }: {
   params: { id: string };
 }) {
-  const { id } = params;
-
   const order = await prisma.order.findUnique({
-    where: { id },
+    where: { id: params.id },
     include: {
       user: true,
       items: {
@@ -31,7 +29,11 @@ export default async function AdminOrderDetailPage({
   });
 
   if (!order) {
-    return <div>Commande introuvable</div>;
+    return (
+      <div className="admin-page">
+        <p className="admin-empty">Commande introuvable</p>
+      </div>
+    );
   }
 
   const orderId = order.id;
@@ -43,55 +45,77 @@ export default async function AdminOrderDetailPage({
 
     if (!status) return;
 
-    await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/orders/${orderId}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ status }),
-      }
-    );
+    await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/orders/${orderId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ status }),
+    });
 
     revalidatePath(`/admin/orders/${orderId}`);
   }
 
   return (
-    <div>
-      <h1>Commande #{order.orderNumber}</h1>
+    <div className="admin-page">
+      <div className="admin-header">
+        <h1 className="admin-title">
+          Commande #{order.orderNumber ?? order.id}
+        </h1>
+      </div>
 
-      <p><strong>Client:</strong> {order.user?.email ?? "—"}</p>
-      <p><strong>Total:</strong> {order.total}€</p>
+      <div className="card">
+        <div className="order-info">
+          <p>
+            <span className="label">Client :</span>{" "}
+            {order.user?.email ?? "—"}
+          </p>
 
-      <p>
-        Statut : <strong>{order.status}</strong>
-      </p>
+          <p>
+            <span className="label">Total :</span>{" "}
+            <strong>{order.total}€</strong>
+          </p>
 
-      <form action={updateStatus}>
-        <select name="status" defaultValue={order.status}>
-          <option value="PENDING">PENDING</option>
-          <option value="PAID">PAID</option>
-          <option value="SHIPPED">SHIPPED</option>
-          <option value="COMPLETED">COMPLETED</option>
-          <option value="CANCELLED">CANCELLED</option>
-        </select>
+          <p>
+            <span className="label">Statut :</span>{" "}
+            <span className={`badge status-${order.status.toLowerCase()}`}>
+              {order.status}
+            </span>
+          </p>
+        </div>
 
-        <button type="submit">Mettre à jour</button>
-      </form>
+        <form className="status-form" action={updateStatus}>
+          <select name="status" defaultValue={order.status} className="input">
+            <option value="PENDING">PENDING</option>
+            <option value="PAID">PAID</option>
+            <option value="SHIPPED">SHIPPED</option>
+            <option value="COMPLETED">COMPLETED</option>
+            <option value="CANCELLED">CANCELLED</option>
+          </select>
 
-      <h3 style={{ marginTop: 20 }}>Produits</h3>
+          <button className="btn btn-primary" type="submit">
+            Mettre à jour
+          </button>
+        </form>
 
-      <ul>
-        {order.items.map((item: OrderItemWithProduct) => (
-          <li key={item.id}>
-            {item.product.name} × {item.quantity} — {item.price}€
-          </li>
-        ))}
-      </ul>
+        <div className="order-items">
+          <h3 className="section-title">Produits</h3>
 
-      <div className="mt-5">
-        <Link href="/admin/orders">← Retour commandes</Link>
+          <ul>
+            {order.items.map((item: OrderItemWithProduct) => (
+              <li key={item.id}>
+                {item.product?.name ?? "Produit supprimé"} × {item.quantity} —{" "}
+                {item.price}€
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="mt-5">
+          <Link className="btn btn-secondary" href="/admin/orders">
+            ← Retour commandes
+          </Link>
+        </div>
       </div>
     </div>
   );

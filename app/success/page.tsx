@@ -10,7 +10,6 @@ export default function SuccessPage() {
 
   useEffect(() => {
     clear();
-    setLoading(false);
   }, []);
 
   if (loading) {

@@ -9,9 +9,6 @@ export default function Navbar() {
   const { cartCount } = useCart();
   const { data: session, status } = useSession();
 
-  console.log("SESSION:", session);
-  console.log("SESSION ROLE:", session?.user?.role);
-  
   const [open, setOpen] = useState(false);
 
   const isLoading = status === "loading";
@@ -24,7 +21,6 @@ export default function Navbar() {
     };
 
     window.addEventListener("keydown", handleEsc);
-
     document.body.style.overflow = open ? "hidden" : "auto";
 
     return () => {
@@ -33,41 +29,77 @@ export default function Navbar() {
     };
   }, [open]);
 
+  const closeMenu = () => setOpen(false);
+
   return (
-    <nav className="navbar">
-      <div className="navbar-container">
-        {/* LOGO */}
-        <Link href="/" className="navbar-logo">
-          Le Labo Rouennais
-        </Link>
-
-        {/* LINKS */}
-        <div className="navbar-links">
-          <Link href="/products">Produits</Link>
-          <Link href="/orders">Mes commandes</Link>
-
-          <Link href="/cart">
-            Panier ({cartCount})
+    <>
+      <nav className="navbar">
+        <div className="navbar-container">
+          {/* LOGO */}
+          <Link href="/" className="navbar-logo">
+            Le Labo Rouennais
           </Link>
 
-          {/* ADMIN */}
+          {/* DESKTOP LINKS */}
+          <div className="navbar-links desktop-only">
+            <Link href="/products">Produits</Link>
+            <Link href="/orders">Mes commandes</Link>
+
+            <Link href="/cart">Panier ({cartCount})</Link>
+
+            {isLoggedIn && isAdmin && <Link href="/admin">Admin</Link>}
+
+            {isLoading ? null : !isLoggedIn ? (
+              <>
+                <Link href="/login">Connexion</Link>
+                <Link href="/register">Inscription</Link>
+              </>
+            ) : (
+              <button onClick={() => signOut()}>Déconnexion</button>
+            )}
+          </div>
+
+          {/* BURGER BUTTON */}
+          <button className="burger" onClick={() => setOpen(true)}>
+            ☰
+          </button>
+        </div>
+      </nav>
+
+      {/* MOBILE MENU */}
+      <div className={`mobile-menu ${open ? "open" : ""}`}>
+        <div className="mobile-overlay" onClick={closeMenu} />
+
+        <div className="mobile-panel">
+          <button className="close-btn" onClick={closeMenu}>
+            ✕
+          </button>
+
+          <Link href="/products" onClick={closeMenu}>Produits</Link>
+          <Link href="/orders" onClick={closeMenu}>Mes commandes</Link>
+          <Link href="/cart" onClick={closeMenu}>Panier ({cartCount})</Link>
+
           {isLoggedIn && isAdmin && (
-            <Link href="/admin">Admin</Link>
+            <Link href="/admin" onClick={closeMenu}>Admin</Link>
           )}
 
-          {/* AUTH */}
-          {isLoading ? null : !isLoggedIn ? (
+          {!isLoggedIn ? (
             <>
-              <Link href="/login">Connexion</Link>
-              <Link href="/register">Inscription</Link>
+              <Link href="/login" onClick={closeMenu}>Connexion</Link>
+              <Link href="/register" onClick={closeMenu}>Inscription</Link>
             </>
           ) : (
-            <button onClick={() => signOut()}>
+            <button
+              onClick={() => {
+                signOut();
+                closeMenu();
+              }}
+            >
               Déconnexion
             </button>
           )}
         </div>
       </div>
-    </nav>
+    </>
   );
 }

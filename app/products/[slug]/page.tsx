@@ -44,7 +44,7 @@ export default async function ProductPage({
         <div>
           {product.image && (
             <img
-              src={product.image}
+              src={product.image || "/placeholder.png"}
               alt={product.name}
               className="product-image"
             />

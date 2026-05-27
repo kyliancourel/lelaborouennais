@@ -17,7 +17,15 @@ export default function VerifyRequestPage() {
   }, [cooldown]);
 
   async function resendEmail() {
-    if (!email) return;
+    if (!email) {
+      return (
+        <div className="auth-page">
+          <div className="auth-container verify-box">
+            <h1 className="auth-title">Lien invalide</h1>
+          </div>
+        </div>
+      );
+    }
 
     setLoading(true);
     setMessage("");
