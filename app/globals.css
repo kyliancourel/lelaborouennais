@@ -824,43 +824,75 @@ textarea.input {
 }
 
 /* =========================================================
-   CART REMOVE BUTTON (MODERNE)
+   CART REMOVE BUTTON (MODERNE PREMIUM)
 ========================================================= */
 
 .cart-remove-btn {
-  padding: 8px 12px;
-  font-size: 13px;
-  border-radius: 10px;
+  width: 38px;
+  height: 38px;
 
-  display: inline-flex;
+  padding: 0;
+
+  display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
 
-  font-weight: 600;
+  border-radius: 12px;
+
+  border: 1px solid rgba(255, 77, 77, 0.25);
+
+  background: rgba(255, 77, 77, 0.08);
+  color: var(--danger);
+
+  cursor: pointer;
 
   transition: all 0.2s ease;
 
-  /* override btn-danger si besoin d'un style plus soft */
-  background: rgba(255, 77, 77, 0.12);
-  color: var(--danger);
-  border: 1px solid rgba(255, 77, 77, 0.25);
+  position: relative;
+  overflow: hidden;
 }
 
+/* icône centrée et plus nette */
+.cart-remove-btn {
+  font-size: 16px;
+  line-height: 1;
+}
+
+/* hover premium */
 .cart-remove-btn:hover {
-  background: rgba(255, 77, 77, 0.18);
+  background: rgba(255, 77, 77, 0.14);
   border-color: rgba(255, 77, 77, 0.4);
-  transform: translateY(-1px);
-  box-shadow: 0 8px 20px rgba(255, 77, 77, 0.12);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(255, 77, 77, 0.15);
 }
 
+/* effet click */
 .cart-remove-btn:active {
-  transform: scale(0.96);
+  transform: scale(0.92);
 }
 
+/* focus accessibilité */
 .cart-remove-btn:focus-visible {
   outline: 2px solid rgba(255, 77, 77, 0.4);
   outline-offset: 2px;
+}
+
+/* petit effet glow moderne */
+.cart-remove-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at center,
+    rgba(255, 77, 77, 0.25),
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.cart-remove-btn:hover::after {
+  opacity: 1;
 }
 
 /* =========================================================

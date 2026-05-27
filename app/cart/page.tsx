@@ -2,6 +2,7 @@
 
 import { useCart } from "@/context/CartContext";
 import { useState } from "react";
+import { Trash2 } from "lucide-react";
 
 export default function CartPage() {
   const { cart, addToCart, removeOne, remove, total } = useCart();
@@ -65,11 +66,8 @@ export default function CartPage() {
                   <button onClick={() => addToCart(item)}>+</button>
                 </div>
 
-                <button
-                  className="btn btn-danger cart-remove-btn"
-                  onClick={() => remove(item.id)}
-                >
-                  🗑
+                <button className="btn btn-danger cart-remove-btn" onClick={() => remove(item.id)}>
+                  <Trash2 size={16} />
                 </button>
               </div>
             </div>
