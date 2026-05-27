@@ -36,7 +36,7 @@ export default function Navbar() {
       <nav className="navbar">
         <div className="navbar-container">
           {/* LOGO */}
-          <Link href="public/logo_clair.png" className="navbar-logo">
+          <Link href="/logo_clair.png" className="navbar-logo">
             Le Labo Rouennais
           </Link>
 

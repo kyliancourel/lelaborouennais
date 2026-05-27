@@ -108,7 +108,7 @@ function InvoiceDocument({ order }: any) {
         <View style={styles.header}>
           
           <Image
-            src="public/logo_clair.png" // ✅ IMPORTANT: URL publique (Vercel-safe)
+            src="https://lelaborouennais.vercel.app/logo_clair.png" // ✅ IMPORTANT: URL publique (Vercel-safe)
             style={styles.logo}
           />
 
