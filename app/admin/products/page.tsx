@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 type Product = {
   id: string;
   name: string;
@@ -35,10 +37,7 @@ export default async function AdminProductsPage() {
               </div>
 
               <div className="card-actions">
-                <a
-                  className="btn btn-outline"
-                  href={`/admin/products/${p.id}`}
-                >
+                <a className="btn btn-outline" href={`/admin/products/${p.id}`}>
                   Modifier
                 </a>
               </div>
