@@ -65,8 +65,11 @@ export default function CartPage() {
                   <button onClick={() => addToCart(item)}>+</button>
                 </div>
 
-                <button onClick={() => remove(item.id)}>
-                  Supprimer
+                <button
+                  className="btn btn-danger cart-remove-btn"
+                  onClick={() => remove(item.id)}
+                >
+                  🗑
                 </button>
               </div>
             </div>

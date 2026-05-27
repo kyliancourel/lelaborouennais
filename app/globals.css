@@ -824,34 +824,43 @@ textarea.input {
 }
 
 /* =========================================================
-   REMOVE BUTTON
+   CART REMOVE BUTTON (MODERNE)
 ========================================================= */
 
-.cart-remove {
-  margin-top: 14px;
-  width: fit-content;
-  background: transparent;
-  border: 1px solid transparent;
-  color: #ff6b6b;
+.cart-remove-btn {
   padding: 8px 12px;
-  border-radius: 10px;
   font-size: 13px;
-  font-weight: 500;
+  border-radius: 10px;
 
-  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 
-  transition: var(--transition);
+  font-weight: 600;
+
+  transition: all 0.2s ease;
+
+  /* override btn-danger si besoin d'un style plus soft */
+  background: rgba(255, 77, 77, 0.12);
+  color: var(--danger);
+  border: 1px solid rgba(255, 77, 77, 0.25);
 }
 
-.cart-remove:hover {
-  background: rgba(255, 107, 107, 0.08);
-  border-color: rgba(255, 107, 107, 0.15);
-
-  color: #ff8585;
+.cart-remove-btn:hover {
+  background: rgba(255, 77, 77, 0.18);
+  border-color: rgba(255, 77, 77, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(255, 77, 77, 0.12);
 }
 
-.cart-remove:active {
-  transform: scale(0.97);
+.cart-remove-btn:active {
+  transform: scale(0.96);
+}
+
+.cart-remove-btn:focus-visible {
+  outline: 2px solid rgba(255, 77, 77, 0.4);
+  outline-offset: 2px;
 }
 
 /* =========================================================
