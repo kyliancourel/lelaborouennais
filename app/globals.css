@@ -1396,6 +1396,77 @@ textarea.input {
   color: #ef4444;
 }
 
+/* =========================
+   CART QUANTITY BUTTONS
+========================= */
+
+.cart-qty {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+/* Boutons + et - */
+.cart-qty button {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cart-qty button:hover {
+  transform: translateY(-1px);
+  border-color: var(--border-light);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.cart-qty button:active {
+  transform: scale(0.95);
+}
+
+/* compteur (le nombre au milieu) */
+.cart-qty span {
+  min-width: 24px;
+  text-align: center;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* =========================
+   SUPPRIMER BUTTON
+========================= */
+
+.cart-item-info button:last-child {
+  margin-top: 12px;
+  background: transparent;
+  border: 1px solid rgba(255, 0, 0, 0.2);
+  color: #ff4d4d;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cart-item-info button:last-child:hover {
+  background: rgba(255, 77, 77, 0.1);
+  border-color: rgba(255, 77, 77, 0.4);
+}
+
+.cart-item-info button:last-child:active {
+  transform: scale(0.97);
+}
+
 /* =========================================================
    RESPONSIVE
 ========================================================= */
@@ -1487,3 +1558,4 @@ textarea.input {
     width: 100%;
   }
 }
+
