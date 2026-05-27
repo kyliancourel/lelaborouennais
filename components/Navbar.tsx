@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useCart } from "@/context/CartContext";
 import { signOut, useSession } from "next-auth/react";
+import Image from "next/image";
 
 export default function Navbar() {
   const { cartCount } = useCart();
@@ -36,8 +37,16 @@ export default function Navbar() {
       <nav className="navbar">
         <div className="navbar-container">
           {/* LOGO */}
-          <Link href="/logo_clair.png" className="navbar-logo">
-            Le Labo Rouennais
+          <Link href="/" className="navbar-logo">
+            <div className="logo-wrapper">
+              <Image
+                src="/logo_clair.png"
+                alt="Le Labo Rouennais"
+                width={32}
+                height={32}
+              />
+              <span>Le Labo Rouennais</span>
+            </div>
           </Link>
 
           {/* DESKTOP LINKS */}

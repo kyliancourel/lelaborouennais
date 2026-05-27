@@ -40,13 +40,15 @@ export async function POST(req: Request) {
   const session = event.data.object as Stripe.Checkout.Session;
 
   const userId = session.metadata?.userId || null;
+
   const cart = session.metadata?.cart
     ? JSON.parse(session.metadata.cart)
     : [];
 
   const email =
-    session.customer_details?.email ??
-    session.customer_email ??
+    session.customer_details?.email ||
+    session.customer_email ||
+    session.metadata?.email ||
     null;
 
   if (!email) {
@@ -91,7 +93,7 @@ export async function POST(req: Request) {
     });
 
     if (!fullOrder) {
-      throw new Error("Order not found after creation");
+      throw new Error("Order not found");
     }
 
     await sendOrderEmail(email, {
