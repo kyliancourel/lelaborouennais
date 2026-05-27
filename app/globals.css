@@ -734,7 +734,7 @@ textarea.input {
 .cart-item-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 .cart-item-actions button,
@@ -850,6 +850,8 @@ textarea.input {
 
   position: relative;
   overflow: hidden;
+
+  margin-bottom: 5px;
 }
 
 /* icône centrée et plus nette */
