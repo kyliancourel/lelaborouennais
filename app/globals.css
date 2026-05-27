@@ -60,7 +60,7 @@ textarea {
 }
 
 img {
-  max-width: 30%;
+  max-width: 100%;
   display: block;
 }
 
@@ -684,6 +684,10 @@ textarea.input {
 .cart-item-name {
   font-size: 18px;
   font-weight: 600;
+}
+
+.cart-item-image {
+  max-width: 30%;
 }
 
 .cart-item-price {
