@@ -688,6 +688,7 @@ textarea.input {
 
 .cart-item-image {
   max-width: 30%;
+  border-radius: 20px;
 }
 
 .cart-item-price {
