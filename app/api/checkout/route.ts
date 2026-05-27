@@ -6,17 +6,15 @@ export async function POST(req: Request) {
   try {
     const session = await auth();
 
-    if (!session?.user?.id || !session?.user?.email) {
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-    }
-
     const { cart } = await req.json();
 
     if (!Array.isArray(cart) || cart.length === 0) {
       return NextResponse.json({ error: "Cart empty" }, { status: 400 });
     }
 
-    // 🚨 SAFE CART (ONLY WHAT WE NEED)
+    const userId = session?.user?.id || null;
+    const email = session?.user?.email || null;
+
     const safeCart = cart.map((item: any) => ({
       id: item.id,
       quantity: item.quantity,
@@ -27,7 +25,7 @@ export async function POST(req: Request) {
       mode: "payment",
       payment_method_types: ["card"],
 
-      customer_email: session.user.email,
+      customer_email: email || undefined,
 
       line_items: cart.map((item: any) => ({
         quantity: item.quantity,
@@ -45,8 +43,9 @@ export async function POST(req: Request) {
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/cart`,
 
       metadata: {
-        userId: session.user.id,
-        cart: JSON.stringify(safeCart), // 🔥 CLEAN + SMALL
+        userId: userId || "",
+        email: email || "",
+        cart: JSON.stringify(safeCart),
       },
     });
 

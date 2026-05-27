@@ -48,10 +48,10 @@ model Order {
 
   orderNumber String? @unique
 
-  userId String
-  user   User   @relation(fields: [userId], references: [id])
+  userId String?
+  user   User? @relation(fields: [userId], references: [id])
 
-  status OrderStatus @default(PENDING)
+  status OrderStatus @default(PAID)
   total  Float
 
   items OrderItem[]

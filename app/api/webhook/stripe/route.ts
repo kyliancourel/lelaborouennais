@@ -8,15 +8,10 @@ export const runtime = "nodejs";
 
 export async function POST(req: Request) {
   const body = await req.text();
-
-  // ✅ FIX IMPORTANT : lire directement depuis request
   const sig = req.headers.get("stripe-signature");
 
   if (!sig) {
-    return NextResponse.json(
-      { error: "Missing signature" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Missing signature" }, { status: 400 });
   }
 
   let event: Stripe.Event;
@@ -29,68 +24,58 @@ export async function POST(req: Request) {
     );
   } catch (err) {
     console.error("Webhook signature error:", err);
-    return NextResponse.json(
-      { error: "Invalid signature" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
-  // Only handle successful checkout
   if (event.type !== "checkout.session.completed") {
     return NextResponse.json({ received: true });
   }
 
   const session = event.data.object as Stripe.Checkout.Session;
 
-  const userId = session.metadata?.userId;
+  const userId = session.metadata?.userId || null;
+  const emailFromMeta = session.metadata?.email;
   const cartRaw = session.metadata?.cart;
-
-  if (!userId) {
-    return NextResponse.json({ ok: true });
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-  });
-
-  if (!user) {
-    return NextResponse.json({ ok: true });
-  }
 
   const cart = cartRaw ? JSON.parse(cartRaw) : [];
 
   try {
-    // 🧾 CREATE ORDER
-    const order = await prisma.order.create({
-      data: {
-        orderNumber: `LR-${Date.now()}`,
-        userId,
-        total: (session.amount_total ?? 0) / 100,
-        status: "PAID",
-        items: {
-          create: cart.map((item: any) => ({
-            productId: item.id,
-            quantity: item.quantity ?? 1,
-            price: item.price ?? 0,
-          })),
-        },
+    // 🧾 CREATE ORDER (INVITÉ + USER OK)
+    const orderData: any = {
+      orderNumber: `LR-${Date.now()}`,
+      total: (session.amount_total ?? 0) / 100,
+      status: "PAID",
+      items: {
+        create: cart.map((item: any) => ({
+          productId: item.id,
+          quantity: item.quantity ?? 1,
+          price: item.price ?? 0,
+        })),
       },
+    };
+    
+    if (userId) {
+      orderData.userId = userId;
+    }
+    
+    const order = await prisma.order.create({
+      data: orderData,
     });
 
-    // 🔥 RELOAD FULL ORDER FOR EMAIL
+    // 🔥 EMAIL DATA
     const fullOrder = await prisma.order.findUnique({
       where: { id: order.id },
       include: {
         items: {
-          include: {
-            product: true,
-          },
+          include: { product: true },
         },
       },
     });
 
-    if (fullOrder) {
-      await sendOrderEmail(user.email, {
+    const email = emailFromMeta;
+
+    if (fullOrder && email) {
+      await sendOrderEmail(email, {
         orderNumber: fullOrder.orderNumber!,
         total: fullOrder.total,
         items: fullOrder.items.map((i) => ({
