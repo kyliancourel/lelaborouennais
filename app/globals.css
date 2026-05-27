@@ -807,12 +807,13 @@ textarea.input {
   justify-content: space-between;
   align-items: center;
 
-  margin-bottom: 24px;
-  padding-bottom: 18px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
 
   border-bottom: 1px solid var(--border);
 
   font-size: 16px;
+  gap: 12px;
 }
 
 .summary-row strong {
@@ -847,6 +848,10 @@ textarea.input {
   border-color: rgba(255, 107, 107, 0.15);
 
   color: #ff8585;
+}
+
+.cart-remove:active {
+  transform: scale(0.97);
 }
 
 /* =========================================================
@@ -1442,30 +1447,16 @@ textarea.input {
   color: var(--text);
 }
 
-/* =========================
-   SUPPRIMER BUTTON
-========================= */
 
-.cart-item-info button:last-child {
-  margin-top: 12px;
-  background: transparent;
-  border: 1px solid rgba(255, 0, 0, 0.2);
-  color: #ff4d4d;
-  padding: 6px 10px;
-  border-radius: 10px;
-  font-size: 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
 
-.cart-item-info button:last-child:hover {
-  background: rgba(255, 77, 77, 0.1);
-  border-color: rgba(255, 77, 77, 0.4);
-}
 
-.cart-item-info button:last-child:active {
-  transform: scale(0.97);
-}
+
+
+
+
+
+
+
 
 /* =========================================================
    RESPONSIVE
