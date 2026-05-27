@@ -34,65 +34,86 @@ function baseTemplate(content: string) {
   `;
 }
 
+const resendClient = resend();
+
+/* =========================
+   EMAIL VERIFICATION
+========================= */
+export async function sendVerificationEmail(
+  to: string,
+  verifyUrl: string
+) {
+  const html = baseTemplate(`
+    <h2>Confirme ton email 👋</h2>
+
+    <p>Merci pour ton inscription.</p>
+
+    <div style="text-align:center;margin:40px 0;">
+      <a href="${verifyUrl}"
+        style="background:#000;color:#fff;padding:14px 22px;border-radius:12px;text-decoration:none;">
+        Vérifier mon email
+      </a>
+    </div>
+  `);
+
+  const { error } = await resendClient.emails.send({
+    from: process.env.EMAIL_FROM!,
+    to,
+    subject: "Confirme ton email — Le Labo Rouennais",
+    html,
+  });
+
+  if (error) {
+    console.error("RESEND ERROR:", error);
+    throw new Error("Erreur envoi email");
+  }
+}
+
 /* =========================
    EMAIL COMMANDE
 ========================= */
-
 export async function sendOrderEmail(
   to: string,
   order: {
     orderNumber: string;
     total: number;
-    items: {
-      name: string;
-      quantity: number;
-      price: number;
-    }[];
+    items: { name: string; quantity: number; price: number }[];
   }
 ) {
-  const itemsHtml = order.items
-    .map(
-      (item) => `
-      <tr>
-        <td style="padding:8px 0;">${item.name}</td>
-        <td style="text-align:center;">x${item.quantity}</td>
-        <td style="text-align:right;">${item.price} €</td>
-      </tr>
-    `
-    )
-    .join("");
-
   const html = baseTemplate(`
     <h2>Commande confirmée 🎉</h2>
 
-    <p>Merci pour ta commande <strong>#${order.orderNumber}</strong></p>
+    <p><strong>Commande :</strong> ${order.orderNumber}</p>
+    <p><strong>Total :</strong> ${order.total.toFixed(2)} €</p>
 
-    <table style="width:100%;margin:20px 0;border-collapse:collapse;font-size:14px;">
-      ${itemsHtml}
-    </table>
+    <hr style="margin:20px 0;" />
 
-    <hr style="border:none;border-top:1px solid #eee;margin:20px 0;" />
+    <h3>Détails :</h3>
 
-    <p style="font-size:16px;">
-      <strong>Total : ${order.total} €</strong>
-    </p>
+    ${order.items
+      .map(
+        (i) => `
+        <p>
+          ${i.name} — x${i.quantity} — ${i.price} €
+        </p>
+      `
+      )
+      .join("")}
 
-    <p style="margin-top:30px;color:#666;font-size:13px;">
-      Tu recevras un email dès que ta commande sera expédiée.
+    <p style="margin-top:30px;">
+      Merci pour ta commande 🙌
     </p>
   `);
-
-  const resendClient = resend();
 
   const { error } = await resendClient.emails.send({
     from: process.env.EMAIL_FROM!,
     to,
-    subject: `Commande confirmée #${order.orderNumber}`,
+    subject: `Commande ${order.orderNumber} — confirmation`,
     html,
   });
 
   if (error) {
-    console.error("EMAIL ERROR:", error);
+    console.error("RESEND ERROR:", error);
     throw new Error("Erreur envoi email commande");
   }
 }
