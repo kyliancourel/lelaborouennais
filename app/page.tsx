@@ -6,7 +6,7 @@ export default function Home() {
 
       {/* HERO */}
       <section className="home-hero">
-        <h1 className="home-title">Le Labo de la Seine</h1>
+        <h1 className="home-title">Le Labo Rouennais</h1>
 
         <p className="home-subtitle">
           Objets 3D premium, designés et imprimés en France.
