@@ -39,6 +39,16 @@ export async function POST(req: Request) {
 
   const cart = cartRaw ? JSON.parse(cartRaw) : [];
 
+  /* 👇 1. CHECK ANTI DOUBLON (IMPORTANT) */
+const existing = await prisma.order.findUnique({
+  where: { stripeSessionId: session.id },
+});
+
+if (existing) {
+  console.log("⚠️ Order already exists for session:", session.id);
+  return NextResponse.json({ received: true });
+}
+
   try {
     // 🧾 CREATE ORDER (INVITÉ + USER OK)
     const orderData: any = {
@@ -59,7 +69,20 @@ export async function POST(req: Request) {
     }
     
     const order = await prisma.order.create({
-      data: orderData,
+      data: {
+        orderNumber: `LR-${Date.now()}`,
+        stripeSessionId: session.id,
+        ...(userId ? { userId } : {}),
+        total: (session.amount_total ?? 0) / 100,
+        status: "PAID",
+        items: {
+          create: cart.map((item: any) => ({
+            productId: item.id,
+            quantity: item.quantity ?? 1,
+            price: item.price ?? 0,
+          })),
+        },
+      },
     });
 
     // 🔥 EMAIL DATA

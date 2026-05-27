@@ -47,6 +47,7 @@ model Order {
   id String @id @default(cuid())
 
   orderNumber String? @unique
+  stripeSessionId String? @unique
 
   userId String?
   user   User? @relation(fields: [userId], references: [id])

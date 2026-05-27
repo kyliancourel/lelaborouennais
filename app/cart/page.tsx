@@ -5,9 +5,12 @@ import { useState } from "react";
 
 export default function CartPage() {
   const { cart, addToCart, removeOne, remove, total } = useCart();
+
   const [loading, setLoading] = useState(false);
 
   async function handleCheckout() {
+    if (loading) return; // 🔥 anti double click
+
     try {
       setLoading(true);
 
@@ -27,7 +30,6 @@ export default function CartPage() {
         alert(data.error || "Erreur checkout");
       }
     } catch (err) {
-      console.error(err);
       alert("Erreur serveur");
     } finally {
       setLoading(false);
@@ -37,10 +39,8 @@ export default function CartPage() {
   if (cart.length === 0) {
     return (
       <div className="empty-state">
-        <h2 className="empty-title">Ton panier est vide</h2>
-        <p className="empty-subtitle">
-          Ajoute des produits pour commencer tes créations.
-        </p>
+        <h2>Ton panier est vide</h2>
+        <p>Ajoute des produits pour commencer.</p>
       </div>
     );
   }
@@ -50,39 +50,22 @@ export default function CartPage() {
       <h1 className="page-title">Panier</h1>
 
       <div className="cart-layout">
-        {/* ITEMS */}
         <div className="cart-items">
           {cart.map((item) => (
             <div className="cart-item" key={item.id}>
               <img className="cart-item-image" src={item.image} />
 
               <div className="cart-item-info">
-                <h3 className="cart-item-title">{item.name}</h3>
-
-                <p className="cart-item-price">{item.price} €</p>
+                <h3>{item.name}</h3>
+                <p>{item.price} €</p>
 
                 <div className="cart-qty">
-                  <button
-                    className="qty-btn"
-                    onClick={() => removeOne(item.id)}
-                  >
-                    −
-                  </button>
-
-                  <span className="qty-value">{item.quantity}</span>
-
-                  <button
-                    className="qty-btn"
-                    onClick={() => addToCart(item)}
-                  >
-                    +
-                  </button>
+                  <button onClick={() => removeOne(item.id)}>−</button>
+                  <span>{item.quantity}</span>
+                  <button onClick={() => addToCart(item)}>+</button>
                 </div>
 
-                <button
-                  className="cart-remove"
-                  onClick={() => remove(item.id)}
-                >
+                <button onClick={() => remove(item.id)}>
                   Supprimer
                 </button>
               </div>
@@ -90,11 +73,10 @@ export default function CartPage() {
           ))}
         </div>
 
-        {/* SUMMARY */}
         <div className="cart-summary">
           <div className="summary-row">
             <span>Total</span>
-            <strong>{total} €</strong>
+            <strong>{total.toFixed(2)} €</strong>
           </div>
 
           <button

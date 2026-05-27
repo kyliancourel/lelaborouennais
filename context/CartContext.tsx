@@ -37,6 +37,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [hydrated, setHydrated] = useState(false);
 
+  useEffect(() => {
+    const stored = localStorage.getItem(STORAGE_KEY);
+
+    if (stored) {
+      try {
+        setCart(JSON.parse(stored));
+      } catch {}
+    }
+
+    // 👇 important
+    setHydrated(true);
+  }, []);
+
   // =========================
   // LOAD FROM LOCALSTORAGE
   // =========================
@@ -49,6 +62,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
     setHydrated(true);
   }, []);
+
+  useEffect(() => {
+    if (hydrated) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
+    }
+  }, [cart, hydrated]);
 
   // =========================
   // SAVE TO LOCALSTORAGE
