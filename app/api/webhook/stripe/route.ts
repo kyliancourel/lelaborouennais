@@ -8,10 +8,7 @@ export const runtime = "nodejs";
 
 export async function POST(req: Request) {
   const body = await req.text();
-
-  const sig = req.headers.get(
-    "stripe-signature"
-  );
+  const sig = req.headers.get("stripe-signature");
 
   if (!sig) {
     return NextResponse.json(
@@ -29,166 +26,87 @@ export async function POST(req: Request) {
       process.env.STRIPE_WEBHOOK_SECRET!
     );
   } catch (err) {
-    console.error(
-      "Webhook signature error:",
-      err
-    );
-
+    console.error("Webhook error:", err);
     return NextResponse.json(
       { error: "Invalid signature" },
       { status: 400 }
     );
   }
 
-  if (
-    event.type !==
-    "checkout.session.completed"
-  ) {
-    return NextResponse.json({
-      received: true,
-    });
+  if (event.type !== "checkout.session.completed") {
+    return NextResponse.json({ received: true });
   }
 
-  const session =
-    event.data.object as Stripe.Checkout.Session;
+  const session = event.data.object as Stripe.Checkout.Session;
 
-  const userId =
-    session.metadata?.userId || null;
-
-  const cartRaw =
-    session.metadata?.cart;
-
-  const cart = cartRaw
-    ? JSON.parse(cartRaw)
+  const userId = session.metadata?.userId || null;
+  const cart = session.metadata?.cart
+    ? JSON.parse(session.metadata.cart)
     : [];
 
-  /*
-   * ✅ email utilisateur connecté
-   * OU invité
-   */
   const email =
-    session.customer_details?.email ||
-    session.customer_email ||
+    session.customer_details?.email ??
+    session.customer_email ??
     null;
 
-  /* =========================
-     ANTI DOUBLON
-  ========================= */
+  if (!email) {
+    console.log("❌ No email found");
+    return NextResponse.json({ received: true });
+  }
 
-  const existing =
-    await prisma.order.findUnique({
-      where: {
-        stripeSessionId: session.id,
-      },
-    });
+  const existing = await prisma.order.findUnique({
+    where: { stripeSessionId: session.id },
+  });
 
   if (existing) {
-    console.log(
-      "⚠️ Order already exists:",
-      session.id
-    );
-
-    return NextResponse.json({
-      received: true,
-    });
+    return NextResponse.json({ received: true });
   }
 
   try {
-    /* =========================
-       CREATE ORDER
-    ========================= */
-
-    const order =
-      await prisma.order.create({
-        data: {
-          orderNumber: `LR-${Date.now()}`,
-
-          stripeSessionId: session.id,
-
-          ...(userId
-            ? { userId }
-            : {}),
-
-          total:
-            (session.amount_total ?? 0) /
-            100,
-
-          status: "PAID",
-
-          items: {
-            create: cart.map(
-              (item: any) => ({
-                productId: item.id,
-
-                quantity:
-                  item.quantity ?? 1,
-
-                price:
-                  item.price ?? 0,
-              })
-            ),
-          },
+    const order = await prisma.order.create({
+      data: {
+        orderNumber: `LR-${Date.now()}`,
+        stripeSessionId: session.id,
+        ...(userId ? { userId } : {}),
+        total: (session.amount_total ?? 0) / 100,
+        status: "PAID",
+        items: {
+          create: cart.map((item: any) => ({
+            productId: item.id,
+            quantity: item.quantity ?? 1,
+            price: item.price ?? 0,
+          })),
         },
-      });
+      },
+    });
 
-    /* =========================
-       GET ORDER + PRODUCTS
-    ========================= */
-
-    const fullOrder =
-      await prisma.order.findUnique({
-        where: {
-          id: order.id,
+    const fullOrder = await prisma.order.findUnique({
+      where: { id: order.id },
+      include: {
+        user: true,
+        items: {
+          include: { product: true },
         },
+      },
+    });
 
-        include: {
-          items: {
-            include: {
-              product: true,
-            },
-          },
-        },
-      });
-
-    /* =========================
-       SEND EMAIL
-    ========================= */
-
-    if (fullOrder && email) {
-      await sendOrderEmail(email, {
-        orderNumber:
-          fullOrder.orderNumber!,
-
-        total: fullOrder.total,
-
-        items: fullOrder.items.map(
-          (i) => ({
-            name: i.product.name,
-
-            quantity: i.quantity,
-
-            price: i.price,
-          })
-        ),
-      });
-
-      console.log(
-        "✅ EMAIL SENT TO:",
-        email
-      );
+    if (!fullOrder) {
+      throw new Error("Order not found after creation");
     }
 
-    console.log(
-      "✅ ORDER CREATED"
-    );
+    await sendOrderEmail(email, {
+      orderNumber: fullOrder.orderNumber!,
+      total: fullOrder.total,
+      createdAt: fullOrder.createdAt,
+      email,
+      user: fullOrder.user,
+      items: fullOrder.items,
+    });
+
+    console.log("✅ ORDER + EMAIL SENT");
   } catch (err) {
-    console.error(
-      "ORDER ERROR:",
-      err
-    );
+    console.error("ORDER ERROR:", err);
   }
 
-  return NextResponse.json({
-    received: true,
-  });
+  return NextResponse.json({ received: true });
 }

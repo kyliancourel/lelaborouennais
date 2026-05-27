@@ -1,4 +1,5 @@
 import { resend } from "./resend";
+import { generateInvoicePDF } from "./invoice";
 
 function baseTemplate(content: string) {
   return `
@@ -77,14 +78,40 @@ export async function sendOrderEmail(
   order: {
     orderNumber: string;
     total: number;
-    items: { name: string; quantity: number; price: number }[];
+    createdAt: Date;
+    email: string;
+    user?: {
+      name?: string | null;
+    } | null;
+
+    items: {
+      id: string;
+      quantity: number;
+      price: number;
+      product: {
+        name: string;
+      };
+    }[];
   }
 ) {
+  const invoicePdf = await generateInvoicePDF(order);
+
   const html = baseTemplate(`
     <h2>Commande confirmée 🎉</h2>
 
-    <p><strong>Commande :</strong> ${order.orderNumber}</p>
-    <p><strong>Total :</strong> ${order.total.toFixed(2)} €</p>
+    <p>
+      Merci pour votre commande.
+    </p>
+
+    <p>
+      <strong>Commande :</strong>
+      ${order.orderNumber}
+    </p>
+
+    <p>
+      <strong>Total :</strong>
+      ${order.total.toFixed(2)} €
+    </p>
 
     <hr style="margin:20px 0;" />
 
@@ -94,26 +121,38 @@ export async function sendOrderEmail(
       .map(
         (i) => `
         <p>
-          ${i.name} — x${i.quantity} — ${i.price} €
+          ${i.product.name}
+          — x${i.quantity}
+          — ${i.price.toFixed(2)} €
         </p>
       `
       )
       .join("")}
 
     <p style="margin-top:30px;">
-      Merci pour ta commande 🙌
+      Votre facture PDF est jointe à cet email.
     </p>
   `);
 
-  const { error } = await resendClient.emails.send({
-    from: process.env.EMAIL_FROM!,
-    to,
-    subject: `Commande ${order.orderNumber} — confirmation`,
-    html,
-  });
+  const { error } =
+    await resendClient.emails.send({
+      from: process.env.EMAIL_FROM!,
+      to,
+      subject: `Commande ${order.orderNumber} — confirmation`,
+      html,
+
+      attachments: [
+        {
+          filename: `facture-${order.orderNumber}.pdf`,
+          content: invoicePdf,
+        },
+      ],
+    });
 
   if (error) {
     console.error("RESEND ERROR:", error);
-    throw new Error("Erreur envoi email commande");
+    throw new Error(
+      "Erreur envoi email commande"
+    );
   }
 }
