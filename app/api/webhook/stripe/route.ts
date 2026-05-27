@@ -2,15 +2,15 @@ import { NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
 import Stripe from "stripe";
-import { headers } from "next/headers";
+import { sendOrderEmail } from "@/lib/email";
 
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
   const body = await req.text();
 
-  const headersList = await headers();
-  const sig = headersList.get("stripe-signature");
+  // ✅ FIX IMPORTANT : lire directement depuis request
+  const sig = req.headers.get("stripe-signature");
 
   if (!sig) {
     return NextResponse.json(
@@ -46,27 +46,29 @@ export async function POST(req: Request) {
   const cartRaw = session.metadata?.cart;
 
   if (!userId) {
-    console.error("Missing userId in metadata");
-    return NextResponse.json({ received: true });
+    return NextResponse.json({ ok: true });
   }
 
-  let cart: any[] = [];
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+  });
 
-  try {
-    cart = cartRaw ? JSON.parse(cartRaw) : [];
-  } catch (err) {
-    console.error("Cart parse error:", err);
+  if (!user) {
+    return NextResponse.json({ ok: true });
   }
 
+  const cart = cartRaw ? JSON.parse(cartRaw) : [];
+
   try {
-    await prisma.order.create({
+    // 🧾 CREATE ORDER
+    const order = await prisma.order.create({
       data: {
         orderNumber: `LR-${Date.now()}`,
         userId,
         total: (session.amount_total ?? 0) / 100,
         status: "PAID",
         items: {
-          create: cart.map((item) => ({
+          create: cart.map((item: any) => ({
             productId: item.id,
             quantity: item.quantity ?? 1,
             price: item.price ?? 0,
@@ -75,9 +77,33 @@ export async function POST(req: Request) {
       },
     });
 
-    console.log("ORDER CREATED SUCCESSFULLY");
+    // 🔥 RELOAD FULL ORDER FOR EMAIL
+    const fullOrder = await prisma.order.findUnique({
+      where: { id: order.id },
+      include: {
+        items: {
+          include: {
+            product: true,
+          },
+        },
+      },
+    });
+
+    if (fullOrder) {
+      await sendOrderEmail(user.email, {
+        orderNumber: fullOrder.orderNumber!,
+        total: fullOrder.total,
+        items: fullOrder.items.map((i) => ({
+          name: i.product.name,
+          quantity: i.quantity,
+          price: i.price,
+        })),
+      });
+    }
+
+    console.log("ORDER CREATED + EMAIL SENT");
   } catch (err) {
-    console.error("ORDER CREATION ERROR:", err);
+    console.error("ORDER ERROR:", err);
   }
 
   return NextResponse.json({ received: true });

@@ -34,34 +34,65 @@ function baseTemplate(content: string) {
   `;
 }
 
-export async function sendVerificationEmail(
+/* =========================
+   EMAIL COMMANDE
+========================= */
+
+export async function sendOrderEmail(
   to: string,
-  verifyUrl: string
+  order: {
+    orderNumber: string;
+    total: number;
+    items: {
+      name: string;
+      quantity: number;
+      price: number;
+    }[];
+  }
 ) {
+  const itemsHtml = order.items
+    .map(
+      (item) => `
+      <tr>
+        <td style="padding:8px 0;">${item.name}</td>
+        <td style="text-align:center;">x${item.quantity}</td>
+        <td style="text-align:right;">${item.price} €</td>
+      </tr>
+    `
+    )
+    .join("");
+
   const html = baseTemplate(`
-    <h2>Confirme ton email 👋</h2>
+    <h2>Commande confirmée 🎉</h2>
 
-    <p>Merci pour ton inscription.</p>
+    <p>Merci pour ta commande <strong>#${order.orderNumber}</strong></p>
 
-    <div style="text-align:center;margin:40px 0;">
-      <a href="${verifyUrl}"
-        style="background:#000;color:#fff;padding:14px 22px;border-radius:12px;text-decoration:none;">
-        Vérifier mon email
-      </a>
-    </div>
+    <table style="width:100%;margin:20px 0;border-collapse:collapse;font-size:14px;">
+      ${itemsHtml}
+    </table>
+
+    <hr style="border:none;border-top:1px solid #eee;margin:20px 0;" />
+
+    <p style="font-size:16px;">
+      <strong>Total : ${order.total} €</strong>
+    </p>
+
+    <p style="margin-top:30px;color:#666;font-size:13px;">
+      Tu recevras un email dès que ta commande sera expédiée.
+    </p>
   `);
 
-  const resendClient = resend(); // 👈 IMPORTANT
+  const resendClient = resend();
 
   const { error } = await resendClient.emails.send({
     from: process.env.EMAIL_FROM!,
     to,
-    subject: "Confirme ton email — Le Labo Rouennais",
+    subject: `Commande confirmée #${order.orderNumber}`,
     html,
   });
 
   if (error) {
-    console.error("RESEND ERROR:", error);
-    throw new Error("Erreur envoi email");
+    console.error("EMAIL ERROR:", error);
+    throw new Error("Erreur envoi email commande");
   }
 }
