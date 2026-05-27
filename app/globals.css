@@ -744,6 +744,136 @@ textarea.input {
 }
 
 /* =========================================================
+   CART SUMMARY
+========================================================= */
+
+.cart-summary {
+  width: 320px;
+
+  background: var(--card);
+
+  border: 1px solid var(--border);
+
+  border-radius: 24px;
+
+  padding: 24px;
+
+  position: sticky;
+  top: 100px;
+
+  height: fit-content;
+
+  box-shadow: var(--shadow);
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  margin-bottom: 24px;
+  padding-bottom: 18px;
+
+  border-bottom: 1px solid var(--border);
+
+  font-size: 16px;
+}
+
+.summary-row strong {
+  font-size: 24px;
+  font-weight: 700;
+
+  margin-left: 24px; /* espace entre Total et prix */
+}
+
+/* =========================================================
+   REMOVE BUTTON
+========================================================= */
+
+.cart-remove {
+  margin-top: 14px;
+
+  width: fit-content;
+
+  background: transparent;
+
+  border: 1px solid transparent;
+
+  color: #ff6b6b;
+
+  padding: 8px 12px;
+
+  border-radius: 10px;
+
+  font-size: 13px;
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition: var(--transition);
+}
+
+.cart-remove:hover {
+  background: rgba(255, 107, 107, 0.08);
+  border-color: rgba(255, 107, 107, 0.15);
+
+  color: #ff8585;
+}
+
+/* =========================================================
+   CHECKOUT BUTTON
+========================================================= */
+
+.checkout-btn {
+  width: 100%;
+
+  padding: 16px;
+
+  border: none;
+  border-radius: 16px;
+
+  background: linear-gradient(
+    135deg,
+    #ffffff 0%,
+    #d9d9d9 100%
+  );
+
+  color: #000;
+
+  font-size: 15px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease,
+    box-shadow 0.2s ease;
+
+  box-shadow:
+    0 10px 30px rgba(255, 255, 255, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.checkout-btn:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 14px 40px rgba(255, 255, 255, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.checkout-btn:active {
+  transform: scale(0.98);
+}
+
+.checkout-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* =========================================================
    AUTH
 ========================================================= */
 
@@ -1106,6 +1236,18 @@ textarea.input {
 
   .product-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .cart-layout {
+    flex-direction: column;
+  }
+
+  .cart-summary {
+    width: 100%;
+    position: relative;
+    top: 0;
   }
 }
 
