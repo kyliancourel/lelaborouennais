@@ -128,7 +128,7 @@ enum LoyaltyPointType {
   EXPIRED
 }
 
-mmodel LoyaltyReward {
+model LoyaltyReward {
   id String @id @default(cuid())
 
   userId String?
@@ -140,9 +140,6 @@ mmodel LoyaltyReward {
   status RewardStatus @default(ACTIVE)
 
   source String?
-
-  // 🆕 SAAS FIX
-  isGlobal Boolean @default(false)
 
   createdAt DateTime @default(now())
   usedAt    DateTime?
