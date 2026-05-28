@@ -5,22 +5,35 @@ import { useState } from "react";
 import { Trash2 } from "lucide-react";
 
 export default function CartPage() {
-  const { cart, addToCart, removeOne, remove, total } = useCart();
+  const {
+    cart,
+    addToCart,
+    removeOne,
+    remove,
+    total,
+    pointsUsed,
+    setPointsUsed,
+    maxPoints,
+  } = useCart();
 
   const [loading, setLoading] = useState(false);
 
+  const discount = Math.min(pointsUsed, maxPoints);
+  const finalTotal = Math.max(0, total - discount);
+
   async function handleCheckout() {
-    if (loading) return; // 🔥 anti double click
+    if (loading) return;
+
+    setLoading(true);
 
     try {
-      setLoading(true);
-
       const res = await fetch("/api/checkout", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ cart }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          cart,
+          usedPoints: discount,
+        }),
       });
 
       const data = await res.json();
@@ -30,8 +43,6 @@ export default function CartPage() {
       } else {
         alert(data.error || "Erreur checkout");
       }
-    } catch (err) {
-      alert("Erreur serveur");
     } finally {
       setLoading(false);
     }
@@ -39,53 +50,60 @@ export default function CartPage() {
 
   if (cart.length === 0) {
     return (
-      <div className="empty-state">
+      <div className="p-10">
         <h2>Ton panier est vide</h2>
-        <p>Ajoute des produits pour commencer.</p>
       </div>
     );
   }
 
   return (
-    <div className="cart-page">
-      <h1 className="page-title">Panier</h1>
+    <div className="p-10">
+      <h1 className="text-2xl font-bold">Panier</h1>
 
-      <div className="cart-layout">
-        <div className="cart-items">
+      <div className="grid md:grid-cols-2 gap-10 mt-6">
+        {/* CART */}
+        <div>
           {cart.map((item) => (
-            <div className="cart-item" key={item.id}>
-              <img className="cart-item-image" src={item.image} />
+            <div key={item.id} className="border p-4 mb-4 rounded">
+              <h3>{item.name}</h3>
+              <p>{item.price} €</p>
 
-              <div className="cart-item-info">
-                <h3>{item.name}</h3>
-                <p>{item.price} €</p>
-
-                <div className="cart-qty">
-                  <button onClick={() => removeOne(item.id)}>−</button>
-                  <span>{item.quantity}</span>
-                  <button onClick={() => addToCart(item)}>+</button>
-                </div>
-
-                <button className="btn btn-danger cart-remove-btn" onClick={() => remove(item.id)}>
-                  <Trash2 size={16} />
-                </button>
+              <div className="flex gap-2">
+                <button onClick={() => removeOne(item.id)}>-</button>
+                <span>{item.quantity}</span>
+                <button onClick={() => addToCart(item)}>+</button>
               </div>
+
+              <button onClick={() => remove(item.id)}>
+                <Trash2 size={14} />
+              </button>
             </div>
           ))}
         </div>
 
-        <div className="cart-summary">
-          <div className="summary-row">
-            <span>Total</span>
-            <strong>{total.toFixed(2)} €</strong>
-          </div>
+        {/* LOYALTY */}
+        <div className="border p-4 rounded">
+          <h2 className="font-bold">💚 Loyalty</h2>
+
+          <p>Max points: {maxPoints}</p>
+
+          <input
+            type="number"
+            value={pointsUsed}
+            onChange={(e) => setPointsUsed(Number(e.target.value))}
+            max={maxPoints}
+            min={0}
+          />
+
+          <p>Discount: {discount} €</p>
+          <p>Total: {total} €</p>
+          <p className="font-bold">Final: {finalTotal} €</p>
 
           <button
-            className="checkout-btn"
-            disabled={loading}
+            className="mt-4 bg-black text-white px-4 py-2"
             onClick={handleCheckout}
           >
-            {loading ? "Redirection..." : "Payer maintenant"}
+            {loading ? "Loading..." : "Checkout"}
           </button>
         </div>
       </div>

@@ -13,15 +13,21 @@ model User {
   password String
   name     String?
   role     Role    @default(CLIENT)
-  points   Int     @default(0)
+
+  points          Int         @default(0)
+  pointsExpiresAt DateTime?
+  loyaltyTier     LoyaltyTier @default(BRONZE)
 
   isVerified Boolean @default(false)
 
   emailVerifyToken   String?
   emailVerifyExpires DateTime?
-  emailLastSentAt DateTime?
+  emailLastSentAt    DateTime?
 
   orders Order[]
+
+  loyaltyHistory LoyaltyPoint[]
+  loyaltyRewards LoyaltyReward[]
 
   accounts Account[]
   sessions Session[]
@@ -31,30 +37,33 @@ model User {
 }
 
 model Product {
-  id          String   @id @default(cuid())
+  id          String  @id @default(cuid())
   name        String
-  slug        String   @unique
+  slug        String  @unique
   description String?
   price       Int
   image       String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
 
   orderItems OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Order {
   id String @id @default(cuid())
 
-  orderNumber String? @unique
-
-  stripeSessionId String? @unique  // 👈 AJOUTE ÇA
+  orderNumber     String? @unique
+  stripeSessionId String? @unique
 
   userId String?
-  user   User? @relation(fields: [userId], references: [id])
+  user   User?   @relation(fields: [userId], references: [id])
 
   status OrderStatus @default(PENDING)
   total  Float
+
+  usedPoints Int   @default(0)
+  discount   Float @default(0)
 
   items OrderItem[]
 
@@ -75,6 +84,23 @@ model OrderItem {
   product Product @relation(fields: [productId], references: [id])
 }
 
+model LoyaltyPoint {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  points Int
+  type   LoyaltyPointType
+
+  // ex: "order_123", "signup_bonus"
+  source String?
+
+  expiresAt DateTime?
+
+  createdAt DateTime @default(now())
+}
+
 enum Role {
   CLIENT
   ADMIN
@@ -86,6 +112,54 @@ enum OrderStatus {
   SHIPPED
   COMPLETED
   CANCELLED
+}
+
+enum LoyaltyTier {
+  BRONZE
+  SILVER
+  GOLD
+  VIP
+}
+
+enum LoyaltyPointType {
+  EARNED
+  USED
+  BONUS
+  EXPIRED
+}
+
+mmodel LoyaltyReward {
+  id String @id @default(cuid())
+
+  userId String?
+  user   User? @relation(fields: [userId], references: [id])
+
+  type  LoyaltyRewardType
+  value Float?
+
+  status RewardStatus @default(ACTIVE)
+
+  source String?
+
+  // 🆕 SAAS FIX
+  isGlobal Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  usedAt    DateTime?
+}
+
+enum LoyaltyRewardType {
+  COUPON_EURO
+  PERCENT
+  PRODUCT_DISCOUNT
+  FREE_PRODUCT
+  GIFT
+}
+
+enum RewardStatus {
+  ACTIVE
+  USED
+  EXPIRED
 }
 
 model Account {

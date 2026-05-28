@@ -3,6 +3,8 @@ import { stripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
 import Stripe from "stripe";
 import { sendOrderEmail } from "@/lib/email";
+import { calculateEarnedPoints } from "@/lib/loyaltyEngine";
+import { updateUserTier } from "@/lib/loyaltyTierEngine";
 
 export const runtime = "nodejs";
 
@@ -11,10 +13,7 @@ export async function POST(req: Request) {
   const sig = req.headers.get("stripe-signature");
 
   if (!sig) {
-    return NextResponse.json(
-      { error: "Missing signature" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Missing signature" }, { status: 400 });
   }
 
   let event: Stripe.Event;
@@ -25,12 +24,8 @@ export async function POST(req: Request) {
       sig,
       process.env.STRIPE_WEBHOOK_SECRET!
     );
-  } catch (err) {
-    console.error("Webhook error:", err);
-    return NextResponse.json(
-      { error: "Invalid signature" },
-      { status: 400 }
-    );
+  } catch {
+    return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
   if (event.type !== "checkout.session.completed") {
@@ -40,29 +35,25 @@ export async function POST(req: Request) {
   const session = event.data.object as Stripe.Checkout.Session;
 
   const userId = session.metadata?.userId || null;
+  const usedPoints = Number(session.metadata?.usedPoints || 0);
 
   const cart = session.metadata?.cart
     ? JSON.parse(session.metadata.cart)
     : [];
 
   const email =
-    session.customer_details?.email ||
     session.customer_email ||
     session.metadata?.email ||
+    session.customer_details?.email ||
     null;
 
-  if (!email) {
-    console.log("❌ No email found");
-    return NextResponse.json({ received: true });
-  }
+  if (!email) return NextResponse.json({ received: true });
 
   const existing = await prisma.order.findUnique({
     where: { stripeSessionId: session.id },
   });
 
-  if (existing) {
-    return NextResponse.json({ received: true });
-  }
+  if (existing) return NextResponse.json({ received: true });
 
   try {
     const order = await prisma.order.create({
@@ -72,6 +63,8 @@ export async function POST(req: Request) {
         ...(userId ? { userId } : {}),
         total: (session.amount_total ?? 0) / 100,
         status: "PAID",
+        usedPoints,
+        discount: usedPoints,
         items: {
           create: cart.map((item: any) => ({
             productId: item.id,
@@ -86,15 +79,11 @@ export async function POST(req: Request) {
       where: { id: order.id },
       include: {
         user: true,
-        items: {
-          include: { product: true },
-        },
+        items: { include: { product: true } },
       },
     });
 
-    if (!fullOrder) {
-      throw new Error("Order not found");
-    }
+    if (!fullOrder) throw new Error("Order not found");
 
     await sendOrderEmail(email, {
       orderNumber: fullOrder.orderNumber!,
@@ -105,10 +94,42 @@ export async function POST(req: Request) {
       items: fullOrder.items,
     });
 
-    console.log("✅ ORDER + EMAIL SENT");
-  } catch (err) {
-    console.error("ORDER ERROR:", err);
-  }
+    // 🧠 LOYALTY ENGINE SAAS CORE
+    if (userId) {
+      const pointsEarned = calculateEarnedPoints(fullOrder.total);
 
-  return NextResponse.json({ received: true });
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+      });
+
+      const realUserPoints = user?.points || 0;
+      const safeUsedPoints = Math.min(realUserPoints, usedPoints);
+
+      await prisma.loyaltyPoint.create({
+        data: {
+          userId,
+          points: pointsEarned,
+          type: "EARNED",
+          source: `order_${fullOrder.id}`,
+        },
+      });
+
+      await prisma.user.update({
+        where: { id: userId },
+        data: {
+          points: {
+            increment: pointsEarned,
+            decrement: safeUsedPoints,
+          },
+        },
+      });
+
+      await updateUserTier(userId);
+    }
+
+    return NextResponse.json({ received: true });
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ error: "Webhook failed" }, { status: 500 });
+  }
 }

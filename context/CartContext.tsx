@@ -27,6 +27,11 @@ type CartContextType = {
 
   total: number;
   cartCount: number;
+
+  pointsUsed: number;
+  setPointsUsed: (value: number) => void;
+
+  maxPoints: number;
 };
 
 const CartContext = createContext<CartContextType | null>(null);
@@ -37,6 +42,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [hydrated, setHydrated] = useState(false);
 
+  const [pointsUsed, setPointsUsed] = useState<number>(0);
+
+  // =========================
+  // LOAD CART
+  // =========================
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
 
@@ -46,31 +56,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       } catch {}
     }
 
-    // 👇 important
     setHydrated(true);
   }, []);
 
   // =========================
-  // LOAD FROM LOCALSTORAGE
-  // =========================
-  useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      try {
-        setCart(JSON.parse(stored));
-      } catch {}
-    }
-    setHydrated(true);
-  }, []);
-
-  useEffect(() => {
-    if (hydrated) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
-    }
-  }, [cart, hydrated]);
-
-  // =========================
-  // SAVE TO LOCALSTORAGE
+  // SAVE CART
   // =========================
   useEffect(() => {
     if (hydrated) {
@@ -117,6 +107,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const clear = useCallback(() => {
     setCart([]);
     localStorage.removeItem(STORAGE_KEY);
+    setPointsUsed(0);
   }, []);
 
   // =========================
@@ -134,6 +125,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     [cart]
   );
 
+  // 🟢 IMPORTANT FIX
+  const maxPoints = useMemo(() => {
+    return Math.floor(total);
+  }, [total]);
+
+  // =========================
+  // PROVIDER
+  // =========================
+
   return (
     <CartContext.Provider
       value={{
@@ -144,12 +144,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         clear,
         total,
         cartCount,
+
+        pointsUsed,
+        setPointsUsed,
+
+        maxPoints, // ✅ FIX ICI
       }}
     >
       {children}
     </CartContext.Provider>
   );
 }
+
+// =========================
+// HOOK
+// =========================
 
 export function useCart() {
   const ctx = useContext(CartContext);
