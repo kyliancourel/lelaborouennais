@@ -176,7 +176,7 @@ export async function POST(req: Request) {
         usedPoints
       );
 
-      await prisma.loyaltyPoint.create({
+      await prisma.loyaltyLog.create({
         data: {
           userId,
           points: pointsEarned,

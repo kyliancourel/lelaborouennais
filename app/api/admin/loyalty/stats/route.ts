@@ -4,12 +4,12 @@ import { NextResponse } from "next/server";
 export async function GET() {
   const users = await prisma.user.findMany();
 
-  const totalPointsEarned = await prisma.loyaltyPoint.aggregate({
+  const totalPointsEarned = await prisma.loyaltyLog.aggregate({
     _sum: { points: true },
     where: { type: "EARNED" },
   });
 
-  const totalPointsUsed = await prisma.loyaltyPoint.aggregate({
+  const totalPointsUsed = await prisma.loyaltyLog.aggregate({
     _sum: { points: true },
     where: { type: "USED" },
   });
