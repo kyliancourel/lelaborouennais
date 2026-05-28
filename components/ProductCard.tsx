@@ -6,6 +6,8 @@ import AddToCart from "@/components/AddToCart";
 export default function ProductCard({ product }: any) {
   return (
     <div className="product-card">
+      <div className="product-card-glow" />
+      
       <Link href={`/products/${product.slug}`} className="product-card-link">
         {product.image && (
           <img

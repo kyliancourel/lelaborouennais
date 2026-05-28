@@ -1,7 +1,64 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  reactStrictMode: true,
+
+  images: {
+    domains: [
+      "localhost",
+      "res.cloudinary.com",
+      "images.unsplash.com",
+    ],
+  },
+
+  poweredByHeader: false,
+
+  compress: true,
+
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: [
+          // 🔐 SECURITY HEADERS
+          {
+            key: "X-DNS-Prefetch-Control",
+            value: "on",
+          },
+          {
+            key: "X-Frame-Options",
+            value: "DENY",
+          },
+          {
+            key: "X-Content-Type-Options",
+            value: "nosniff",
+          },
+          {
+            key: "Referrer-Policy",
+            value: "strict-origin-when-cross-origin",
+          },
+          {
+            key: "Permissions-Policy",
+            value:
+              "camera=(), microphone=(), geolocation=()",
+          },
+
+          // ⚠️ CSP (mode safe production baseline)
+          {
+            key: "Content-Security-Policy",
+            value: `
+              default-src 'self';
+              script-src 'self' 'unsafe-eval' 'unsafe-inline';
+              style-src 'self' 'unsafe-inline';
+              img-src 'self' blob: data: https:;
+              connect-src 'self' https:;
+              frame-ancestors 'none';
+            `.replace(/\s{2,}/g, " ").trim(),
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

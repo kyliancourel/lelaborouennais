@@ -26,7 +26,7 @@ model User {
 
   orders Order[]
 
-  loyaltyHistory LoyaltyPoint[]
+  loyaltyHistory LoyaltyLog[]
   loyaltyRewards LoyaltyReward[]
 
   accounts Account[]
@@ -84,19 +84,17 @@ model OrderItem {
   product Product @relation(fields: [productId], references: [id])
 }
 
-model LoyaltyPoint {
+model LoyaltyLog {
   id String @id @default(cuid())
 
   userId String
-  user   User   @relation(fields: [userId], references: [id])
+  user   User @relation(fields: [userId], references: [id])
 
+  type LoyaltyPointType
   points Int
-  type   LoyaltyPointType
 
-  // ex: "order_123", "signup_bonus"
   source String?
-
-  expiresAt DateTime?
+  metadata Json?
 
   createdAt DateTime @default(now())
 }

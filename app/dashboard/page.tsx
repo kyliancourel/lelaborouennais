@@ -1,11 +1,36 @@
-import { auth } from "@/auth";
-import { redirect } from "next/navigation";
+"use client";
 
-export default async function Dashboard() {
-  const session = await auth();
+import { useEffect, useState } from "react";
 
-  if (!session?.user) {
-    redirect("/login");
+type User = {
+  id: string;
+  email: string;
+  name: string;
+  points: number;
+  loyaltyTier: "BRONZE" | "SILVER" | "GOLD" | "VIP";
+};
+
+export default function Dashboard() {
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    async function load() {
+      const res = await fetch("/api/me");
+      if (!res.ok) return;
+
+      const data = await res.json();
+      setUser(data.user);
+    }
+
+    load();
+  }, []);
+
+  if (!user) {
+    return (
+      <div className="p-10 text-center">
+        Chargement du dashboard...
+      </div>
+    );
   }
 
   return (
@@ -13,17 +38,13 @@ export default async function Dashboard() {
       <h1 className="page-title">Dashboard</h1>
 
       <div className="card">
-        <h2 className="card-title">Bienvenue 👋</h2>
+        <h2>👋 Bienvenue {user.name}</h2>
 
-        <p className="card-text">
-          Voici les informations de ton compte.
-        </p>
+        <p><strong>Email :</strong> {user.email}</p>
 
-        <div className="user-info">
-          <p><strong>Nom :</strong> {session.user.name}</p>
-          <p><strong>Email :</strong> {session.user.email}</p>
-          <p><strong>Rôle :</strong> {(session.user as any).role ?? "USER"}</p>
-        </div>
+        <p><strong>🏆 Points :</strong> {user.points}</p>
+
+        <p><strong>🎖 Niveau :</strong> {user.loyaltyTier}</p>
       </div>
     </div>
   );

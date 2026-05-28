@@ -5,7 +5,7 @@ export async function expireRewards() {
     where: {
       status: "ACTIVE",
       createdAt: {
-        lt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30), // 30 jours
+        lt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30),
       },
     },
     data: {

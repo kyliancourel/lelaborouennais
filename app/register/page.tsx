@@ -3,6 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+import Input from "@/components/ui/Input";
+import Button from "@/components/ui/Button";
+import Form from "@/components/ui/Form";
+
 export default function RegisterPage() {
   const router = useRouter();
 
@@ -10,21 +14,31 @@ export default function RegisterPage() {
   const [firstname, setFirstname] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+
     setLoading(true);
     setError("");
 
     const res = await fetch("/api/auth/register", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, firstname, email, password }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name,
+        firstname,
+        email,
+        password,
+      }),
     });
 
     const data = await res.json();
+
     setLoading(false);
 
     if (!res.ok) {
@@ -32,41 +46,64 @@ export default function RegisterPage() {
       return;
     }
 
-    router.push(`/verify-request?email=${encodeURIComponent(email)}`);
+    router.push(
+      `/verify-request?email=${encodeURIComponent(email)}`
+    );
   }
 
   return (
     <div className="auth-page">
-      <div className="auth-container">
-        <h1 className="auth-title">Créer un compte</h1>
+      <div className="auth-card">
+        <h1 className="auth-title">
+          Créer un compte
+        </h1>
 
-        <form className="form" onSubmit={handleSubmit}>
-          <div className="input-wrapper">
-            <label className="input-label">Nom</label>
-            <input className="input" value={name} onChange={(e) => setName(e.target.value)} />
-          </div>
+        <p className="auth-subtitle">
+          Rejoignez le programme fidélité
+        </p>
 
-          <div className="input-wrapper">
-            <label className="input-label">Prénom</label>
-            <input className="input" value={firstname} onChange={(e) => setFirstname(e.target.value)} />
-          </div>
+        <Form onSubmit={handleSubmit}>
+          <Input
+            label="Nom"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
 
-          <div className="input-wrapper">
-            <label className="input-label">Email</label>
-            <input className="input" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-          </div>
+          <Input
+            label="Prénom"
+            value={firstname}
+            onChange={(e) => setFirstname(e.target.value)}
+          />
 
-          <div className="input-wrapper">
-            <label className="input-label">Mot de passe</label>
-            <input className="input" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-          </div>
+          <Input
+            label="Email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
 
-          {error && <p className="auth-error">{error}</p>}
+          <Input
+            label="Mot de passe"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
-          <button className="btn btn-primary" disabled={loading}>
-            {loading ? "Création..." : "Créer mon compte"}
-          </button>
-        </form>
+          {error && (
+            <p className="auth-error">
+              {error}
+            </p>
+          )}
+
+          <Button
+            type="submit"
+            disabled={loading}
+          >
+            {loading
+              ? "Création..."
+              : "Créer mon compte"}
+          </Button>
+        </Form>
       </div>
     </div>
   );

@@ -21,64 +21,64 @@ type Order = {
 };
 
 export default async function AdminOrdersPage() {
-  const orders = (await prisma.order.findMany({
+  const orders = await prisma.order.findMany({
     orderBy: { createdAt: "desc" },
     include: {
       user: true,
-      items: {
-        include: {
-          product: true,
-        },
-      },
+      items: { include: { product: true } },
     },
-  })) as Order[];
+  });
 
   return (
     <div className="admin-page">
-      <div className="admin-header">
-        <h1 className="admin-title">Commandes</h1>
+      <div className="card card-soft">
+        <h1 className="page-title">📦 Admin — Commandes</h1>
+        <p className="text-muted">
+          Gestion des commandes en temps réel
+        </p>
       </div>
 
-      <div className="admin-grid">
+      <div className="admin-grid mt-3">
         {orders.map((order) => (
-          <div key={order.id} className="card order-card">
-            <div className="order-top">
-              <h3 className="order-number">
-                #{order.orderNumber ?? order.id}
-              </h3>
+          <div key={order.id} className="card">
+            {/* HEADER */}
+            <div className="card-row">
+              <strong>#{order.orderNumber ?? order.id.slice(0, 6)}</strong>
 
-              <span className={`badge status-${order.status.toLowerCase()}`}>
+              <span className={`status-badge status-${order.status.toLowerCase()}`}>
                 {order.status}
               </span>
             </div>
 
-            <div className="order-info">
-              <p>
-                <span className="label">Client :</span>{" "}
-                {order.user?.email ?? "Inconnu"}
-              </p>
+            {/* CLIENT */}
+            <p className="mt-3">
+              👤 {order.user?.email ?? "Inconnu"}
+            </p>
 
-              <p>
-                <span className="label">Total :</span>{" "}
-                <strong>{order.total}€</strong>
-              </p>
-            </div>
+            {/* TOTAL */}
+            <p className="mt-3">
+              💰 <strong>{order.total.toFixed(2)} €</strong>
+            </p>
 
-            <div className="order-items">
-              <p className="label">Produits :</p>
+            {/* ITEMS */}
+            <div className="mt-3">
+              <p className="section-title">Produits</p>
 
-              <ul>
-                {order.items.map((item) => (
+              <ul className="text-muted">
+                {order.items.slice(0, 3).map((item) => (
                   <li key={item.id}>
-                    {item.product?.name ?? "Produit supprimé"} ×{" "}
-                    {item.quantity}
+                    {item.product?.name ?? "Produit supprimé"} × {item.quantity}
                   </li>
                 ))}
               </ul>
             </div>
 
-            <Link className="btn btn-secondary" href={`/admin/orders/${order.id}`}>
-              Gérer la commande
+            {/* ACTION */}
+            <Link
+              className="btn btn-primary mt-3"
+              href={`/admin/orders/${order.id}`}
+            >
+              Gérer →
             </Link>
           </div>
         ))}

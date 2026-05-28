@@ -3,7 +3,7 @@ import { stripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
 import Stripe from "stripe";
 import { sendOrderEmail } from "@/lib/email";
-import { calculateEarnedPoints } from "@/lib/loyaltyEngine";
+import { calculateFinalEarnedPoints } from "@/lib/loyaltyEngine";
 import { updateUserTier } from "@/lib/loyaltyTierEngine";
 
 export const runtime = "nodejs";
@@ -12,30 +12,55 @@ export async function POST(req: Request) {
   const body = await req.text();
   const sig = req.headers.get("stripe-signature");
 
+  // =========================
+  // SECURITY CHECK
+  // =========================
   if (!sig) {
-    return NextResponse.json({ error: "Missing signature" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Missing signature" },
+      { status: 400 }
+    );
   }
 
   let event: Stripe.Event;
 
+  // =========================
+  // VERIFY STRIPE SIGNATURE
+  // =========================
   try {
     event = stripe.webhooks.constructEvent(
       body,
       sig,
       process.env.STRIPE_WEBHOOK_SECRET!
     );
-  } catch {
-    return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
+  } catch (err) {
+    return NextResponse.json(
+      { error: "Invalid signature" },
+      { status: 400 }
+    );
   }
 
-  if (event.type !== "checkout.session.completed") {
-    return NextResponse.json({ received: true });
+  // =========================
+  // ONLY CHECKOUT COMPLETE
+  // =========================
+  if (
+    event.type !==
+    "checkout.session.completed"
+  ) {
+    return NextResponse.json({
+      received: true,
+    });
   }
 
-  const session = event.data.object as Stripe.Checkout.Session;
+  const session =
+    event.data.object as Stripe.Checkout.Session;
 
-  const userId = session.metadata?.userId || null;
-  const usedPoints = Number(session.metadata?.usedPoints || 0);
+  const userId =
+    session.metadata?.userId || null;
+
+  const usedPoints = Number(
+    session.metadata?.usedPoints || 0
+  );
 
   const cart = session.metadata?.cart
     ? JSON.parse(session.metadata.cart)
@@ -47,24 +72,48 @@ export async function POST(req: Request) {
     session.customer_details?.email ||
     null;
 
-  if (!email) return NextResponse.json({ received: true });
+  if (!email) {
+    return NextResponse.json({
+      received: true,
+    });
+  }
 
-  const existing = await prisma.order.findUnique({
-    where: { stripeSessionId: session.id },
-  });
+  // =========================
+  // IDEMPOTENCY CHECK
+  // =========================
+  const existing =
+    await prisma.order.findFirst({
+      where: {
+        stripeSessionId: session.id,
+      },
+    });
 
-  if (existing) return NextResponse.json({ received: true });
+  if (existing) {
+    return NextResponse.json({
+      received: true,
+    });
+  }
 
   try {
+    // =========================
+    // CREATE ORDER
+    // =========================
     const order = await prisma.order.create({
       data: {
         orderNumber: `LR-${Date.now()}`,
         stripeSessionId: session.id,
-        ...(userId ? { userId } : {}),
-        total: (session.amount_total ?? 0) / 100,
+        ...(userId
+          ? { userId }
+          : {}),
+
+        total:
+          (session.amount_total ?? 0) /
+          100,
+
         status: "PAID",
         usedPoints,
         discount: usedPoints,
+
         items: {
           create: cart.map((item: any) => ({
             productId: item.id,
@@ -75,16 +124,23 @@ export async function POST(req: Request) {
       },
     });
 
-    const fullOrder = await prisma.order.findUnique({
-      where: { id: order.id },
-      include: {
-        user: true,
-        items: { include: { product: true } },
-      },
-    });
+    const fullOrder =
+      await prisma.order.findUnique({
+        where: { id: order.id },
+        include: {
+          user: true,
+          items: {
+            include: { product: true },
+          },
+        },
+      });
 
-    if (!fullOrder) throw new Error("Order not found");
+    if (!fullOrder)
+      throw new Error("Order not found");
 
+    // =========================
+    // EMAIL CONFIRMATION
+    // =========================
     await sendOrderEmail(email, {
       orderNumber: fullOrder.orderNumber!,
       total: fullOrder.total,
@@ -94,16 +150,31 @@ export async function POST(req: Request) {
       items: fullOrder.items,
     });
 
-    // 🧠 LOYALTY ENGINE SAAS CORE
+    // =========================
+    // LOYALTY SYSTEM
+    // =========================
     if (userId) {
-      const pointsEarned = calculateEarnedPoints(fullOrder.total);
+      const user =
+        await prisma.user.findUnique({
+          where: { id: userId },
+        });
 
-      const user = await prisma.user.findUnique({
-        where: { id: userId },
-      });
+      const tier =
+        user?.loyaltyTier || "BRONZE";
 
-      const realUserPoints = user?.points || 0;
-      const safeUsedPoints = Math.min(realUserPoints, usedPoints);
+      const pointsEarned =
+        calculateFinalEarnedPoints(
+          fullOrder.total,
+          tier
+        );
+
+      const realUserPoints =
+        user?.points || 0;
+
+      const safeUsedPoints = Math.min(
+        realUserPoints,
+        usedPoints
+      );
 
       await prisma.loyaltyPoint.create({
         data: {
@@ -127,9 +198,15 @@ export async function POST(req: Request) {
       await updateUserTier(userId);
     }
 
-    return NextResponse.json({ received: true });
+    return NextResponse.json({
+      received: true,
+    });
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Webhook failed" }, { status: 500 });
+
+    return NextResponse.json(
+      { error: "Webhook failed" },
+      { status: 500 }
+    );
   }
 }

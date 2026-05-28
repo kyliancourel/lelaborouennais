@@ -11,15 +11,17 @@ export async function POST(req: Request) {
 
   const { rewardId } = await req.json();
 
-  const reward = await prisma.loyaltyReward.findUnique({
-    where: { id: rewardId },
+  const reward = await prisma.loyaltyReward.findFirst({
+    where: {
+      id: rewardId,
+      userId: session.user.id,
+    },
   });
 
   if (!reward || reward.status !== "ACTIVE") {
     return NextResponse.json({ error: "Invalid reward" }, { status: 400 });
   }
 
-  // 🧠 MARK USED
   await prisma.loyaltyReward.update({
     where: { id: rewardId },
     data: {

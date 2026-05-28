@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
+import OrderItem from "@/components/OrderItem";
 
 export default async function OrdersPage() {
   const session = await auth();
@@ -41,36 +42,14 @@ export default async function OrdersPage() {
 
       <div className="orders-list">
         {user.orders.map((order) => (
-          <div className="order-card" key={order.id}>
-            <div className="order-header">
-              <div>
-                <span className="order-number">
-                  #{order.orderNumber}
-                </span>
-
-                <p className="order-date">
-                  {new Date(order.createdAt).toLocaleDateString(
-                    "fr-FR",
-                    {
-                      day: "2-digit",
-                      month: "long",
-                      year: "numeric",
-                    }
-                  )}
-                </p>
-              </div>
-
-              <span
-                className={`status-badge status-${order.status.toLowerCase()}`}
-              >
-                {order.status}
-              </span>
-            </div>
-
-            <div className="order-footer">
-              <strong>{order.total.toFixed(2)} €</strong>
-            </div>
-          </div>
+          <OrderItem
+            key={order.id}
+            id={order.id}
+            orderNumber={order.orderNumber}
+            total={order.total}
+            status={order.status}
+            createdAt={order.createdAt.toISOString()}
+          />
         ))}
       </div>
     </div>

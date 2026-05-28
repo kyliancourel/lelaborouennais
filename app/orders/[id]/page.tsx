@@ -1,19 +1,14 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import Card from "@/components/ui/Card";
 
 export default async function Page({
   params,
 }: {
   params: { id: string };
 }) {
-  const { id } = params;
-
-  if (!id) {
-    return <div className="page-container">Commande introuvable</div>;
-  }
-
   const order = await prisma.order.findUnique({
-    where: { id },
+    where: { id: params.id },
     include: {
       user: true,
       items: {
@@ -34,43 +29,39 @@ export default async function Page({
         Commande #{order.orderNumber}
       </h1>
 
-      <div className="order-card">
-        <p className="order-meta">
+      <Card>
+        <p>
           <strong>Client :</strong> {order.user?.email ?? "—"}
         </p>
 
-        <p className="order-meta">
-          <strong>Total :</strong> {order.total} €
+        <p>
+          <strong>Total :</strong> {order.total.toFixed(2)} €
         </p>
 
-        <p className="order-meta">
+        <p>
           <strong>Statut :</strong> {order.status}
         </p>
-      </div>
+      </Card>
 
       <h3 className="section-title">Produits</h3>
 
-      <div className="order-items">
+      <div className="orders-list">
         {order.items.map((item) => (
-          <div className="order-item" key={item.id}>
-            <span className="order-item-name">
-              {item.product.name}
-            </span>
-
-            <span className="order-item-qty">
-              x{item.quantity}
-            </span>
-
-            <span className="order-item-price">
-              {item.price} €
-            </span>
-          </div>
+          <Card key={item.id}>
+            <div className="card-row">
+              <span>{item.product.name}</span>
+              <span>x{item.quantity}</span>
+              <strong>{item.price.toFixed(2)} €</strong>
+            </div>
+          </Card>
         ))}
       </div>
 
-      <Link href="/orders" className="btn btn-outline">
-        ← Retour
-      </Link>
+      <div className="mt-3">
+        <Link href="/orders" className="btn btn-outline">
+          ← Retour
+        </Link>
+      </div>
     </div>
   );
 }

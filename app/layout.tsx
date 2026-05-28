@@ -19,8 +19,39 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Laboratoire de la Seine",
-  description: "E-commerce 3D printing",
+  title: {
+    default: "Laboratoire de la Seine",
+    template: "%s | Labo Seine",
+  },
+
+  description:
+    "Boutique premium de création et impression 3D en France.",
+
+  keywords: [
+    "3D printing",
+    "impression 3D",
+    "France",
+    "design",
+    "objets 3D",
+  ],
+
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL!
+  ),
+
+  openGraph: {
+    title: "Le Labo Rouennais",
+    description:
+      "Objets 3D premium fabriqués en France",
+    url: "/",
+    siteName: "Labo Seine",
+    type: "website",
+  },
+
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({

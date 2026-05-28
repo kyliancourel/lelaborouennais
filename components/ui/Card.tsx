@@ -1,11 +1,11 @@
 import { ReactNode } from "react";
 
-export default function Card({ 
+export default function Card({
   children,
-className = "", 
-}: { 
+  className = "",
+}: {
   children: ReactNode;
-className?: string;
+  className?: string;
 }) {
   return <div className={`card ${className}`}>{children}</div>;
 }

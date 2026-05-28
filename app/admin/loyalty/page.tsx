@@ -12,14 +12,12 @@ export default async function AdminLoyaltyPage() {
   });
 
   const totalPoints = users.reduce((sum, u) => sum + u.points, 0);
-
   const totalRewards = await prisma.loyaltyReward.count();
 
   return (
     <div className="p-10 space-y-6">
       <h1 className="text-2xl font-bold">💚 Loyalty Dashboard</h1>
 
-      {/* KPI */}
       <div className="grid grid-cols-3 gap-4">
         <div className="card">
           <p>Total users points</p>
@@ -37,7 +35,6 @@ export default async function AdminLoyaltyPage() {
         </div>
       </div>
 
-      {/* USERS TABLE */}
       <div className="card">
         <h2 className="text-lg font-bold mb-4">Users</h2>
 
