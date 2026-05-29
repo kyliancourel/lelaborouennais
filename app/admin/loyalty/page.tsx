@@ -62,11 +62,20 @@ export default function AdminLoyaltyPage() {
   }
 
   async function deleteRule(id: string) {
-    await fetch(`/api/admin/reward-rules/${id}`, {
+    const confirmed = confirm("Supprimer cette récompense ?");
+  
+    if (!confirmed) return;
+  
+    const res = await fetch(`/api/admin/reward-rules/${id}`, {
       method: "DELETE",
     });
-
-    load();
+  
+    if (!res.ok) {
+      alert("Erreur lors de la suppression");
+      return;
+    }
+  
+    await load();
   }
 
   return (
