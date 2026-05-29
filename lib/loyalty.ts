@@ -1,57 +1,43 @@
 import { prisma } from "@/lib/prisma";
 
-/**
- * Calcule le total réel des points depuis l'historique
- */
-export async function getUserPoints(userId: string) {
-  const result = await prisma.loyaltyLog.aggregate({
+export async function getUserRealPoints(userId: string) {
+  const earned = await prisma.loyaltyLog.aggregate({
     where: {
       userId,
-      type: "EARNED",
+      type: {
+        in: ["EARNED", "BONUS"],
+      },
     },
     _sum: {
       points: true,
     },
   });
 
-  return result._sum.points ?? 0;
+  const used = await prisma.loyaltyLog.aggregate({
+    where: {
+      userId,
+      type: {
+        in: ["USED", "EXPIRED"],
+      },
+    },
+    _sum: {
+      points: true,
+    },
+  });
+
+  return Math.max(
+    0,
+    (earned._sum.points || 0) - (used._sum.points || 0)
+  );
 }
 
-/**
- * Synchronise le solde utilisateur (source de vérité)
- */
 export async function syncUserPoints(userId: string) {
-  const total = await getUserPoints(userId);
+  const points = await getUserRealPoints(userId);
 
   await prisma.user.update({
     where: { id: userId },
-    data: {
-      points: total,
-    },
+    data: { points },
   });
 
-  return total;
-}
-
-/**
- * Ajoute des points + historise
- */
-export async function addUserPoints(params: {
-  userId: string;
-  points: number;
-  source: string;
-}) {
-  const { userId, points, source } = params;
-
-  await prisma.loyaltyLog.create({
-    data: {
-      userId,
-      points,
-      type: "EARNED",
-      source,
-      expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365),
-    },
-  });
-
-  return syncUserPoints(userId);
+  return points;
 }
