@@ -695,6 +695,13 @@ textarea.input {
   line-height: 1.6;
 }
 
+.reward-choice {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 /* =========================================================
    LOYALTY HISTORY
 ========================================================= */

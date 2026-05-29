@@ -10,6 +10,7 @@ type Rule = {
   pointsCost: number;
   type: string;
   value: number | null;
+  options: string[] | null;
   isActive: boolean;
 };
 
@@ -24,6 +25,7 @@ export default function AdminLoyaltyPage() {
     pointsCost: 50,
     type: "COUPON_EURO",
     value: 5,
+    optionsText: "",
     isActive: true,
   });
 
@@ -42,11 +44,18 @@ export default function AdminLoyaltyPage() {
   async function createRule(e: React.FormEvent) {
     e.preventDefault();
 
-    await fetch("/api/admin/reward-rules", {
+    const res = await fetch("/api/admin/reward-rules", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify(form),
     });
+
+    if (!res.ok) {
+      alert("Erreur lors de la création de la récompense");
+      return;
+    }
 
     setForm({
       title: "",
@@ -55,10 +64,11 @@ export default function AdminLoyaltyPage() {
       pointsCost: 50,
       type: "COUPON_EURO",
       value: 5,
+      optionsText: "",
       isActive: true,
     });
 
-    load();
+    await load();
   }
 
   async function deleteRule(id: string) {
@@ -106,9 +116,14 @@ export default function AdminLoyaltyPage() {
 
         <input
           className="input"
-          placeholder="Titre ex: -5€"
+          placeholder="Titre ex: Produit exclusif Silver"
           value={form.title}
-          onChange={(e) => setForm({ ...form, title: e.target.value })}
+          onChange={(e) =>
+            setForm({
+              ...form,
+              title: e.target.value,
+            })
+          }
         />
 
         <textarea
@@ -128,7 +143,12 @@ export default function AdminLoyaltyPage() {
           className="input"
           placeholder="Icône"
           value={form.icon}
-          onChange={(e) => setForm({ ...form, icon: e.target.value })}
+          onChange={(e) =>
+            setForm({
+              ...form,
+              icon: e.target.value,
+            })
+          }
         />
 
         <input
@@ -137,14 +157,22 @@ export default function AdminLoyaltyPage() {
           placeholder="Coût en points"
           value={form.pointsCost}
           onChange={(e) =>
-            setForm({ ...form, pointsCost: Number(e.target.value) })
+            setForm({
+              ...form,
+              pointsCost: Number(e.target.value),
+            })
           }
         />
 
         <select
           className="input"
           value={form.type}
-          onChange={(e) => setForm({ ...form, type: e.target.value })}
+          onChange={(e) =>
+            setForm({
+              ...form,
+              type: e.target.value,
+            })
+          }
         >
           <option value="COUPON_EURO">Coupon €</option>
           <option value="PERCENT">Pourcentage</option>
@@ -158,7 +186,28 @@ export default function AdminLoyaltyPage() {
           type="number"
           placeholder="Valeur"
           value={form.value}
-          onChange={(e) => setForm({ ...form, value: Number(e.target.value) })}
+          onChange={(e) =>
+            setForm({
+              ...form,
+              value: Number(e.target.value),
+            })
+          }
+        />
+
+        <textarea
+          className="input"
+          placeholder={`Options au choix, une par ligne :
+Support téléphone premium
+Organiseur de bureau compact
+Support casque compact`}
+          value={form.optionsText}
+          rows={5}
+          onChange={(e) =>
+            setForm({
+              ...form,
+              optionsText: e.target.value,
+            })
+          }
         />
 
         <button className="btn btn-primary" type="submit">
@@ -173,12 +222,23 @@ export default function AdminLoyaltyPage() {
               {rule.icon} {rule.title}
             </h3>
 
-            <p className="reward-description">
-              {rule.description}
-            </p>
+            <p className="reward-description">{rule.description}</p>
+
             <p>{rule.pointsCost} points</p>
             <p>Type : {rule.type}</p>
             <p>Valeur : {rule.value ?? "—"}</p>
+
+            {Array.isArray(rule.options) && rule.options.length > 0 && (
+              <div className="mt-3">
+                <strong>Choix proposés :</strong>
+
+                <ul className="text-muted mt-3">
+                  {rule.options.map((option) => (
+                    <li key={option}>• {option}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             <button
               className="btn btn-danger mt-3"

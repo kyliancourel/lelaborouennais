@@ -24,6 +24,7 @@ export async function GET() {
   });
 
   const usersCount = await prisma.user.count();
+
   const totalPoints = await prisma.user.aggregate({
     _sum: { points: true },
   });
@@ -46,6 +47,14 @@ export async function POST(req: Request) {
 
   const body = await req.json();
 
+  const options =
+    typeof body.optionsText === "string"
+      ? body.optionsText
+          .split("\n")
+          .map((option: string) => option.trim())
+          .filter(Boolean)
+      : [];
+
   const rule = await prisma.loyaltyRewardRule.create({
     data: {
       title: body.title,
@@ -53,7 +62,11 @@ export async function POST(req: Request) {
       icon: body.icon || "🎁",
       pointsCost: Number(body.pointsCost),
       type: body.type,
-      value: body.value === "" || body.value === null ? null : Number(body.value),
+      value:
+        body.value === "" || body.value === null || body.value === undefined
+          ? null
+          : Number(body.value),
+      options: options.length > 0 ? options : undefined,
       isActive: Boolean(body.isActive ?? true),
     },
   });

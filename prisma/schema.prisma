@@ -128,23 +128,6 @@ enum LoyaltyPointType {
   EXPIRED
 }
 
-model LoyaltyReward {
-  id String @id @default(cuid())
-
-  userId String?
-  user   User? @relation(fields: [userId], references: [id])
-
-  type  LoyaltyRewardType
-  value Float?
-
-  status RewardStatus @default(ACTIVE)
-
-  source String?
-
-  createdAt DateTime @default(now())
-  usedAt    DateTime?
-}
-
 enum LoyaltyRewardType {
   COUPON_EURO
   PERCENT
@@ -159,23 +142,43 @@ enum RewardStatus {
   EXPIRED
 }
 
-model LoyaltyRewardRule{
-  id            String @id @default(cuid())
+model LoyaltyReward {
+  id String @id @default(cuid())
 
-  title         String
-  description   String
-  icon          String?
+  userId String?
+  user   User? @relation(fields: [userId], references: [id])
 
-  pointsCost    Int
-  type          LoyaltyRewardType
-  value         Float?
+  type  LoyaltyRewardType
+  value Float?
 
-  isActive      Boolean @default(true)
+  status RewardStatus @default(ACTIVE)
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  source String?
+
+  selectedOption String?
+
+  createdAt DateTime @default(now())
+  usedAt    DateTime?
 }
 
+model LoyaltyRewardRule {
+  id String @id @default(cuid())
+
+  title       String
+  description String
+  icon        String?
+
+  pointsCost Int
+  type       LoyaltyRewardType
+  value      Float?
+
+  options Json?
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
 model Account {
   id                String @id @default(cuid())
   userId            String

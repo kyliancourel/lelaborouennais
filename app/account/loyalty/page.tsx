@@ -3,7 +3,17 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import LoyaltyWallet from "@/components/LoyaltyWallet";
 import LoyaltyRewards from "@/components/LoyaltyRewards";
-import { syncUserPoints } from "@/lib/loyalty";
+
+function normalizeOptions(options: unknown): string[] | null {
+  if (!Array.isArray(options)) return null;
+
+  const cleanOptions = options
+    .filter((option): option is string => typeof option === "string")
+    .map((option) => option.trim())
+    .filter(Boolean);
+
+  return cleanOptions.length > 0 ? cleanOptions : null;
+}
 
 export default async function LoyaltyPage() {
   const session = await auth();
@@ -12,23 +22,41 @@ export default async function LoyaltyPage() {
     redirect("/login");
   }
 
-  const realPoints = await syncUserPoints(session.user.id);
-
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
     select: {
+      points: true,
       loyaltyHistory: {
         orderBy: { createdAt: "desc" },
         take: 5,
       },
-      loyaltyRewards: true,
+      loyaltyRewards: {
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
     },
   });
 
-  const rules = await prisma.loyaltyRewardRule.findMany({
-    where: { isActive: true },
-    orderBy: { pointsCost: "asc" },
+  const rulesFromDb = await prisma.loyaltyRewardRule.findMany({
+    where: {
+      isActive: true,
+    },
+    orderBy: {
+      pointsCost: "asc",
+    },
   });
+
+  const rules = rulesFromDb.map((rule) => ({
+    id: rule.id,
+    title: rule.title,
+    description: rule.description,
+    icon: rule.icon,
+    pointsCost: rule.pointsCost,
+    type: rule.type,
+    value: rule.value,
+    options: normalizeOptions(rule.options),
+  }));
 
   if (!user) {
     redirect("/login");
@@ -36,10 +64,10 @@ export default async function LoyaltyPage() {
 
   return (
     <div className="loyalty-page">
-      <LoyaltyWallet points={realPoints} />
+      <LoyaltyWallet points={user.points} />
 
       <LoyaltyRewards
-        userPoints={realPoints}
+        userPoints={user.points}
         rules={rules}
         userRewards={user.loyaltyRewards}
       />
