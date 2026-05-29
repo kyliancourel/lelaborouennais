@@ -70,8 +70,10 @@ export default function AdminLoyaltyPage() {
       method: "DELETE",
     });
   
+    const data = await res.json();
+  
     if (!res.ok) {
-      alert("Erreur lors de la suppression");
+      alert(data.error || "Erreur lors de la suppression");
       return;
     }
   
