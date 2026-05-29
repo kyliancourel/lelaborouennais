@@ -18,6 +18,8 @@ export default function Navbar() {
   const isLoggedIn = status === "authenticated";
   const isAdmin = session?.user?.role === "ADMIN";
 
+  const loyaltyPoints = user?.points ?? 0;
+
   const closeMenu = () => setOpen(false);
 
   useEffect(() => {
@@ -55,9 +57,9 @@ export default function Navbar() {
             <Link href="/orders">Mes commandes</Link>
             <Link href="/cart">Panier ({cartCount})</Link>
 
-            {isLoggedIn && user && (
+            {isLoggedIn && (
               <Link href="/account/loyalty" className="navbar-loyalty-pill">
-                💚 {user.points} pts
+                💚 {loyaltyPoints} pts
               </Link>
             )}
 
@@ -87,14 +89,14 @@ export default function Navbar() {
             ✕
           </button>
 
-          {isLoggedIn && user && (
+          {isLoggedIn && (
             <Link
               href="/account/loyalty"
               className="mobile-loyalty-card"
               onClick={closeMenu}
             >
               <span>🌟 Programme fidélité</span>
-              <strong>{user.points} points</strong>
+              <strong>{loyaltyPoints} points</strong>
             </Link>
           )}
 

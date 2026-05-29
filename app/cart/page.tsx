@@ -1,8 +1,47 @@
 "use client";
 
 import { useCart } from "@/context/CartContext";
-import { useState } from "react";
+import { useUserLoyalty } from "@/hooks/useUserLoyalty";
+import { useEffect, useMemo, useState } from "react";
 import { Trash2 } from "lucide-react";
+
+type Reward = {
+  id: string;
+  type: string;
+  value: number | null;
+};
+
+function getRewardLabel(reward: Reward) {
+  if (reward.type === "COUPON_EURO") return `Coupon ${reward.value}€`;
+  if (reward.type === "PERCENT") return `Réduction ${reward.value}%`;
+  if (reward.type === "PRODUCT_DISCOUNT") return `Réduction ${reward.value}€`;
+  if (reward.type === "FREE_PRODUCT") return "Produit offert";
+  if (reward.type === "GIFT") return `Cadeau ${reward.value}€`;
+
+  return "Récompense";
+}
+
+function getRewardDiscount(reward: Reward | null, total: number) {
+  if (!reward || !reward.value) return 0;
+
+  if (reward.type === "COUPON_EURO") {
+    return Math.min(reward.value, total);
+  }
+
+  if (reward.type === "PERCENT") {
+    return Math.min(total, (total * reward.value) / 100);
+  }
+
+  if (reward.type === "PRODUCT_DISCOUNT") {
+    return Math.min(reward.value, total);
+  }
+
+  if (reward.type === "GIFT") {
+    return Math.min(reward.value, total);
+  }
+
+  return 0;
+}
 
 export default function CartPage() {
   const {
@@ -13,13 +52,52 @@ export default function CartPage() {
     total,
     pointsUsed,
     setPointsUsed,
-    maxPoints,
+    selectedRewardId,
+    setSelectedRewardId,
   } = useCart();
 
-  const [loading, setLoading] = useState(false);
+  const { user } = useUserLoyalty();
 
-  const discount = Math.min(pointsUsed, maxPoints);
-  const finalTotal = Math.max(0, total - discount);
+  const [loading, setLoading] = useState(false);
+  const [rewards, setRewards] = useState<Reward[]>([]);
+
+  const availablePoints = user?.points ?? 0;
+
+  useEffect(() => {
+    async function loadRewards() {
+      const res = await fetch("/api/rewards");
+
+      if (!res.ok) return;
+
+      const data = await res.json();
+      setRewards(data.rewards || []);
+    }
+
+    loadRewards();
+  }, []);
+
+  const selectedReward = useMemo(
+    () => rewards.find((reward) => reward.id === selectedRewardId) ?? null,
+    [rewards, selectedRewardId]
+  );
+
+  const maxUsablePoints = Math.min(availablePoints, Math.floor(total));
+
+  const safePointsUsed = Math.min(pointsUsed, maxUsablePoints);
+
+  const rewardDiscount = getRewardDiscount(selectedReward, total);
+
+  const totalDiscount = Math.min(total, safePointsUsed + rewardDiscount);
+
+  const finalTotal = Math.max(0, total - totalDiscount);
+
+  const earnedPointsAfterPayment = Math.floor(finalTotal);
+
+  useEffect(() => {
+    if (pointsUsed > maxUsablePoints) {
+      setPointsUsed(maxUsablePoints);
+    }
+  }, [pointsUsed, maxUsablePoints, setPointsUsed]);
 
   async function handleCheckout() {
     if (loading) return;
@@ -30,7 +108,11 @@ export default function CartPage() {
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cart, usedPoints: discount }),
+        body: JSON.stringify({
+          cart,
+          usedPoints: safePointsUsed,
+          rewardId: selectedRewardId,
+        }),
       });
 
       const data = await res.json();
@@ -112,20 +194,61 @@ export default function CartPage() {
           </div>
 
           <div className="loyalty-box">
-            <h3>💚 Fidélité</h3>
+            <h3>🌟 Fidélité</h3>
 
-            <p>Points utilisables : {maxPoints}</p>
+            <p>
+              Points disponibles sur ton compte :{" "}
+              <strong>{availablePoints}</strong>
+            </p>
+
+            <p>
+              Points gagnés après cette commande :{" "}
+              <strong>{earnedPointsAfterPayment}</strong>
+            </p>
+
+            <label className="input-label">Utiliser mes points</label>
 
             <input
               className="input"
               type="number"
               value={pointsUsed}
               onChange={(e) => setPointsUsed(Number(e.target.value))}
-              max={maxPoints}
+              max={maxUsablePoints}
               min={0}
+              disabled={availablePoints === 0}
             />
 
-            <p>Remise : {discount.toFixed(2)} €</p>
+            {availablePoints === 0 && (
+              <p className="text-muted">
+                Tu n'as pas encore de points à utiliser.
+              </p>
+            )}
+
+            {rewards.length > 0 && (
+              <>
+                <label className="input-label">Récompense débloquée</label>
+
+                <select
+                  className="input"
+                  value={selectedRewardId || ""}
+                  onChange={(e) => setSelectedRewardId(e.target.value || null)}
+                >
+                  <option value="">Aucune récompense</option>
+
+                  {rewards.map((reward) => (
+                    <option key={reward.id} value={reward.id}>
+                      {getRewardLabel(reward)}
+                    </option>
+                  ))}
+                </select>
+              </>
+            )}
+
+            <p>Remise points : {safePointsUsed.toFixed(2)} €</p>
+
+            {rewardDiscount > 0 && (
+              <p>Remise récompense : {rewardDiscount.toFixed(2)} €</p>
+            )}
 
             <p className="final-total">
               Total final : {finalTotal.toFixed(2)} €

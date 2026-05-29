@@ -20,13 +20,28 @@ export default function SuccessPage() {
     async function checkPayment() {
       try {
         const res = await fetch(
-          `/api/stripe/session?session_id=${sessionId}`
+          `/api/stripe/session?session_id=${sessionId}`,
+          {
+            cache: "no-store",
+          }
         );
 
         const data = await res.json();
 
         setPaid(data.paid);
-      } catch (err) {
+
+        if (data.paid) {
+          window.dispatchEvent(new Event("loyalty:update"));
+
+          setTimeout(() => {
+            window.dispatchEvent(new Event("loyalty:update"));
+          }, 1500);
+
+          setTimeout(() => {
+            window.dispatchEvent(new Event("loyalty:update"));
+          }, 3000);
+        }
+      } catch {
         setPaid(false);
       } finally {
         setLoading(false);
@@ -57,7 +72,9 @@ export default function SuccessPage() {
         <h1>❌ Paiement non confirmé</h1>
         <p>Si ton paiement a été débité, contacte le support.</p>
 
-        <Link href="/cart">Retour au panier</Link>
+        <Link href="/cart" className="btn btn-outline">
+          Retour au panier
+        </Link>
       </div>
     );
   }
@@ -67,15 +84,20 @@ export default function SuccessPage() {
       <h1 className="success-title">🎉 Paiement confirmé</h1>
 
       <p className="success-text">
-        Merci ! Ta commande est en cours de préparation.
+        Merci ! Ta commande est en cours de préparation. Tes points fidélité
+        vont apparaître dans quelques instants.
       </p>
 
       <div className="success-actions">
-        <Link href="/orders" className="btn btn-primary">
+        <Link href="/account/loyalty" className="btn btn-primary">
+          Voir mes points fidélité
+        </Link>
+
+        <Link href="/orders" className="btn btn-outline">
           Voir mes commandes
         </Link>
 
-        <Link href="/products" className="btn btn-secondary">
+        <Link href="/products" className="btn btn-outline">
           Continuer mes achats
         </Link>
       </div>

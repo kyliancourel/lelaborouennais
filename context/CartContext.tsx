@@ -34,7 +34,7 @@ type CartContextType = {
   selectedRewardId: string | null;
   setSelectedRewardId: (value: string | null) => void;
 
-  maxPoints: number;
+  earnedPointsPreview: number;
 };
 
 const CartContext = createContext<CartContextType | null>(null);
@@ -72,7 +72,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
       if (existing) {
         return prev.map((i) =>
-          i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
+          i.id === item.id
+            ? { ...i, quantity: i.quantity + 1 }
+            : i
         );
       }
 
@@ -84,7 +86,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setCart((prev) =>
       prev
         .map((item) =>
-          item.id === id ? { ...item, quantity: item.quantity - 1 } : item
+          item.id === id
+            ? { ...item, quantity: item.quantity - 1 }
+            : item
         )
         .filter((item) => item.quantity > 0)
     );
@@ -111,7 +115,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     [cart]
   );
 
-  const maxPoints = useMemo(() => Math.floor(total), [total]);
+  // Points théoriquement gagnés APRÈS paiement.
+  // Ce n'est PAS un solde utilisable immédiatement.
+  const earnedPointsPreview = useMemo(() => Math.floor(total), [total]);
 
   return (
     <CartContext.Provider
@@ -127,7 +133,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setPointsUsed,
         selectedRewardId,
         setSelectedRewardId,
-        maxPoints,
+        earnedPointsPreview,
       }}
     >
       {children}
