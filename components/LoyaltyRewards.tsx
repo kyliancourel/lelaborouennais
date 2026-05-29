@@ -68,15 +68,16 @@ export default function LoyaltyRewards({
           return (
             <div
               key={rule.id}
-              className={`loyalty-reward-card ${
-                canUnlock || alreadyUnlocked ? "unlocked" : "locked"
-              }`}
+              className={`loyalty-reward-card ${canUnlock || alreadyUnlocked ? "unlocked" : "locked"
+                }`}
             >
               <div className="reward-icon">{rule.icon || "🎁"}</div>
 
               <div>
                 <h3>{rule.title}</h3>
-                <p>{rule.description}</p>
+                <p className="reward-description">
+                  {rule.description}
+                </p>
               </div>
 
               <div className="reward-footer">

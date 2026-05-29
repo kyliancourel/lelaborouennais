@@ -690,6 +690,11 @@ textarea.input {
   color: var(--success);
 }
 
+.reward-description {
+  white-space: pre-line;
+  line-height: 1.6;
+}
+
 /* =========================================================
    LOYALTY HISTORY
 ========================================================= */

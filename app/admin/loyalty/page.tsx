@@ -63,20 +63,20 @@ export default function AdminLoyaltyPage() {
 
   async function deleteRule(id: string) {
     const confirmed = confirm("Supprimer cette récompense ?");
-  
+
     if (!confirmed) return;
-  
+
     const res = await fetch(`/api/admin/reward-rules/${id}`, {
       method: "DELETE",
     });
-  
+
     const data = await res.json();
-  
+
     if (!res.ok) {
       alert(data.error || "Erreur lors de la suppression");
       return;
     }
-  
+
     await load();
   }
 
@@ -111,11 +111,17 @@ export default function AdminLoyaltyPage() {
           onChange={(e) => setForm({ ...form, title: e.target.value })}
         />
 
-        <input
+        <textarea
           className="input"
           placeholder="Description"
           value={form.description}
-          onChange={(e) => setForm({ ...form, description: e.target.value })}
+          rows={5}
+          onChange={(e) =>
+            setForm({
+              ...form,
+              description: e.target.value,
+            })
+          }
         />
 
         <input
@@ -167,7 +173,9 @@ export default function AdminLoyaltyPage() {
               {rule.icon} {rule.title}
             </h3>
 
-            <p>{rule.description}</p>
+            <p className="reward-description">
+              {rule.description}
+            </p>
             <p>{rule.pointsCost} points</p>
             <p>Type : {rule.type}</p>
             <p>Valeur : {rule.value ?? "—"}</p>
