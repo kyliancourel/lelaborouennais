@@ -50,16 +50,16 @@ export default function Navbar() {
             </div>
           </Link>
 
-          {isLoggedIn && user && (
-            <Link href="/account/loyalty" className="navbar-loyalty-pill">
-              💚 {user.points} pts
-            </Link>
-          )}
-
           <div className="navbar-links desktop-only">
             <Link href="/products">Produits</Link>
             <Link href="/orders">Mes commandes</Link>
             <Link href="/cart">Panier ({cartCount})</Link>
+
+            {isLoggedIn && user && (
+              <Link href="/account/loyalty" className="navbar-loyalty-pill">
+                💚 {user.points} pts
+              </Link>
+            )}
 
             {isLoggedIn && isAdmin && <Link href="/admin">Admin</Link>}
 
@@ -93,7 +93,7 @@ export default function Navbar() {
               className="mobile-loyalty-card"
               onClick={closeMenu}
             >
-              <span>💚 Programme fidélité</span>
+              <span>🌟 Programme fidélité</span>
               <strong>{user.points} points</strong>
             </Link>
           )}

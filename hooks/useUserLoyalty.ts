@@ -1,5 +1,3 @@
-// hooks/useUserLoyalty.ts
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -7,7 +5,7 @@ import { useEffect, useState } from "react";
 type LoyaltyUser = {
   id: string;
   email: string;
-  name: string;
+  name: string | null;
   points: number;
   loyaltyTier: "BRONZE" | "SILVER" | "GOLD" | "VIP";
 };
@@ -19,9 +17,19 @@ export function useUserLoyalty() {
   useEffect(() => {
     async function load() {
       try {
-        const res = await fetch("/api/me");
+        const res = await fetch("/api/me", {
+          cache: "no-store",
+        });
+
+        if (!res.ok) {
+          setUser(null);
+          return;
+        }
+
         const data = await res.json();
-        setUser(data.user);
+        setUser(data.user ?? null);
+      } catch {
+        setUser(null);
       } finally {
         setLoading(false);
       }
