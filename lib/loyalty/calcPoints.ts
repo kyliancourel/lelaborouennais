@@ -2,7 +2,7 @@
 import { prisma } from "@/lib/prisma";
 
 export async function getUserPoints(userId: string) {
-  const points = await prisma.loyaltyPoint.aggregate({
+  const points = await prisma.loyaltyLog.aggregate({
     where: {
       userId,
     },

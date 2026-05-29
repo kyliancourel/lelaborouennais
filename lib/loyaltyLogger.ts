@@ -11,7 +11,7 @@ export async function logLoyalty({
   points: number;
   source?: string;
 }) {
-  await prisma.loyaltyPoint.create({
+  await prisma.loyaltyLog.create({
     data: {
       userId,
       type,

@@ -17,7 +17,7 @@ export async function GET() {
     if (user.points <= 0) continue;
 
     // 🧾 AUDIT LOG (important SaaS)
-    await prisma.loyaltyPoint.create({
+    await prisma.loyaltyLog.create({
       data: {
         userId: user.id,
         points: user.points,

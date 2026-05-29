@@ -96,6 +96,8 @@ model LoyaltyLog {
   source String?
   metadata Json?
 
+  expiresAt DateTime?
+
   createdAt DateTime @default(now())
 }
 
