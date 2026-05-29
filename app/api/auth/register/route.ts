@@ -7,89 +7,89 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
 
-    const { email, password, name } = body;
+    const {
+      email,
+      emailConfirm,
+      password,
+      passwordConfirm,
+      name,
+    } = body;
 
-    // VALIDATION
-    if (!email || !password) {
+    const cleanEmail = String(email || "").trim().toLowerCase();
+    const cleanEmailConfirm = String(emailConfirm || "").trim().toLowerCase();
+
+    if (!cleanEmail || !password) {
       return Response.json(
-        {
-          error: "Email et mot de passe requis",
-        },
-        {
-          status: 400,
-        }
+        { error: "Email et mot de passe requis" },
+        { status: 400 }
       );
     }
 
-    // USER EXISTE ?
+    if (cleanEmail !== cleanEmailConfirm) {
+      return Response.json(
+        { error: "Les emails ne correspondent pas" },
+        { status: 400 }
+      );
+    }
+
+    if (password !== passwordConfirm) {
+      return Response.json(
+        { error: "Les mots de passe ne correspondent pas" },
+        { status: 400 }
+      );
+    }
+
+    if (String(password).length < 8) {
+      return Response.json(
+        { error: "Le mot de passe doit contenir au moins 8 caractères" },
+        { status: 400 }
+      );
+    }
+
     const existingUser = await prisma.user.findUnique({
-      where: {
-        email,
-      },
+      where: { email: cleanEmail },
     });
 
     if (existingUser) {
       return Response.json(
-        {
-          error: "Utilisateur déjà existant",
-        },
-        {
-          status: 409,
-        }
+        { error: "Utilisateur déjà existant" },
+        { status: 409 }
       );
     }
 
-    // HASH PASSWORD
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    // TOKEN
     const token = crypto.randomBytes(32).toString("hex");
+    const expires = new Date(Date.now() + 1000 * 60 * 60 * 24);
 
-    // EXPIRATION
-    const expires = new Date(
-      Date.now() + 1000 * 60 * 60 * 24
-    );
-
-    // CREATE USER
     await prisma.user.create({
       data: {
-        email,
+        email: cleanEmail,
         password: hashedPassword,
         name,
         isVerified: false,
         emailVerifyToken: token,
         emailVerifyExpires: expires,
-        emailLastSentAt: new Date(), // 👈 AJOUT
+        emailLastSentAt: new Date(),
       },
     });
 
-    // VERIFY URL
-    const verifyUrl =
-      `${process.env.NEXT_PUBLIC_APP_URL}/verify-email?token=${token}`;
+    const verifyUrl = `${process.env.NEXT_PUBLIC_APP_URL}/verify-email?token=${token}`;
 
-    // SEND EMAIL
-    await sendVerificationEmail(email, verifyUrl);
+    await sendVerificationEmail(cleanEmail, verifyUrl);
 
     return Response.json(
       {
         success: true,
-        message:
-          "Compte créé. Vérifie ton email.",
+        message: "Compte créé. Vérifie ton email.",
       },
-      {
-        status: 201,
-      }
+      { status: 201 }
     );
   } catch (error) {
     console.error("REGISTER ERROR:", error);
 
     return Response.json(
-      {
-        error: "Erreur serveur",
-      },
-      {
-        status: 500,
-      }
+      { error: "Erreur serveur" },
+      { status: 500 }
     );
   }
 }

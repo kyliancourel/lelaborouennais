@@ -1963,6 +1963,55 @@ textarea.input {
 }
 
 /* =========================================================
+   ACCOUNT DELETE
+========================================================= */
+
+.account-danger-page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 60px 20px;
+}
+
+.account-danger-card {
+  background: var(--card);
+  border: 1px solid rgba(255, 77, 77, 0.25);
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: var(--shadow);
+}
+
+.account-danger-card h1 {
+  font-size: 32px;
+  margin-bottom: 10px;
+}
+
+.account-danger-card h2 {
+  font-size: 18px;
+  margin: 20px 0 12px;
+}
+
+.danger-summary,
+.delete-confirm-box {
+  margin: 20px 0;
+  padding: 18px;
+  border-radius: 16px;
+  background: rgba(255, 77, 77, 0.08);
+  border: 1px solid rgba(255, 77, 77, 0.18);
+}
+
+.radio-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.radio-row input {
+  accent-color: var(--danger);
+}
+
+/* =========================================================
    RESPONSIVE
 ========================================================= */
 
