@@ -12,55 +12,32 @@ export async function POST(req: Request) {
   const body = await req.text();
   const sig = req.headers.get("stripe-signature");
 
-  // =========================
-  // SECURITY CHECK
-  // =========================
   if (!sig) {
-    return NextResponse.json(
-      { error: "Missing signature" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Missing signature" }, { status: 400 });
   }
 
   let event: Stripe.Event;
 
-  // =========================
-  // VERIFY STRIPE SIGNATURE
-  // =========================
   try {
     event = stripe.webhooks.constructEvent(
       body,
       sig,
       process.env.STRIPE_WEBHOOK_SECRET!
     );
-  } catch (err) {
-    return NextResponse.json(
-      { error: "Invalid signature" },
-      { status: 400 }
-    );
+  } catch {
+    return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
-  // =========================
-  // ONLY CHECKOUT COMPLETE
-  // =========================
-  if (
-    event.type !==
-    "checkout.session.completed"
-  ) {
-    return NextResponse.json({
-      received: true,
-    });
+  if (event.type !== "checkout.session.completed") {
+    return NextResponse.json({ received: true });
   }
 
-  const session =
-    event.data.object as Stripe.Checkout.Session;
+  const session = event.data.object as Stripe.Checkout.Session;
 
-  const userId =
-    session.metadata?.userId || null;
-
-  const usedPoints = Number(
-    session.metadata?.usedPoints || 0
-  );
+  const userId = session.metadata?.userId || null;
+  const usedPoints = Number(session.metadata?.usedPoints || 0);
+  const rewardId = session.metadata?.rewardId || "";
+  const rewardDiscount = Number(session.metadata?.rewardDiscount || 0);
 
   const cart = session.metadata?.cart
     ? JSON.parse(session.metadata.cart)
@@ -73,46 +50,29 @@ export async function POST(req: Request) {
     null;
 
   if (!email) {
-    return NextResponse.json({
-      received: true,
-    });
+    return NextResponse.json({ received: true });
   }
 
-  // =========================
-  // IDEMPOTENCY CHECK
-  // =========================
-  const existing =
-    await prisma.order.findFirst({
-      where: {
-        stripeSessionId: session.id,
-      },
-    });
+  const existing = await prisma.order.findFirst({
+    where: { stripeSessionId: session.id },
+  });
 
   if (existing) {
-    return NextResponse.json({
-      received: true,
-    });
+    return NextResponse.json({ received: true });
   }
 
   try {
-    // =========================
-    // CREATE ORDER
-    // =========================
     const order = await prisma.order.create({
       data: {
         orderNumber: `LR-${Date.now()}`,
         stripeSessionId: session.id,
-        ...(userId
-          ? { userId }
-          : {}),
+        ...(userId ? { userId } : {}),
 
-        total:
-          (session.amount_total ?? 0) /
-          100,
-
+        total: (session.amount_total ?? 0) / 100,
         status: "PAID",
+
         usedPoints,
-        discount: usedPoints,
+        discount: usedPoints + rewardDiscount,
 
         items: {
           create: cart.map((item: any) => ({
@@ -124,23 +84,16 @@ export async function POST(req: Request) {
       },
     });
 
-    const fullOrder =
-      await prisma.order.findUnique({
-        where: { id: order.id },
-        include: {
-          user: true,
-          items: {
-            include: { product: true },
-          },
-        },
-      });
+    const fullOrder = await prisma.order.findUnique({
+      where: { id: order.id },
+      include: {
+        user: true,
+        items: { include: { product: true } },
+      },
+    });
 
-    if (!fullOrder)
-      throw new Error("Order not found");
+    if (!fullOrder) throw new Error("Order not found");
 
-    // =========================
-    // EMAIL CONFIRMATION
-    // =========================
     await sendOrderEmail(email, {
       orderNumber: fullOrder.orderNumber!,
       total: fullOrder.total,
@@ -150,31 +103,20 @@ export async function POST(req: Request) {
       items: fullOrder.items,
     });
 
-    // =========================
-    // LOYALTY SYSTEM
-    // =========================
     if (userId) {
-      const user =
-        await prisma.user.findUnique({
-          where: { id: userId },
-        });
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+      });
 
-      const tier =
-        user?.loyaltyTier || "BRONZE";
+      const tier = user?.loyaltyTier || "BRONZE";
 
-      const pointsEarned =
-        calculateFinalEarnedPoints(
-          fullOrder.total,
-          tier
-        );
-
-      const realUserPoints =
-        user?.points || 0;
-
-      const safeUsedPoints = Math.min(
-        realUserPoints,
-        usedPoints
+      const pointsEarned = calculateFinalEarnedPoints(
+        fullOrder.total,
+        tier
       );
+
+      const realUserPoints = user?.points || 0;
+      const safeUsedPoints = Math.min(realUserPoints, usedPoints);
 
       await prisma.loyaltyLog.create({
         data: {
@@ -184,6 +126,27 @@ export async function POST(req: Request) {
           source: `order_${fullOrder.id}`,
         },
       });
+
+      if (safeUsedPoints > 0) {
+        await prisma.loyaltyLog.create({
+          data: {
+            userId,
+            points: safeUsedPoints,
+            type: "USED",
+            source: `order_${fullOrder.id}`,
+          },
+        });
+      }
+
+      if (rewardId) {
+        await prisma.loyaltyReward.update({
+          where: { id: rewardId },
+          data: {
+            status: "USED",
+            usedAt: new Date(),
+          },
+        });
+      }
 
       await prisma.user.update({
         where: { id: userId },
@@ -198,15 +161,10 @@ export async function POST(req: Request) {
       await updateUserTier(userId);
     }
 
-    return NextResponse.json({
-      received: true,
-    });
+    return NextResponse.json({ received: true });
   } catch (err) {
     console.error(err);
 
-    return NextResponse.json(
-      { error: "Webhook failed" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Webhook failed" }, { status: 500 });
   }
 }

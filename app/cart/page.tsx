@@ -30,10 +30,7 @@ export default function CartPage() {
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          cart,
-          usedPoints: discount,
-        }),
+        body: JSON.stringify({ cart, usedPoints: discount }),
       });
 
       const data = await res.json();
@@ -50,60 +47,97 @@ export default function CartPage() {
 
   if (cart.length === 0) {
     return (
-      <div className="p-10">
-        <h2>Ton panier est vide</h2>
+      <div className="empty-state">
+        <h2 className="empty-title">Ton panier est vide</h2>
+        <p className="empty-subtitle">Ajoute des produits pour commencer.</p>
       </div>
     );
   }
 
   return (
-    <div className="p-10">
-      <h1 className="text-2xl font-bold">Panier</h1>
+    <div className="cart-page">
+      <h1 className="page-title">Panier</h1>
 
-      <div className="grid md:grid-cols-2 gap-10 mt-6">
-        {/* CART */}
-        <div>
+      <div className="cart-layout">
+        <div className="cart-list">
           {cart.map((item) => (
-            <div key={item.id} className="border p-4 mb-4 rounded">
-              <h3>{item.name}</h3>
-              <p>{item.price} €</p>
+            <div key={item.id} className="cart-item-card">
+              {item.image && (
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  className="cart-item-image"
+                />
+              )}
 
-              <div className="flex gap-2">
-                <button onClick={() => removeOne(item.id)}>-</button>
-                <span>{item.quantity}</span>
-                <button onClick={() => addToCart(item)}>+</button>
+              <div className="cart-item-info">
+                <h3 className="cart-item-name">{item.name}</h3>
+                <p className="cart-item-price">{item.price} €</p>
+
+                <div className="cart-qty">
+                  <button
+                    className="qty-btn"
+                    onClick={() => removeOne(item.id)}
+                  >
+                    −
+                  </button>
+
+                  <span>{item.quantity}</span>
+
+                  <button
+                    className="qty-btn"
+                    onClick={() => addToCart(item)}
+                  >
+                    +
+                  </button>
+                </div>
+
+                <button
+                  className="cart-remove-btn"
+                  onClick={() => remove(item.id)}
+                >
+                  <Trash2 size={16} />
+                </button>
               </div>
-
-              <button onClick={() => remove(item.id)}>
-                <Trash2 size={14} />
-              </button>
             </div>
           ))}
         </div>
 
-        {/* LOYALTY */}
-        <div className="border p-4 rounded">
-          <h2 className="font-bold">💚 Loyalty</h2>
+        <div className="cart-summary">
+          <h2 className="section-title">Résumé</h2>
 
-          <p>Max points: {maxPoints}</p>
+          <div className="summary-row">
+            <span>Total</span>
+            <strong>{total.toFixed(2)} €</strong>
+          </div>
 
-          <input
-            type="number"
-            value={pointsUsed}
-            onChange={(e) => setPointsUsed(Number(e.target.value))}
-            max={maxPoints}
-            min={0}
-          />
+          <div className="loyalty-box">
+            <h3>💚 Fidélité</h3>
 
-          <p>Discount: {discount} €</p>
-          <p>Total: {total} €</p>
-          <p className="font-bold">Final: {finalTotal} €</p>
+            <p>Points utilisables : {maxPoints}</p>
+
+            <input
+              className="input"
+              type="number"
+              value={pointsUsed}
+              onChange={(e) => setPointsUsed(Number(e.target.value))}
+              max={maxPoints}
+              min={0}
+            />
+
+            <p>Remise : {discount.toFixed(2)} €</p>
+
+            <p className="final-total">
+              Total final : {finalTotal.toFixed(2)} €
+            </p>
+          </div>
 
           <button
-            className="mt-4 bg-black text-white px-4 py-2"
+            className="checkout-btn"
+            disabled={loading}
             onClick={handleCheckout}
           >
-            {loading ? "Loading..." : "Checkout"}
+            {loading ? "Redirection..." : "Payer maintenant"}
           </button>
         </div>
       </div>

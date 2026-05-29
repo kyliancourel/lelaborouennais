@@ -31,6 +31,9 @@ type CartContextType = {
   pointsUsed: number;
   setPointsUsed: (value: number) => void;
 
+  selectedRewardId: string | null;
+  setSelectedRewardId: (value: string | null) => void;
+
   maxPoints: number;
 };
 
@@ -43,10 +46,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [hydrated, setHydrated] = useState(false);
 
   const [pointsUsed, setPointsUsed] = useState<number>(0);
+  const [selectedRewardId, setSelectedRewardId] = useState<string | null>(null);
 
-  // =========================
-  // LOAD CART
-  // =========================
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
 
@@ -59,18 +60,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setHydrated(true);
   }, []);
 
-  // =========================
-  // SAVE CART
-  // =========================
   useEffect(() => {
     if (hydrated) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
     }
   }, [cart, hydrated]);
-
-  // =========================
-  // ACTIONS
-  // =========================
 
   const addToCart = useCallback((item: Omit<CartItem, "quantity">) => {
     setCart((prev) => {
@@ -78,9 +72,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
       if (existing) {
         return prev.map((i) =>
-          i.id === item.id
-            ? { ...i, quantity: i.quantity + 1 }
-            : i
+          i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
         );
       }
 
@@ -92,9 +84,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setCart((prev) =>
       prev
         .map((item) =>
-          item.id === id
-            ? { ...item, quantity: item.quantity - 1 }
-            : item
+          item.id === id ? { ...item, quantity: item.quantity - 1 } : item
         )
         .filter((item) => item.quantity > 0)
     );
@@ -108,15 +98,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setCart([]);
     localStorage.removeItem(STORAGE_KEY);
     setPointsUsed(0);
+    setSelectedRewardId(null);
   }, []);
 
-  // =========================
-  // DERIVED VALUES
-  // =========================
-
   const total = useMemo(
-    () =>
-      cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
+    () => cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
     [cart]
   );
 
@@ -125,14 +111,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     [cart]
   );
 
-  // 🟢 IMPORTANT FIX
-  const maxPoints = useMemo(() => {
-    return Math.floor(total);
-  }, [total]);
-
-  // =========================
-  // PROVIDER
-  // =========================
+  const maxPoints = useMemo(() => Math.floor(total), [total]);
 
   return (
     <CartContext.Provider
@@ -144,11 +123,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         clear,
         total,
         cartCount,
-
         pointsUsed,
         setPointsUsed,
-
-        maxPoints, // ✅ FIX ICI
+        selectedRewardId,
+        setSelectedRewardId,
+        maxPoints,
       }}
     >
       {children}
@@ -156,14 +135,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-// =========================
-// HOOK
-// =========================
-
 export function useCart() {
   const ctx = useContext(CartContext);
+
   if (!ctx) {
     throw new Error("useCart must be used inside CartProvider");
   }
+
   return ctx;
 }

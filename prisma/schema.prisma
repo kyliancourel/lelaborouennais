@@ -159,6 +159,23 @@ enum RewardStatus {
   EXPIRED
 }
 
+model LoyaltyRewardRule{
+  id            String @id @default(cuid())
+
+  title         String
+  description   String
+  icon          String?
+
+  pointsCost    Int
+  type          LoyaltyRewardType
+  value         Float?
+
+  isActive      Boolean @default(true)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
 model Account {
   id                String @id @default(cuid())
   userId            String

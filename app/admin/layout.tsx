@@ -1,11 +1,7 @@
 import { ReactNode } from "react";
 import Link from "next/link";
 
-export default function AdminLayout({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
     <div className="admin-layout">
       <aside className="admin-sidebar">
@@ -22,6 +18,10 @@ export default function AdminLayout({
 
           <Link className="admin-link" href="/admin/orders">
             Commandes
+          </Link>
+
+          <Link className="admin-link" href="/admin/loyalty">
+            Fidélité
           </Link>
         </nav>
       </aside>

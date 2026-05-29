@@ -12,11 +12,20 @@ export async function GET() {
   const rewards = await prisma.loyaltyReward.findMany({
     where: {
       userId: session.user.id,
+      status: "ACTIVE",
     },
     orderBy: {
       createdAt: "desc",
     },
   });
 
-  return NextResponse.json({ rewards });
+  const rules = await prisma.loyaltyRewardRule.findMany({
+    where: { isActive: true },
+    orderBy: { pointsCost: "asc" },
+  });
+
+  return NextResponse.json({
+    rewards,
+    rules,
+  });
 }

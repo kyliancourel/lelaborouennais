@@ -49,8 +49,9 @@ export async function addUserPoints(params: {
       points,
       type: "EARNED",
       source,
+      expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365),
     },
   });
-  
+
   return syncUserPoints(userId);
 }

@@ -1,12 +1,11 @@
+import type { LoyaltyRewardType, LoyaltyTier } from "@prisma/client";
+
 type ValidateParams = {
   userPoints: number;
   usedPoints: number;
   cartTotal: number;
 };
 
-/**
- * 🛡️ SAFETY ENGINE (1€ = 1 point)
- */
 export function validateLoyaltyUsage({
   userPoints,
   usedPoints,
@@ -23,19 +22,11 @@ export function validateLoyaltyUsage({
   return { safeUsedPoints };
 }
 
-/**
- * 💰 BASE EARN RULE (before multiplier)
- */
 export function calculateEarnedPoints(total: number) {
   return Math.floor(total);
 }
 
-/**
- * 💎 VIP MULTIPLIER (SAAS CORE)
- */
-export function calculateVipMultiplier(
-  tier: "BRONZE" | "SILVER" | "GOLD" | "VIP"
-) {
+export function calculateVipMultiplier(tier: LoyaltyTier) {
   switch (tier) {
     case "VIP":
       return 2;
@@ -48,22 +39,45 @@ export function calculateVipMultiplier(
   }
 }
 
-/**
- * 💰 FINAL EARNED POINTS (NEW SAAS RULE)
- */
-export function calculateFinalEarnedPoints(
-  total: number,
-  tier: "BRONZE" | "SILVER" | "GOLD" | "VIP"
-) {
+export function calculateFinalEarnedPoints(total: number, tier: LoyaltyTier) {
   const base = calculateEarnedPoints(total);
   const multiplier = calculateVipMultiplier(tier);
 
   return Math.floor(base * multiplier);
 }
 
-/**
- * 🧾 UI helper
- */
+export function calculateRewardDiscount(params: {
+  type: LoyaltyRewardType;
+  value: number | null;
+  cartTotal: number;
+}) {
+  const { type, value, cartTotal } = params;
+
+  if (!value) return 0;
+
+  if (type === "COUPON_EURO") {
+    return Math.min(value, cartTotal);
+  }
+
+  if (type === "PERCENT") {
+    return Math.min(cartTotal, (cartTotal * value) / 100);
+  }
+
+  if (type === "PRODUCT_DISCOUNT") {
+    return Math.min(value, cartTotal);
+  }
+
+  if (type === "GIFT") {
+    return Math.min(value, cartTotal);
+  }
+
+  if (type === "FREE_PRODUCT") {
+    return 0;
+  }
+
+  return 0;
+}
+
 export function pointsToEuro(points: number) {
   return points;
 }
