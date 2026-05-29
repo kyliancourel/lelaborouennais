@@ -14,20 +14,22 @@ type Rule = {
   isActive: boolean;
 };
 
+const emptyForm = {
+  title: "",
+  description: "",
+  icon: "🎁",
+  pointsCost: 50,
+  type: "COUPON_EURO",
+  value: 5,
+  optionsText: "",
+  isActive: true,
+};
+
 export default function AdminLoyaltyPage() {
   const [rules, setRules] = useState<Rule[]>([]);
   const [stats, setStats] = useState({ users: 0, totalPoints: 0 });
-
-  const [form, setForm] = useState({
-    title: "",
-    description: "",
-    icon: "🎁",
-    pointsCost: 50,
-    type: "COUPON_EURO",
-    value: 5,
-    optionsText: "",
-    isActive: true,
-  });
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [form, setForm] = useState(emptyForm);
 
   async function load() {
     const res = await fetch("/api/admin/reward-rules");
@@ -41,11 +43,39 @@ export default function AdminLoyaltyPage() {
     load();
   }, []);
 
-  async function createRule(e: React.FormEvent) {
+  function resetForm() {
+    setEditingId(null);
+    setForm(emptyForm);
+  }
+
+  function startEdit(rule: Rule) {
+    setEditingId(rule.id);
+
+    setForm({
+      title: rule.title,
+      description: rule.description,
+      icon: rule.icon || "🎁",
+      pointsCost: rule.pointsCost,
+      type: rule.type,
+      value: rule.value ?? 0,
+      optionsText: Array.isArray(rule.options) ? rule.options.join("\n") : "",
+      isActive: rule.isActive,
+    });
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  async function submitRule(e: React.FormEvent) {
     e.preventDefault();
 
-    const res = await fetch("/api/admin/reward-rules", {
-      method: "POST",
+    const url = editingId
+      ? `/api/admin/reward-rules/${editingId}`
+      : "/api/admin/reward-rules";
+
+    const method = editingId ? "PUT" : "POST";
+
+    const res = await fetch(url, {
+      method,
       headers: {
         "Content-Type": "application/json",
       },
@@ -53,21 +83,15 @@ export default function AdminLoyaltyPage() {
     });
 
     if (!res.ok) {
-      alert("Erreur lors de la création de la récompense");
+      alert(
+        editingId
+          ? "Erreur lors de la modification de la récompense"
+          : "Erreur lors de la création de la récompense"
+      );
       return;
     }
 
-    setForm({
-      title: "",
-      description: "",
-      icon: "🎁",
-      pointsCost: 50,
-      type: "COUPON_EURO",
-      value: 5,
-      optionsText: "",
-      isActive: true,
-    });
-
+    resetForm();
     await load();
   }
 
@@ -111,19 +135,14 @@ export default function AdminLoyaltyPage() {
         </div>
       </div>
 
-      <form className="card form mt-3" onSubmit={createRule}>
-        <h2>Créer une récompense</h2>
+      <form className="card form mt-3" onSubmit={submitRule}>
+        <h2>{editingId ? "Modifier la récompense" : "Créer une récompense"}</h2>
 
         <input
           className="input"
           placeholder="Titre ex: Produit exclusif Silver"
           value={form.title}
-          onChange={(e) =>
-            setForm({
-              ...form,
-              title: e.target.value,
-            })
-          }
+          onChange={(e) => setForm({ ...form, title: e.target.value })}
         />
 
         <textarea
@@ -131,24 +150,14 @@ export default function AdminLoyaltyPage() {
           placeholder="Description"
           value={form.description}
           rows={5}
-          onChange={(e) =>
-            setForm({
-              ...form,
-              description: e.target.value,
-            })
-          }
+          onChange={(e) => setForm({ ...form, description: e.target.value })}
         />
 
         <input
           className="input"
           placeholder="Icône"
           value={form.icon}
-          onChange={(e) =>
-            setForm({
-              ...form,
-              icon: e.target.value,
-            })
-          }
+          onChange={(e) => setForm({ ...form, icon: e.target.value })}
         />
 
         <input
@@ -157,22 +166,14 @@ export default function AdminLoyaltyPage() {
           placeholder="Coût en points"
           value={form.pointsCost}
           onChange={(e) =>
-            setForm({
-              ...form,
-              pointsCost: Number(e.target.value),
-            })
+            setForm({ ...form, pointsCost: Number(e.target.value) })
           }
         />
 
         <select
           className="input"
           value={form.type}
-          onChange={(e) =>
-            setForm({
-              ...form,
-              type: e.target.value,
-            })
-          }
+          onChange={(e) => setForm({ ...form, type: e.target.value })}
         >
           <option value="COUPON_EURO">Coupon €</option>
           <option value="PERCENT">Pourcentage</option>
@@ -186,33 +187,33 @@ export default function AdminLoyaltyPage() {
           type="number"
           placeholder="Valeur"
           value={form.value}
-          onChange={(e) =>
-            setForm({
-              ...form,
-              value: Number(e.target.value),
-            })
-          }
+          onChange={(e) => setForm({ ...form, value: Number(e.target.value) })}
         />
 
         <textarea
           className="input"
           placeholder={`Options au choix, une par ligne :
 Support téléphone premium
-Organiseur de bureau compact
+Organiseur de bureau 3 compartiments
 Support casque compact`}
           value={form.optionsText}
           rows={5}
-          onChange={(e) =>
-            setForm({
-              ...form,
-              optionsText: e.target.value,
-            })
-          }
+          onChange={(e) => setForm({ ...form, optionsText: e.target.value })}
         />
 
         <button className="btn btn-primary" type="submit">
-          Ajouter
+          {editingId ? "Enregistrer les modifications" : "Ajouter"}
         </button>
+
+        {editingId && (
+          <button
+            className="btn btn-outline"
+            type="button"
+            onClick={resetForm}
+          >
+            Annuler
+          </button>
+        )}
       </form>
 
       <div className="admin-grid mt-3">
@@ -240,12 +241,21 @@ Support casque compact`}
               </div>
             )}
 
-            <button
-              className="btn btn-danger mt-3"
-              onClick={() => deleteRule(rule.id)}
-            >
-              Supprimer
-            </button>
+            <div className="card-actions mt-3">
+              <button
+                className="btn btn-outline"
+                onClick={() => startEdit(rule)}
+              >
+                Modifier
+              </button>
+
+              <button
+                className="btn btn-danger"
+                onClick={() => deleteRule(rule.id)}
+              >
+                Supprimer
+              </button>
+            </div>
           </div>
         ))}
       </div>
