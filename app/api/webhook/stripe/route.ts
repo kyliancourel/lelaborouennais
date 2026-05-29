@@ -115,9 +115,6 @@ export async function POST(req: Request) {
         tier
       );
 
-      const realUserPoints = user?.points || 0;
-      const safeUsedPoints = Math.min(realUserPoints, usedPoints);
-
       await prisma.loyaltyLog.create({
         data: {
           userId,
@@ -126,17 +123,6 @@ export async function POST(req: Request) {
           source: `order_${fullOrder.id}`,
         },
       });
-
-      if (safeUsedPoints > 0) {
-        await prisma.loyaltyLog.create({
-          data: {
-            userId,
-            points: safeUsedPoints,
-            type: "USED",
-            source: `order_${fullOrder.id}`,
-          },
-        });
-      }
 
       if (rewardId) {
         await prisma.loyaltyReward.update({
@@ -153,7 +139,6 @@ export async function POST(req: Request) {
         data: {
           points: {
             increment: pointsEarned,
-            decrement: safeUsedPoints,
           },
         },
       });

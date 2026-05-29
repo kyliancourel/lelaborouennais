@@ -22,8 +22,11 @@ export async function POST(req: Request) {
   const session = await auth();
   const { cart, usedPoints = 0, rewardId = null } = await req.json();
 
-  if (!Array.isArray(cart) || cart.length === 0) {
-    return NextResponse.json({ error: "Cart empty" }, { status: 400 });
+  if (usedPoints > 0) {
+    return NextResponse.json(
+      { error: "Les points servent uniquement à débloquer des récompenses." },
+      { status: 400 }
+    );
   }
 
   const userId = session?.user?.id || null;
@@ -83,7 +86,7 @@ export async function POST(req: Request) {
 
   const totalDiscount = Math.min(
     cartTotal,
-    safeUsedPoints + rewardDiscount
+    rewardDiscount
   );
 
   const safeCart = cart.map((item: any) => ({
@@ -96,11 +99,11 @@ export async function POST(req: Request) {
   const coupon =
     totalDiscount > 0
       ? await stripe.coupons.create({
-          amount_off: Math.round(totalDiscount * 100),
-          currency: "eur",
-          duration: "once",
-          name: "Réduction fidélité",
-        })
+        amount_off: Math.round(totalDiscount * 100),
+        currency: "eur",
+        duration: "once",
+        name: "Réduction fidélité",
+      })
       : null;
 
   const stripeSession = await stripe.checkout.sessions.create({

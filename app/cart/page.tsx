@@ -24,21 +24,10 @@ function getRewardLabel(reward: Reward) {
 function getRewardDiscount(reward: Reward | null, total: number) {
   if (!reward || !reward.value) return 0;
 
-  if (reward.type === "COUPON_EURO") {
-    return Math.min(reward.value, total);
-  }
-
-  if (reward.type === "PERCENT") {
-    return Math.min(total, (total * reward.value) / 100);
-  }
-
-  if (reward.type === "PRODUCT_DISCOUNT") {
-    return Math.min(reward.value, total);
-  }
-
-  if (reward.type === "GIFT") {
-    return Math.min(reward.value, total);
-  }
+  if (reward.type === "COUPON_EURO") return Math.min(reward.value, total);
+  if (reward.type === "PERCENT") return Math.min(total, (total * reward.value) / 100);
+  if (reward.type === "PRODUCT_DISCOUNT") return Math.min(reward.value, total);
+  if (reward.type === "GIFT") return Math.min(reward.value, total);
 
   return 0;
 }
@@ -50,8 +39,6 @@ export default function CartPage() {
     removeOne,
     remove,
     total,
-    pointsUsed,
-    setPointsUsed,
     selectedRewardId,
     setSelectedRewardId,
   } = useCart();
@@ -66,7 +53,6 @@ export default function CartPage() {
   useEffect(() => {
     async function loadRewards() {
       const res = await fetch("/api/rewards");
-
       if (!res.ok) return;
 
       const data = await res.json();
@@ -81,23 +67,9 @@ export default function CartPage() {
     [rewards, selectedRewardId]
   );
 
-  const maxUsablePoints = Math.min(availablePoints, Math.floor(total));
-
-  const safePointsUsed = Math.min(pointsUsed, maxUsablePoints);
-
   const rewardDiscount = getRewardDiscount(selectedReward, total);
-
-  const totalDiscount = Math.min(total, safePointsUsed + rewardDiscount);
-
-  const finalTotal = Math.max(0, total - totalDiscount);
-
+  const finalTotal = Math.max(0, total - rewardDiscount);
   const earnedPointsAfterPayment = Math.floor(finalTotal);
-
-  useEffect(() => {
-    if (pointsUsed > maxUsablePoints) {
-      setPointsUsed(maxUsablePoints);
-    }
-  }, [pointsUsed, maxUsablePoints, setPointsUsed]);
 
   async function handleCheckout() {
     if (loading) return;
@@ -110,7 +82,6 @@ export default function CartPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           cart,
-          usedPoints: safePointsUsed,
           rewardId: selectedRewardId,
         }),
       });
@@ -145,11 +116,7 @@ export default function CartPage() {
           {cart.map((item) => (
             <div key={item.id} className="cart-item-card">
               {item.image && (
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  className="cart-item-image"
-                />
+                <img src={item.image} alt={item.name} className="cart-item-image" />
               )}
 
               <div className="cart-item-info">
@@ -157,27 +124,18 @@ export default function CartPage() {
                 <p className="cart-item-price">{item.price} €</p>
 
                 <div className="cart-qty">
-                  <button
-                    className="qty-btn"
-                    onClick={() => removeOne(item.id)}
-                  >
+                  <button className="qty-btn" onClick={() => removeOne(item.id)}>
                     −
                   </button>
 
                   <span>{item.quantity}</span>
 
-                  <button
-                    className="qty-btn"
-                    onClick={() => addToCart(item)}
-                  >
+                  <button className="qty-btn" onClick={() => addToCart(item)}>
                     +
                   </button>
                 </div>
 
-                <button
-                  className="cart-remove-btn"
-                  onClick={() => remove(item.id)}
-                >
+                <button className="cart-remove-btn" onClick={() => remove(item.id)}>
                   <Trash2 size={16} />
                 </button>
               </div>
@@ -197,32 +155,13 @@ export default function CartPage() {
             <h3>🌟 Fidélité</h3>
 
             <p>
-              Points disponibles sur ton compte :{" "}
-              <strong>{availablePoints}</strong>
+              Points disponibles sur ton compte : <strong>{availablePoints}</strong>
             </p>
 
             <p>
               Points gagnés après cette commande :{" "}
               <strong>{earnedPointsAfterPayment}</strong>
             </p>
-
-            <label className="input-label">Utiliser mes points</label>
-
-            <input
-              className="input"
-              type="number"
-              value={pointsUsed}
-              onChange={(e) => setPointsUsed(Number(e.target.value))}
-              max={maxUsablePoints}
-              min={0}
-              disabled={availablePoints === 0}
-            />
-
-            {availablePoints === 0 && (
-              <p className="text-muted">
-                Tu n'as pas encore de points à utiliser.
-              </p>
-            )}
 
             {rewards.length > 0 && (
               <>
@@ -244,8 +183,6 @@ export default function CartPage() {
               </>
             )}
 
-            <p>Remise points : {safePointsUsed.toFixed(2)} €</p>
-
             {rewardDiscount > 0 && (
               <p>Remise récompense : {rewardDiscount.toFixed(2)} €</p>
             )}
@@ -255,11 +192,7 @@ export default function CartPage() {
             </p>
           </div>
 
-          <button
-            className="checkout-btn"
-            disabled={loading}
-            onClick={handleCheckout}
-          >
+          <button className="checkout-btn" disabled={loading} onClick={handleCheckout}>
             {loading ? "Redirection..." : "Payer maintenant"}
           </button>
         </div>

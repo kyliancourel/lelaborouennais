@@ -59,7 +59,7 @@ export default function Navbar() {
 
             {isLoggedIn && (
               <Link href="/account/loyalty" className="navbar-loyalty-pill">
-                💚 {loyaltyPoints} pts
+                🌟 {loyaltyPoints} pts
               </Link>
             )}
 
