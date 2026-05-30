@@ -36,6 +36,13 @@ export default async function LoyaltyPage() {
         orderBy: {
           createdAt: "desc",
         },
+        select: {
+          id: true,
+          source: true,
+          status: true,
+          selectedOption: true,
+          usedAt: true,
+        },
       },
     },
   });

@@ -18,6 +18,7 @@ type UserReward = {
   source: string | null;
   status: "ACTIVE" | "USED" | "EXPIRED";
   selectedOption?: string | null;
+  usedAt?: Date | string | null;
 };
 
 type Props = {
@@ -25,6 +26,20 @@ type Props = {
   rules: Rule[];
   userRewards: UserReward[];
 };
+
+function getNextAvailableDate(usedAt: Date | string) {
+  const date = new Date(usedAt);
+  date.setMonth(date.getMonth() + 1);
+  return date;
+}
+
+function formatDate(date: Date) {
+  return date.toLocaleDateString("fr-FR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
+}
 
 export default function LoyaltyRewards({
   userPoints,
@@ -58,9 +73,19 @@ export default function LoyaltyRewards({
       }),
     });
 
+    const data = await res.json();
     setLoadingId(null);
 
     if (!res.ok) {
+      if (data.nextAvailableAt) {
+        alert(
+          `Cette récompense sera disponible à nouveau le ${formatDate(
+            new Date(data.nextAvailableAt)
+          )}.`
+        );
+        return;
+      }
+
       alert("Impossible de débloquer cette récompense.");
       return;
     }
@@ -77,16 +102,28 @@ export default function LoyaltyRewards({
 
       <div className="loyalty-reward-grid">
         {rules.map((rule) => {
+          const source = `rule_${rule.id}`;
           const options = Array.isArray(rule.options) ? rule.options : [];
 
           const activeReward = userRewards.find(
-            (reward) =>
-              reward.source === `rule_${rule.id}` &&
-              reward.status === "ACTIVE"
+            (reward) => reward.source === source && reward.status === "ACTIVE"
           );
 
+          const lastUsedReward = userRewards.find(
+            (reward) => reward.source === source && reward.status === "USED" && reward.usedAt
+          );
+
+          const nextAvailableAt = lastUsedReward?.usedAt
+            ? getNextAvailableDate(lastUsedReward.usedAt)
+            : null;
+
+          const isCooldown =
+            nextAvailableAt !== null && nextAvailableAt.getTime() > Date.now();
+
           const alreadyUnlocked = Boolean(activeReward);
-          const canUnlock = userPoints >= rule.pointsCost && !alreadyUnlocked;
+
+          const canUnlock =
+            userPoints >= rule.pointsCost && !alreadyUnlocked && !isCooldown;
 
           return (
             <div
@@ -102,7 +139,7 @@ export default function LoyaltyRewards({
 
                 <p className="reward-description">{rule.description}</p>
 
-                {options.length > 0 && !alreadyUnlocked && (
+                {options.length > 0 && !alreadyUnlocked && !isCooldown && (
                   <div className="reward-choice">
                     <label className="input-label">Choisis ton cadeau</label>
 
@@ -133,6 +170,13 @@ export default function LoyaltyRewards({
                     Choix : <strong>{activeReward.selectedOption}</strong>
                   </p>
                 )}
+
+                {isCooldown && nextAvailableAt && (
+                  <p className="text-muted mt-3">
+                    Disponible à nouveau le{" "}
+                    <strong>{formatDate(nextAvailableAt)}</strong>
+                  </p>
+                )}
               </div>
 
               <div className="reward-footer">
@@ -141,6 +185,10 @@ export default function LoyaltyRewards({
                 {alreadyUnlocked ? (
                   <button className="btn btn-primary" disabled>
                     Disponible
+                  </button>
+                ) : isCooldown && nextAvailableAt ? (
+                  <button className="btn btn-outline" disabled>
+                    {formatDate(nextAvailableAt)}
                   </button>
                 ) : canUnlock ? (
                   <button
