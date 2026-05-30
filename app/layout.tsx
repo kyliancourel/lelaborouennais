@@ -7,6 +7,7 @@ import Navbar from "@/components/Navbar";
 import Providers from "./providers";
 
 import { Toaster } from "react-hot-toast";
+import Footer from "@/components/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

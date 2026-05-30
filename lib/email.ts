@@ -3,21 +3,27 @@ import { generateInvoicePDF } from "./invoice";
 
 const resendClient = resend();
 
-/* =========================
-   EMAIL VERIFICATION
-========================= */
-export async function sendVerificationEmail(
-  to: string,
-  verifyUrl: string
-) {
+export async function sendVerificationEmail(to: string, verifyUrl: string) {
   const html = `
-    <h2>Confirme ton email 👋</h2>
-    <p>Merci pour ton inscription.</p>
+    <div style="background:#0b0d11;padding:40px;font-family:Arial,sans-serif;color:#fff;">
+      <div style="max-width:560px;margin:auto;background:#141922;border:1px solid #232936;border-radius:20px;padding:32px;">
+        <h1 style="margin:0 0 12px;font-size:28px;">Confirme ton email</h1>
 
-    <a href="${verifyUrl}"
-      style="display:inline-block;margin-top:20px;padding:12px 18px;background:#000;color:#fff;text-decoration:none;border-radius:8px;">
-      Vérifier mon email
-    </a>
+        <p style="color:#a1a8b3;line-height:1.6;">
+          Merci pour ton inscription au Labo Rouennais.
+          Clique sur le bouton ci-dessous pour activer ton compte.
+        </p>
+
+        <a href="${verifyUrl}"
+          style="display:inline-block;margin-top:22px;padding:13px 18px;background:#fff;color:#000;text-decoration:none;border-radius:12px;font-weight:700;">
+          Vérifier mon email
+        </a>
+
+        <p style="margin-top:28px;color:#6b7280;font-size:12px;">
+          Si tu n'es pas à l'origine de cette demande, tu peux ignorer cet email.
+        </p>
+      </div>
+    </div>
   `;
 
   const { error } = await resendClient.emails.send({
@@ -33,27 +39,85 @@ export async function sendVerificationEmail(
   }
 }
 
-/* =========================
-   EMAIL COMMANDE + FACTURE
-========================= */
 export async function sendOrderEmail(to: string, order: any) {
   const invoicePdf = await generateInvoicePDF(order);
 
+  const itemsHtml = order.items
+    .map(
+      (item: any) => `
+        <tr>
+          <td style="padding:12px 0;border-bottom:1px solid #232936;color:#fff;">
+            ${item.product?.name ?? "Produit"}
+          </td>
+          <td style="padding:12px 0;border-bottom:1px solid #232936;color:#a1a8b3;text-align:center;">
+            ${item.quantity}
+          </td>
+          <td style="padding:12px 0;border-bottom:1px solid #232936;color:#fff;text-align:right;">
+            ${Number(item.price).toFixed(2)} €
+          </td>
+        </tr>
+      `
+    )
+    .join("");
+
   const html = `
-    <h2>Commande confirmée 🎉</h2>
+    <div style="background:#0b0d11;padding:40px;font-family:Arial,sans-serif;color:#fff;">
+      <div style="max-width:680px;margin:auto;background:#141922;border:1px solid #232936;border-radius:24px;overflow:hidden;">
+        <div style="padding:32px;border-bottom:1px solid #232936;">
+          <h1 style="margin:0;font-size:30px;letter-spacing:-0.04em;">
+            Commande confirmée
+          </h1>
 
-    <p><strong>Commande :</strong> ${order.orderNumber}</p>
-    <p><strong>Total :</strong> ${order.total.toFixed(2)} €</p>
+          <p style="margin:12px 0 0;color:#a1a8b3;line-height:1.6;">
+            Merci pour votre commande. Chaque création est produite avec soin à Rouen en Normandie.
+          </p>
+        </div>
 
-    <p>Votre facture PDF est jointe à cet email.</p>
+        <div style="padding:32px;">
+          <p style="color:#a1a8b3;margin:0 0 6px;">Numéro de commande</p>
+          <p style="font-size:20px;font-weight:700;margin:0 0 24px;">${order.orderNumber}</p>
+
+          <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
+            <thead>
+              <tr>
+                <th style="text-align:left;color:#6b7280;font-size:12px;padding-bottom:10px;">Produit</th>
+                <th style="text-align:center;color:#6b7280;font-size:12px;padding-bottom:10px;">Qté</th>
+                <th style="text-align:right;color:#6b7280;font-size:12px;padding-bottom:10px;">Prix</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsHtml}
+            </tbody>
+          </table>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;background:#11141a;border:1px solid #232936;border-radius:16px;padding:18px;">
+            <span style="color:#a1a8b3;">Total payé</span>
+            <strong style="font-size:22px;">${order.total.toFixed(2)} €</strong>
+          </div>
+
+          <p style="margin-top:24px;color:#a1a8b3;line-height:1.6;">
+            Votre facture PDF est jointe à cet email.
+          </p>
+
+          <a href="${process.env.NEXT_PUBLIC_APP_URL}/orders"
+            style="display:inline-block;margin-top:12px;padding:13px 18px;background:#fff;color:#000;text-decoration:none;border-radius:12px;font-weight:700;">
+            Voir mes commandes
+          </a>
+        </div>
+
+        <div style="padding:24px 32px;border-top:1px solid #232936;color:#6b7280;font-size:12px;line-height:1.6;">
+          Le Labo Rouennais — Rouen, Normandie, France<br />
+          Site actuellement en phase de test.
+        </div>
+      </div>
+    </div>
   `;
 
   const { error } = await resendClient.emails.send({
     from: process.env.EMAIL_FROM!,
     to,
-    subject: `Commande ${order.orderNumber} - confirmation`,
+    subject: `Commande ${order.orderNumber} confirmée - Le Labo Rouennais`,
     html,
-
     attachments: [
       {
         filename: `facture-${order.orderNumber}.pdf`,
