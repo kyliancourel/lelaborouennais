@@ -2259,6 +2259,76 @@ textarea.input {
 }
 
 /* =========================================================
+   COOKIE BANNER
+========================================================= */
+
+.cookie-banner {
+  position: fixed;
+  left: 20px;
+  right: 20px;
+  bottom: 20px;
+  z-index: 2000;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.cookie-content {
+  width: min(920px, 100%);
+  background: rgba(20, 25, 34, 0.96);
+  border: 1px solid var(--border-light);
+  border-radius: 22px;
+  padding: 20px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(16px);
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+
+  pointer-events: auto;
+}
+
+.cookie-content h3 {
+  font-size: 18px;
+  margin-bottom: 6px;
+}
+
+.cookie-content p {
+  color: var(--text-secondary);
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+.cookie-content a {
+  color: white;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.cookie-actions {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 700px) {
+  .cookie-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .cookie-actions {
+    width: 100%;
+  }
+
+  .cookie-actions .btn {
+    flex: 1;
+  }
+}
+
+/* =========================================================
    RESPONSIVE
 ========================================================= */
 
