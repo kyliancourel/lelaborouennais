@@ -56,7 +56,7 @@ finitions de qualité et une expérience premium.
         </div>
 
         <div className="about-value-card">
-          <span>🖤</span>
+          <span>🎨</span>
           <h3>Design premium</h3>
           <p>
             Une esthétique sobre, moderne et élégante pour s’intégrer facilement

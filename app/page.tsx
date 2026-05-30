@@ -9,7 +9,7 @@ export default function Home() {
         <h1 className="home-title">Le Labo Rouennais</h1>
 
         <p className="home-subtitle">
-          Objets 3D premium, designés et imprimés en France.
+          Objets 3D premium imprimés en France.
         </p>
 
         <div className="home-actions">
@@ -36,8 +36,8 @@ export default function Home() {
         </div>
 
         <div className="home-feature">
-          <h3>🎨 Design unique</h3>
-          <p>Créations originales pensées pour le quotidien.</p>
+          <h3>✅ Sélection unique</h3>
+          <p>Une sélection d’objets décoratifs et d’accessoires de bureau</p>
         </div>
       </section>
 
