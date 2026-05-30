@@ -85,6 +85,8 @@ export async function POST(req: Request) {
     quantity: item.quantity,
     price: item.price,
     name: item.name,
+    selectedColor: item.selectedColor || "",
+    customText: item.customText || "",
   }));
 
   const coupon =
@@ -109,7 +111,13 @@ export async function POST(req: Request) {
         currency: "eur",
         unit_amount: Math.round(item.price * 100),
         product_data: {
-          name: item.name,
+          name: [
+            item.name,
+            item.selectedColor ? `Couleur : ${item.selectedColor}` : "",
+            item.customText ? `Texte : ${item.customText}` : "",
+          ]
+            .filter(Boolean)
+            .join(" — "),
           images: item.image ? [item.image] : [],
         },
       },

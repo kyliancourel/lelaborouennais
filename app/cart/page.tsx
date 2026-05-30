@@ -125,6 +125,14 @@ export default function CartPage() {
                 <h3 className="cart-item-name">{item.name}</h3>
                 <p className="cart-item-price">{item.price} €</p>
 
+                {item.selectedColor && (
+                  <p className="text-muted">Couleur : {item.selectedColor}</p>
+                )}
+
+                {item.customText && (
+                  <p className="text-muted">Texte : {item.customText}</p>
+                )}
+
                 <div className="cart-qty">
                   <button className="qty-btn" onClick={() => removeOne(item.id)}>
                     −

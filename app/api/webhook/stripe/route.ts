@@ -97,6 +97,8 @@ const rewardSelectedOption =
             productId: item.id,
             quantity: item.quantity ?? 1,
             price: item.price ?? 0,
+            selectedColor: item.selectedColor || null,
+            customText: item.customText || null,
           })),
         },
       },
