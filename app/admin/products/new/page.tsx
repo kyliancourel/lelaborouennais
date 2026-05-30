@@ -141,9 +141,9 @@ export default function NewProductPage() {
           <textarea
             className="input"
             placeholder={`Couleurs disponibles, une par ligne :
-Noir
-Blanc
-Bleu Glacier`}
+              Noir|#111111
+              Blanc de Jade|#dfeee6
+              Bleu Glacier|#9bdaf2`}
             value={form.availableColorsText}
             onChange={(e) =>
               setForm({ ...form, availableColorsText: e.target.value })
@@ -153,8 +153,8 @@ Bleu Glacier`}
           <textarea
             className="input"
             placeholder={`Couleurs non disponibles, une par ligne :
-Rouge
-Vert`}
+              Rouge|#ef4444
+              Vert|#22c55e`}
             value={form.unavailableColorsText}
             onChange={(e) =>
               setForm({ ...form, unavailableColorsText: e.target.value })

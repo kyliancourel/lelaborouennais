@@ -191,7 +191,7 @@ export default function EditProductPage() {
 
           <textarea
             className="input"
-            placeholder="Couleurs disponibles, une par ligne"
+            placeholder="Couleurs disponibles, une par ligne : Noir|#111111"
             value={form.availableColorsText}
             onChange={(e) =>
               setForm({ ...form, availableColorsText: e.target.value })
@@ -200,7 +200,7 @@ export default function EditProductPage() {
 
           <textarea
             className="input"
-            placeholder="Couleurs non disponibles, une par ligne"
+            placeholder="Couleurs non disponibles, une par ligne : Rouge|#ef4444"
             value={form.unavailableColorsText}
             onChange={(e) =>
               setForm({ ...form, unavailableColorsText: e.target.value })

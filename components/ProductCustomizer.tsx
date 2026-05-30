@@ -3,6 +3,11 @@
 import { useMemo, useState } from "react";
 import AddToCart from "@/components/AddToCart";
 
+type ColorOption = {
+  name: string;
+  hex: string;
+};
+
 type Product = {
   id: string;
   name: string;
@@ -14,29 +19,27 @@ type Product = {
   unavailableColors: string[];
 };
 
-const colorMap: Record<string, string> = {
-  Noir: "#111111",
-  Blanc: "#f8fafc",
-  Rouge: "#ef4444",
-  Bleu: "#3b82f6",
-  Vert: "#22c55e",
-  Jaune: "#eab308",
-  Orange: "#f97316",
-  Rose: "#ec4899",
-  Violet: "#8b5cf6",
-  Gris: "#6b7280",
-  Marron: "#92400e",
-  Beige: "#d6b98c",
-  "Bleu Glacier": "#9bdaf2",
-};
+function parseColor(value: string): ColorOption {
+  const [name, hex] = value.split("|").map((part) => part.trim());
+
+  return {
+    name: name || value,
+    hex: hex || "#999999",
+  };
+}
 
 export default function ProductCustomizer({ product }: { product: Product }) {
-  const [selectedColor, setSelectedColor] = useState(
-    product.availableColors[0] || ""
+  const availableColors = product.availableColors.map(parseColor);
+  const unavailableColors = product.unavailableColors.map(parseColor);
+
+  const [selectedColor, setSelectedColor] = useState<ColorOption | null>(
+    availableColors[0] || null
   );
+
   const [customText, setCustomText] = useState("");
 
-  const hasCustomText = product.customizableText && customText.trim().length > 0;
+  const hasCustomText =
+    product.customizableText && customText.trim().length > 0;
 
   const finalPrice = useMemo(() => {
     return hasCustomText
@@ -44,7 +47,7 @@ export default function ProductCustomizer({ product }: { product: Product }) {
       : product.price;
   }, [product.price, product.customizationPrice, hasCustomText]);
 
-  const previewColor = colorMap[selectedColor] || "#ffffff";
+  const previewColor = selectedColor?.hex || "#ffffff";
 
   return (
     <div className="product-customizer">
@@ -62,48 +65,48 @@ export default function ProductCustomizer({ product }: { product: Product }) {
         />
       </div>
 
-      {product.availableColors.length > 0 && (
+      {availableColors.length > 0 && (
         <div className="product-option-block">
           <h3>Couleur disponible</h3>
 
           <div className="color-grid">
-            {product.availableColors.map((color) => (
+            {availableColors.map((color) => (
               <button
-                key={color}
+                key={`${color.name}-${color.hex}`}
                 type="button"
                 className={`color-choice ${
-                  selectedColor === color ? "active" : ""
+                  selectedColor?.name === color.name ? "active" : ""
                 }`}
                 onClick={() => setSelectedColor(color)}
               >
                 <span
                   className="color-dot"
-                  style={{ background: colorMap[color] || "#999" }}
+                  style={{ background: color.hex }}
                 />
-                {color}
+                {color.name}
               </button>
             ))}
           </div>
         </div>
       )}
 
-      {product.unavailableColors.length > 0 && (
+      {unavailableColors.length > 0 && (
         <div className="product-option-block">
           <h3>Couleur non disponible</h3>
 
           <div className="color-grid">
-            {product.unavailableColors.map((color) => (
+            {unavailableColors.map((color) => (
               <button
-                key={color}
+                key={`${color.name}-${color.hex}`}
                 type="button"
                 className="color-choice disabled"
                 disabled
               >
                 <span
                   className="color-dot"
-                  style={{ background: colorMap[color] || "#999" }}
+                  style={{ background: color.hex }}
                 />
-                {color}
+                {color.name}
               </button>
             ))}
           </div>
@@ -139,7 +142,7 @@ export default function ProductCustomizer({ product }: { product: Product }) {
           name: product.name,
           price: finalPrice,
           image: product.image,
-          selectedColor: selectedColor || undefined,
+          selectedColor: selectedColor?.name || undefined,
           customText: customText.trim() || undefined,
         }}
       />
