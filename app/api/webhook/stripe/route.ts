@@ -119,6 +119,11 @@ const rewardSelectedOption =
       email,
       user: fullOrder.user,
       items: fullOrder.items,
+      discount: fullOrder.discount,
+      rewardTitle: fullOrder.rewardTitle,
+      rewardType: fullOrder.rewardType,
+      rewardValue: fullOrder.rewardValue,
+      rewardSelectedOption: fullOrder.rewardSelectedOption,
     });
 
     if (userId) {

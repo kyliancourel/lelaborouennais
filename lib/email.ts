@@ -60,6 +60,30 @@ export async function sendOrderEmail(to: string, order: any) {
     )
     .join("");
 
+  const rewardHtml = order.rewardTitle
+    ? `
+      <div style="margin:24px 0;background:#11141a;border:1px solid #232936;border-radius:16px;padding:18px;">
+        <p style="color:#a1a8b3;margin:0 0 6px;">Récompense utilisée</p>
+
+        <p style="margin:0;color:#fff;font-weight:700;">
+          ${order.rewardTitle}
+        </p>
+
+        ${
+          order.rewardSelectedOption
+            ? `<p style="margin:8px 0 0;color:#a1a8b3;">Choix : ${order.rewardSelectedOption}</p>`
+            : ""
+        }
+
+        ${
+          order.discount > 0
+            ? `<p style="margin:8px 0 0;color:#a1a8b3;">Remise appliquée : ${Number(order.discount).toFixed(2)} €</p>`
+            : ""
+        }
+      </div>
+    `
+    : "";
+
   const html = `
     <div style="background:#0b0d11;padding:40px;font-family:Arial,sans-serif;color:#fff;">
       <div style="max-width:680px;margin:auto;background:#141922;border:1px solid #232936;border-radius:24px;overflow:hidden;">
@@ -89,6 +113,8 @@ export async function sendOrderEmail(to: string, order: any) {
               ${itemsHtml}
             </tbody>
           </table>
+
+          ${rewardHtml}
 
           <div style="display:flex;justify-content:space-between;align-items:center;background:#11141a;border:1px solid #232936;border-radius:16px;padding:18px;">
             <span style="color:#a1a8b3;">Total payé</span>

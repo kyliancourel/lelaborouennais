@@ -114,6 +114,21 @@ const styles = StyleSheet.create({
     textAlign: "right",
   },
 
+  rewardBox: {
+    marginTop: 18,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: "#e5e7eb",
+    borderRadius: 10,
+    backgroundColor: "#fafafa",
+  },
+
+  rewardTitle: {
+    fontSize: 12,
+    fontWeight: 700,
+    marginBottom: 6,
+  },
+
   totalBox: {
     marginTop: 22,
     alignSelf: "flex-end",
@@ -225,6 +240,26 @@ function InvoiceDocument({ order }: any) {
             ))}
           </View>
         </View>
+
+        {order.rewardTitle && (
+          <View style={styles.rewardBox}>
+            <Text style={styles.rewardTitle}>Récompense utilisée</Text>
+
+            <Text>{order.rewardTitle}</Text>
+
+            {order.rewardSelectedOption && (
+              <Text style={styles.muted}>
+                Choix : {order.rewardSelectedOption}
+              </Text>
+            )}
+
+            {order.discount > 0 && (
+              <Text style={styles.muted}>
+                Remise appliquée : {Number(order.discount).toFixed(2)} €
+              </Text>
+            )}
+          </View>
+        )}
 
         <View style={styles.totalBox}>
           <Text style={styles.totalLabel}>Total payé</Text>
