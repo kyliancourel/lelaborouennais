@@ -34,23 +34,24 @@ export default function ProductCustomizer({ product }: { product: Product }) {
   const [selectedColor, setSelectedColor] = useState(
     product.availableColors[0] || ""
   );
-
   const [customText, setCustomText] = useState("");
 
+  const hasCustomText = product.customizableText && customText.trim().length > 0;
+
   const finalPrice = useMemo(() => {
-    return product.customizableText && customText.trim()
+    return hasCustomText
       ? product.price + product.customizationPrice
       : product.price;
-  }, [product, customText]);
+  }, [product.price, product.customizationPrice, hasCustomText]);
 
-  const previewColor = colorMap[selectedColor] || "#1f2937";
+  const previewColor = colorMap[selectedColor] || "#ffffff";
 
   return (
     <div className="product-customizer">
       <div
         className="product-preview-frame"
         style={{
-          background: `radial-gradient(circle, ${previewColor}55, transparent 62%)`,
+          background: `radial-gradient(circle at center, ${previewColor}55, transparent 62%)`,
           borderColor: `${previewColor}88`,
         }}
       >
@@ -63,7 +64,7 @@ export default function ProductCustomizer({ product }: { product: Product }) {
 
       {product.availableColors.length > 0 && (
         <div className="product-option-block">
-          <h3>Couleur</h3>
+          <h3>Couleur disponible</h3>
 
           <div className="color-grid">
             {product.availableColors.map((color) => (
@@ -88,11 +89,16 @@ export default function ProductCustomizer({ product }: { product: Product }) {
 
       {product.unavailableColors.length > 0 && (
         <div className="product-option-block">
-          <h3>Couleurs indisponibles</h3>
+          <h3>Couleur non disponible</h3>
 
           <div className="color-grid">
             {product.unavailableColors.map((color) => (
-              <button key={color} type="button" className="color-choice disabled" disabled>
+              <button
+                key={color}
+                type="button"
+                className="color-choice disabled"
+                disabled
+              >
                 <span
                   className="color-dot"
                   style={{ background: colorMap[color] || "#999" }}
@@ -106,15 +112,15 @@ export default function ProductCustomizer({ product }: { product: Product }) {
 
       {product.customizableText && (
         <div className="product-option-block">
-          <h3>Texte personnalisé</h3>
+          <h3>Texte personnalisable</h3>
 
           <p className="text-muted">
-            Ajoute un texte personnalisé pour +{product.customizationPrice} €.
+            Ajout d’un texte personnalisé : +{product.customizationPrice} €.
           </p>
 
           <input
             className="input"
-            placeholder="Ex : Kylian, Le Labo..."
+            placeholder="Ex : prénom, mot court, date..."
             value={customText}
             onChange={(e) => setCustomText(e.target.value)}
             maxLength={40}
@@ -133,7 +139,7 @@ export default function ProductCustomizer({ product }: { product: Product }) {
           name: product.name,
           price: finalPrice,
           image: product.image,
-          selectedColor,
+          selectedColor: selectedColor || undefined,
           customText: customText.trim() || undefined,
         }}
       />

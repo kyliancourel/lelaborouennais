@@ -5,10 +5,16 @@ type Context = {
   params: Promise<{ id: string }>;
 };
 
-export async function GET(
-  req: NextRequest,
-  context: Context
-) {
+function normalizeStringArray(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+
+  return value
+    .filter((item): item is string => typeof item === "string")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+export async function GET(req: NextRequest, context: Context) {
   try {
     const { id } = await context.params;
 
@@ -17,10 +23,7 @@ export async function GET(
     });
 
     if (!product) {
-      return NextResponse.json(
-        { error: "Not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Produit introuvable" }, { status: 404 });
     }
 
     return NextResponse.json(product);
@@ -34,34 +37,39 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  req: NextRequest,
-  context: Context
-) {
+export async function PUT(req: NextRequest, context: Context) {
   try {
     const { id } = await context.params;
     const data = await req.json();
 
     const product = await prisma.product.update({
       where: { id },
-      data,
+      data: {
+        name: String(data.name).trim(),
+        slug: String(data.slug).trim(),
+        description: data.description ?? "",
+        price: Number(data.price),
+        image: data.image ?? "",
+        category: data.category ?? "",
+        customizableText: Boolean(data.customizableText),
+        customizationPrice: Number(data.customizationPrice || 4),
+        availableColors: normalizeStringArray(data.availableColors),
+        unavailableColors: normalizeStringArray(data.unavailableColors),
+      },
     });
 
     return NextResponse.json(product);
-  } catch (error) {
+  } catch (error: any) {
     console.error("UPDATE PRODUCT ERROR:", error);
 
     return NextResponse.json(
-      { error: "Erreur serveur" },
+      { error: error?.message || "Erreur serveur" },
       { status: 500 }
     );
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  context: Context
-) {
+export async function DELETE(req: NextRequest, context: Context) {
   try {
     const { id } = await context.params;
 
@@ -69,14 +77,12 @@ export async function DELETE(
       where: { id },
     });
 
-    return NextResponse.json({
-      success: true,
-    });
-  } catch (error) {
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
     console.error("DELETE PRODUCT ERROR:", error);
 
     return NextResponse.json(
-      { error: "Erreur serveur" },
+      { error: error?.message || "Erreur serveur" },
       { status: 500 }
     );
   }

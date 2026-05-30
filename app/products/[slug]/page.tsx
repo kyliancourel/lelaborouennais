@@ -28,6 +28,7 @@ export default async function ProductPage({
     return (
       <div className="empty-state">
         <h1 className="empty-title">Produit introuvable</h1>
+
         <p className="empty-subtitle">
           Ce produit n'existe plus ou a été supprimé.
         </p>

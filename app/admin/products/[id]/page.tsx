@@ -3,10 +3,24 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 
+function arrayToText(value: unknown) {
+  if (!Array.isArray(value)) return "";
+
+  return value
+    .filter((item): item is string => typeof item === "string")
+    .join("\n");
+}
+
+function textToArray(value: string) {
+  return value
+    .split("\n")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
 export default function EditProductPage() {
   const router = useRouter();
   const params = useParams();
-
   const id = params?.id as string;
 
   const [loading, setLoading] = useState(false);
@@ -17,6 +31,11 @@ export default function EditProductPage() {
     description: "",
     price: 0,
     image: "",
+    category: "",
+    customizableText: false,
+    customizationPrice: 4,
+    availableColorsText: "",
+    unavailableColorsText: "",
   });
 
   useEffect(() => {
@@ -31,37 +50,65 @@ export default function EditProductPage() {
           description: data.description ?? "",
           price: data.price ?? 0,
           image: data.image ?? "",
+          category: data.category ?? "",
+          customizableText: Boolean(data.customizableText),
+          customizationPrice: data.customizationPrice ?? 4,
+          availableColorsText: arrayToText(data.availableColors),
+          unavailableColorsText: arrayToText(data.unavailableColors),
         })
       );
   }, [id]);
 
-  const handleUpdate = async (e: React.FormEvent) => {
+  async function handleUpdate(e: React.FormEvent) {
     e.preventDefault();
-
     setLoading(true);
 
-    await fetch(`/api/products/${id}`, {
+    const res = await fetch(`/api/products/${id}`, {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(form),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: form.name,
+        slug: form.slug,
+        description: form.description,
+        price: Number(form.price),
+        image: form.image,
+        category: form.category,
+        customizableText: form.customizableText,
+        customizationPrice: Number(form.customizationPrice || 4),
+        availableColors: textToArray(form.availableColorsText),
+        unavailableColors: textToArray(form.unavailableColorsText),
+      }),
     });
 
     setLoading(false);
-    router.push("/admin/products");
-  };
 
-  const handleDelete = async () => {
+    if (!res.ok) {
+      const err = await res.json();
+      alert("Erreur: " + (err.error || "Modification impossible"));
+      return;
+    }
+
+    router.push("/admin/products");
+    router.refresh();
+  }
+
+  async function handleDelete() {
     const confirmDelete = confirm("Supprimer ce produit ?");
     if (!confirmDelete) return;
 
-    await fetch(`/api/products/${id}`, {
+    const res = await fetch(`/api/products/${id}`, {
       method: "DELETE",
     });
 
+    if (!res.ok) {
+      const err = await res.json();
+      alert("Erreur: " + (err.error || "Suppression impossible"));
+      return;
+    }
+
     router.push("/admin/products");
-  };
+    router.refresh();
+  }
 
   return (
     <div className="admin-page">
@@ -109,6 +156,55 @@ export default function EditProductPage() {
             placeholder="Image URL"
             value={form.image}
             onChange={(e) => setForm({ ...form, image: e.target.value })}
+          />
+
+          <input
+            className="input"
+            placeholder="Catégorie"
+            value={form.category}
+            onChange={(e) => setForm({ ...form, category: e.target.value })}
+          />
+
+          <label className="radio-row">
+            <input
+              type="checkbox"
+              checked={form.customizableText}
+              onChange={(e) =>
+                setForm({ ...form, customizableText: e.target.checked })
+              }
+            />
+            Option texte personnalisable
+          </label>
+
+          <input
+            className="input"
+            type="number"
+            placeholder="Prix option personnalisation"
+            value={form.customizationPrice}
+            onChange={(e) =>
+              setForm({
+                ...form,
+                customizationPrice: Number(e.target.value),
+              })
+            }
+          />
+
+          <textarea
+            className="input"
+            placeholder="Couleurs disponibles, une par ligne"
+            value={form.availableColorsText}
+            onChange={(e) =>
+              setForm({ ...form, availableColorsText: e.target.value })
+            }
+          />
+
+          <textarea
+            className="input"
+            placeholder="Couleurs non disponibles, une par ligne"
+            value={form.unavailableColorsText}
+            onChange={(e) =>
+              setForm({ ...form, unavailableColorsText: e.target.value })
+            }
           />
 
           <button className="btn btn-primary" disabled={loading}>
