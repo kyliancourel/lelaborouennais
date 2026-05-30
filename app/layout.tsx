@@ -5,7 +5,6 @@ import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
 import Navbar from "@/components/Navbar";
 import Providers from "./providers";
-
 import { Toaster } from "react-hot-toast";
 import Footer from "@/components/Footer";
 
@@ -24,31 +23,16 @@ export const metadata: Metadata = {
     default: "Laboratoire de la Seine",
     template: "%s | Labo Seine",
   },
-
-  description:
-    "Boutique premium de création et impression 3D en France.",
-
-  keywords: [
-    "3D printing",
-    "impression 3D",
-    "France",
-    "design",
-    "objets 3D",
-  ],
-
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL!
-  ),
-
+  description: "Boutique premium de création et impression 3D en France.",
+  keywords: ["3D printing", "impression 3D", "France", "design", "objets 3D"],
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL!),
   openGraph: {
     title: "Le Labo Rouennais",
-    description:
-      "Objets 3D premium fabriqués en France",
+    description: "Objets 3D premium fabriqués en France",
     url: "/",
     siteName: "Labo Seine",
     type: "website",
   },
-
   robots: {
     index: true,
     follow: true,
@@ -67,6 +51,10 @@ export default function RootLayout({
           <CartProvider>
             <Navbar />
 
+            <main className="site-main">{children}</main>
+
+            <Footer />
+
             <Toaster
               position="top-right"
               toastOptions={{
@@ -77,8 +65,6 @@ export default function RootLayout({
                 },
               }}
             />
-
-            {children}
           </CartProvider>
         </Providers>
       </body>
