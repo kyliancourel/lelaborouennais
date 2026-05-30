@@ -2,22 +2,15 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
 
-type OrderItemWithProduct = {
-  id: string;
-  quantity: number;
-  price: number;
-  product: {
-    name: string | null;
-  } | null;
-};
-
 export default async function AdminOrderDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = await params;
+
   const order = await prisma.order.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       user: true,
       items: {
@@ -36,25 +29,28 @@ export default async function AdminOrderDetailPage({
     );
   }
 
-  const orderId = order.id;
-
   async function updateStatus(formData: FormData) {
     "use server";
 
-    const status = formData.get("status");
+    const status = String(formData.get("status") || "");
 
     if (!status) return;
 
-    await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/orders/${orderId}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
+    await prisma.order.update({
+      where: { id },
+      data: {
+        status: status as any,
       },
-      body: JSON.stringify({ status }),
     });
 
-    revalidatePath(`/admin/orders/${orderId}`);
+    revalidatePath(`/admin/orders/${id}`);
+    revalidatePath("/admin/orders");
   }
+
+  const subtotal = order.items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
 
   return (
     <div className="admin-page">
@@ -65,26 +61,30 @@ export default async function AdminOrderDetailPage({
       </div>
 
       <div className="card">
-        <div className="order-info">
-          <p>
-            <span className="label">Client :</span>{" "}
-            {order.user?.email ?? "—"}
-          </p>
+        <p><strong>Client :</strong> {order.user?.email ?? "—"}</p>
+        <p><strong>Total avant remise :</strong> {subtotal.toFixed(2)} €</p>
 
-          <p>
-            <span className="label">Total :</span>{" "}
-            <strong>{order.total}€</strong>
-          </p>
+        {order.discount > 0 && (
+          <p><strong>Remise :</strong> -{order.discount.toFixed(2)} €</p>
+        )}
 
-          <p>
-            <span className="label">Statut :</span>{" "}
-            <span className={`badge status-${order.status.toLowerCase()}`}>
-              {order.status}
-            </span>
-          </p>
-        </div>
+        <p><strong>Total payé :</strong> {order.total.toFixed(2)} €</p>
 
-        <form className="status-form" action={updateStatus}>
+        <p>
+          <strong>Statut :</strong>{" "}
+          <span className={`badge status-${order.status.toLowerCase()}`}>
+            {order.status}
+          </span>
+        </p>
+
+        {order.rewardTitle && (
+          <p>
+            <strong>Récompense utilisée :</strong> {order.rewardTitle}
+            {order.rewardSelectedOption ? ` — ${order.rewardSelectedOption}` : ""}
+          </p>
+        )}
+
+        <form className="status-form mt-3" action={updateStatus}>
           <select name="status" defaultValue={order.status} className="input">
             <option value="PENDING">PENDING</option>
             <option value="PAID">PAID</option>
@@ -98,20 +98,20 @@ export default async function AdminOrderDetailPage({
           </button>
         </form>
 
-        <div className="order-items">
+        <div className="order-items mt-3">
           <h3 className="section-title">Produits</h3>
 
           <ul>
-            {order.items.map((item: OrderItemWithProduct) => (
+            {order.items.map((item) => (
               <li key={item.id}>
                 {item.product?.name ?? "Produit supprimé"} × {item.quantity} —{" "}
-                {item.price}€
+                {item.price.toFixed(2)} €
               </li>
             ))}
           </ul>
         </div>
 
-        <div className="mt-5">
+        <div className="mt-3">
           <Link className="btn btn-secondary" href="/admin/orders">
             ← Retour commandes
           </Link>

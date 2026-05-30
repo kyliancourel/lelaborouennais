@@ -115,8 +115,8 @@ const styles = StyleSheet.create({
   },
 
   rewardBox: {
-    marginTop: 18,
-    padding: 14,
+    marginTop: 14,
+    padding: 12,
     borderWidth: 1,
     borderColor: "#e5e7eb",
     borderRadius: 10,
@@ -132,17 +132,34 @@ const styles = StyleSheet.create({
   totalBox: {
     marginTop: 14,
     alignSelf: "flex-end",
-    width: 210,
+    width: 230,
     padding: 12,
     backgroundColor: "#111111",
     color: "#ffffff",
     borderRadius: 10,
   },
 
+  totalLine: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 5,
+  },
+
   totalLabel: {
     fontSize: 10,
     color: "#d1d5db",
-    marginBottom: 6,
+  },
+
+  totalValueSmall: {
+    fontSize: 10,
+    color: "#ffffff",
+  },
+
+  totalFinalLabel: {
+    fontSize: 10,
+    color: "#d1d5db",
+    marginTop: 6,
+    marginBottom: 5,
   },
 
   totalValue: {
@@ -181,7 +198,19 @@ function formatDate(date: Date | string) {
   });
 }
 
+function getSubtotal(order: any) {
+  return order.items.reduce(
+    (sum: number, item: any) =>
+      sum + Number(item.price) * Number(item.quantity),
+    0
+  );
+}
+
 function InvoiceDocument({ order }: any) {
+  const subtotal = getSubtotal(order);
+  const discount = Number(order.discount || 0);
+  const totalPaid = Number(order.total || 0);
+
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -253,17 +282,33 @@ function InvoiceDocument({ order }: any) {
               </Text>
             )}
 
-            {order.discount > 0 && (
+            {discount > 0 && (
               <Text style={styles.muted}>
-                Remise appliquée : {Number(order.discount).toFixed(2)} €
+                Remise appliquée : {discount.toFixed(2)} €
               </Text>
             )}
           </View>
         )}
 
         <View style={styles.totalBox}>
-          <Text style={styles.totalLabel}>Total payé</Text>
-          <Text style={styles.totalValue}>{order.total.toFixed(2)} €</Text>
+          <View style={styles.totalLine}>
+            <Text style={styles.totalLabel}>Total avant remise</Text>
+            <Text style={styles.totalValueSmall}>
+              {subtotal.toFixed(2)} €
+            </Text>
+          </View>
+
+          {discount > 0 && (
+            <View style={styles.totalLine}>
+              <Text style={styles.totalLabel}>Remise</Text>
+              <Text style={styles.totalValueSmall}>
+                -{discount.toFixed(2)} €
+              </Text>
+            </View>
+          )}
+
+          <Text style={styles.totalFinalLabel}>Total payé</Text>
+          <Text style={styles.totalValue}>{totalPaid.toFixed(2)} €</Text>
         </View>
 
         <View style={styles.message}>
@@ -276,10 +321,10 @@ function InvoiceDocument({ order }: any) {
 
         <View style={styles.legal}>
           <Text>
-          Le Labo Rouennais — Rouen, Normandie, France. Site en phase de test.
-  Produits fabriqués à la commande. Aucun service de livraison actuellement.
-  Retours acceptés pendant un mois après commande. Toute commande implique
-  l’acceptation des CGV.
+            Le Labo Rouennais — Rouen, Normandie, France. Site en phase de test.
+            Produits fabriqués à la commande. Aucun service de livraison
+            actuellement. Retours acceptés pendant un mois après commande. Toute
+            commande implique l’acceptation des CGV.
           </Text>
         </View>
       </Page>
