@@ -9,16 +9,18 @@ type Reward = {
   id: string;
   type: string;
   value: number | null;
+  title: string;
+  description: string;
+  icon: string | null;
+  selectedOption: string | null;
 };
 
 function getRewardLabel(reward: Reward) {
-  if (reward.type === "COUPON_EURO") return `Coupon ${reward.value}€`;
-  if (reward.type === "PERCENT") return `Réduction ${reward.value}%`;
-  if (reward.type === "PRODUCT_DISCOUNT") return `Réduction ${reward.value}€`;
-  if (reward.type === "FREE_PRODUCT") return "Produit offert";
-  if (reward.type === "GIFT") return `Cadeau ${reward.value}€`;
+  if (reward.selectedOption) {
+    return `${reward.title} — ${reward.selectedOption}`;
+  }
 
-  return "Récompense";
+  return reward.title;
 }
 
 function getRewardDiscount(reward: Reward | null, total: number) {
@@ -163,7 +165,7 @@ export default function CartPage() {
               <strong>{earnedPointsAfterPayment}</strong>
             </p>
 
-            {rewards.length > 0 && (
+            {rewards.length > 0 ? (
               <>
                 <label className="input-label">Récompense débloquée</label>
 
@@ -176,11 +178,27 @@ export default function CartPage() {
 
                   {rewards.map((reward) => (
                     <option key={reward.id} value={reward.id}>
-                      {getRewardLabel(reward)}
+                      {reward.icon || "🎁"} {getRewardLabel(reward)}
                     </option>
                   ))}
                 </select>
               </>
+            ) : (
+              <p className="text-muted">
+                Aucune récompense débloquée pour le moment.
+              </p>
+            )}
+
+            {selectedReward && (
+              <div className="reward-checkout-detail">
+                <strong>{selectedReward.icon || "🎁"} {selectedReward.title}</strong>
+
+                {selectedReward.selectedOption ? (
+                  <p>Choix : {selectedReward.selectedOption}</p>
+                ) : (
+                  <p>{selectedReward.description}</p>
+                )}
+              </div>
             )}
 
             {rewardDiscount > 0 && (

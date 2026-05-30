@@ -2,11 +2,7 @@ import { NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import {
-  calculateRewardDiscount,
-  validateLoyaltyUsage,
-} from "@/lib/loyaltyEngine";
-import { fraudGuard } from "@/lib/loyaltyFraudGuard";
+import { calculateRewardDiscount } from "@/lib/loyaltyEngine";
 import { rateLimit } from "@/lib/rateLimit";
 
 export async function POST(req: Request) {
@@ -29,6 +25,10 @@ export async function POST(req: Request) {
     );
   }
 
+  if (!Array.isArray(cart) || cart.length === 0) {
+    return NextResponse.json({ error: "Cart empty" }, { status: 400 });
+  }
+
   const userId = session?.user?.id || null;
   const email = session?.user?.email || null;
 
@@ -37,30 +37,12 @@ export async function POST(req: Request) {
     0
   );
 
-  const user = userId
-    ? await prisma.user.findUnique({ where: { id: userId } })
-    : null;
-
-  const userPoints = user?.points || 0;
-
-  const fraudCheck = fraudGuard({
-    userPoints,
-    usedPoints,
-    cartTotal,
-  });
-
-  if (!fraudCheck.valid) {
-    return NextResponse.json({ error: fraudCheck.reason }, { status: 400 });
-  }
-
-  const { safeUsedPoints } = validateLoyaltyUsage({
-    userPoints,
-    usedPoints,
-    cartTotal,
-  });
-
   let rewardDiscount = 0;
   let safeRewardId = "";
+  let rewardTitle = "";
+  let rewardType = "";
+  let rewardValue = "";
+  let rewardSelectedOption = "";
 
   if (rewardId && userId) {
     const reward = await prisma.loyaltyReward.findFirst({
@@ -75,6 +57,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid reward" }, { status: 400 });
     }
 
+    const ruleId = reward.source?.replace("rule_", "");
+
+    const rule = ruleId
+      ? await prisma.loyaltyRewardRule.findUnique({
+          where: { id: ruleId },
+        })
+      : null;
+
     rewardDiscount = calculateRewardDiscount({
       type: reward.type,
       value: reward.value,
@@ -82,12 +72,13 @@ export async function POST(req: Request) {
     });
 
     safeRewardId = reward.id;
+    rewardTitle = rule?.title || "Récompense fidélité";
+    rewardType = reward.type;
+    rewardValue = reward.value !== null && reward.value !== undefined ? String(reward.value) : "";
+    rewardSelectedOption = reward.selectedOption || "";
   }
 
-  const totalDiscount = Math.min(
-    cartTotal,
-    rewardDiscount
-  );
+  const totalDiscount = Math.min(cartTotal, rewardDiscount);
 
   const safeCart = cart.map((item: any) => ({
     id: item.id,
@@ -99,11 +90,11 @@ export async function POST(req: Request) {
   const coupon =
     totalDiscount > 0
       ? await stripe.coupons.create({
-        amount_off: Math.round(totalDiscount * 100),
-        currency: "eur",
-        duration: "once",
-        name: "Réduction fidélité",
-      })
+          amount_off: Math.round(totalDiscount * 100),
+          currency: "eur",
+          duration: "once",
+          name: rewardTitle || "Réduction fidélité",
+        })
       : null;
 
   const stripeSession = await stripe.checkout.sessions.create({
@@ -133,9 +124,13 @@ export async function POST(req: Request) {
       userId: userId || "",
       email: email || "",
       cart: JSON.stringify(safeCart),
-      usedPoints: String(safeUsedPoints),
+      usedPoints: "0",
       rewardId: safeRewardId,
       rewardDiscount: String(rewardDiscount),
+      rewardTitle,
+      rewardType,
+      rewardValue,
+      rewardSelectedOption,
     },
   });
 

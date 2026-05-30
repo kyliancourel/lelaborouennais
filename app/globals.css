@@ -709,6 +709,23 @@ textarea.input {
   gap: 8px;
 }
 
+.reward-checkout-detail {
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--card);
+  border: 1px solid var(--border);
+}
+
+.reward-checkout-detail strong {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.reward-checkout-detail p {
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
 /* =========================================================
    LOYALTY HISTORY
 ========================================================= */

@@ -65,6 +65,12 @@ model Order {
   usedPoints Int   @default(0)
   discount   Float @default(0)
 
+  rewardId             String?
+  rewardTitle          String?
+  rewardType           LoyaltyRewardType?
+  rewardValue          Float?
+  rewardSelectedOption String?
+
   items OrderItem[]
 
   createdAt DateTime @default(now())
@@ -179,6 +185,7 @@ model LoyaltyRewardRule {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
 model Account {
   id                String @id @default(cuid())
   userId            String

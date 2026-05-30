@@ -35,9 +35,22 @@ export async function POST(req: Request) {
   const session = event.data.object as Stripe.Checkout.Session;
 
   const userId = session.metadata?.userId || null;
-  const usedPoints = Number(session.metadata?.usedPoints || 0);
-  const rewardId = session.metadata?.rewardId || "";
-  const rewardDiscount = Number(session.metadata?.rewardDiscount || 0);
+const usedPoints = Number(session.metadata?.usedPoints || 0);
+const rewardId = session.metadata?.rewardId || "";
+const rewardDiscount = Number(session.metadata?.rewardDiscount || 0);
+
+const rewardTitle = session.metadata?.rewardTitle || "";
+
+const rewardType = session.metadata?.rewardType || "";
+
+const rewardValue =
+  session.metadata?.rewardValue &&
+  session.metadata.rewardValue !== ""
+    ? Number(session.metadata.rewardValue)
+    : null;
+
+const rewardSelectedOption =
+  session.metadata?.rewardSelectedOption || "";
 
   const cart = session.metadata?.cart
     ? JSON.parse(session.metadata.cart)
@@ -73,6 +86,11 @@ export async function POST(req: Request) {
 
         usedPoints,
         discount: usedPoints + rewardDiscount,
+        rewardId: rewardId || null,
+        rewardTitle: rewardTitle || null,
+        rewardType: rewardType ? (rewardType as any) : null,
+        rewardValue,
+        rewardSelectedOption: rewardSelectedOption || null,
 
         items: {
           create: cart.map((item: any) => ({

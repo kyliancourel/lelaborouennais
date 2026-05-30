@@ -24,8 +24,25 @@ export async function GET() {
     orderBy: { pointsCost: "asc" },
   });
 
+  const enrichedRewards = rewards.map((reward) => {
+    const ruleId = reward.source?.replace("rule_", "");
+
+    const rule = rules.find((r) => r.id === ruleId);
+
+    return {
+      id: reward.id,
+      type: reward.type,
+      value: reward.value,
+      source: reward.source,
+      selectedOption: reward.selectedOption,
+      title: rule?.title || "Récompense fidélité",
+      description: rule?.description || "",
+      icon: rule?.icon || "🎁",
+    };
+  });
+
   return NextResponse.json({
-    rewards,
+    rewards: enrichedRewards,
     rules,
   });
 }
