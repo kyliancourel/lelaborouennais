@@ -1,16 +1,15 @@
 import { prisma } from "@/lib/prisma";
 import AddToCart from "@/components/AddToCart";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+
+export const dynamic = "force-dynamic";
 
 export default async function ProductPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const { slug } = params;
-
-  if (!slug) return notFound();
+  const { slug } = await params;
 
   const product = await prisma.product.findUnique({
     where: { slug },
@@ -18,18 +17,14 @@ export default async function ProductPage({
 
   if (!product) {
     return (
-      <div className="empty-product">
-        <div className="empty-product-content">
-          <div className="empty-product-icon">📦</div>
+      <div className="empty-state">
+        <h1 className="empty-title">Produit introuvable</h1>
 
-          <h1 className="empty-product-title">
-            Produit introuvable
-          </h1>
+        <p className="empty-subtitle">
+          Ce produit n'existe plus ou a été supprimé.
+        </p>
 
-          <p className="empty-product-text">
-            Ce produit n'existe plus ou a été supprimé.
-          </p>
-
+        <div className="empty-state-action">
           <Link href="/products" className="btn btn-primary">
             Retour boutique
           </Link>
@@ -42,19 +37,19 @@ export default async function ProductPage({
     <div className="product-page">
       <div className="product-grid">
         <div>
-          {product.image && (
-            <img
-              src={product.image || "/placeholder.png"}
-              alt={product.name}
-              className="product-image"
-            />
-          )}
+          <img
+            src={product.image || "/placeholder.png"}
+            alt={product.name}
+            className="product-image"
+          />
         </div>
 
         <div>
           <h1>{product.name}</h1>
-          <p>{product.description}</p>
-          <h2>{product.price}€</h2>
+
+          {product.description && <p>{product.description}</p>}
+
+          <h2>{product.price} €</h2>
 
           <AddToCart
             product={{
