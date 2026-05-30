@@ -11,8 +11,8 @@ import {
 
 const styles = StyleSheet.create({
   page: {
-    padding: 42,
-    fontSize: 11,
+    padding: 30,
+    fontSize: 10,
     fontFamily: "Helvetica",
     color: "#111111",
     backgroundColor: "#ffffff",
@@ -22,17 +22,17 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    marginBottom: 34,
-    paddingBottom: 22,
+    marginBottom: 22,
+    paddingBottom: 14,
     borderBottomWidth: 1,
     borderBottomColor: "#e5e7eb",
   },
 
   logo: {
-    width: 78,
-    height: 78,
+    width: 58,
+    height: 58,
     objectFit: "contain",
-    marginBottom: 10,
+    marginBottom: 6,
   },
 
   brandName: {
@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
   },
 
   block: {
-    marginBottom: 24,
+    marginBottom: 14,
   },
 
   blockTitle: {
@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
 
   row: {
     flexDirection: "row",
-    paddingVertical: 10,
+    paddingVertical: 7,
     paddingHorizontal: 10,
     borderBottomWidth: 1,
     borderBottomColor: "#e5e7eb",
@@ -130,13 +130,13 @@ const styles = StyleSheet.create({
   },
 
   totalBox: {
-    marginTop: 22,
+    marginTop: 14,
     alignSelf: "flex-end",
-    width: 230,
-    padding: 16,
+    width: 210,
+    padding: 12,
     backgroundColor: "#111111",
     color: "#ffffff",
-    borderRadius: 12,
+    borderRadius: 10,
   },
 
   totalLabel: {
@@ -151,25 +151,25 @@ const styles = StyleSheet.create({
   },
 
   message: {
-    marginTop: 34,
-    padding: 16,
+    marginTop: 18,
+    padding: 12,
     backgroundColor: "#f8fafc",
-    borderRadius: 12,
-    lineHeight: 1.6,
+    borderRadius: 10,
+    lineHeight: 1.4,
     color: "#374151",
   },
 
   legal: {
     position: "absolute",
-    left: 42,
-    right: 42,
-    bottom: 32,
-    fontSize: 8,
+    left: 30,
+    right: 30,
+    bottom: 22,
+    fontSize: 7,
     color: "#6b7280",
-    lineHeight: 1.45,
+    lineHeight: 1.3,
     borderTopWidth: 1,
     borderTopColor: "#e5e7eb",
-    paddingTop: 12,
+    paddingTop: 8,
   },
 });
 
@@ -276,12 +276,10 @@ function InvoiceDocument({ order }: any) {
 
         <View style={styles.legal}>
           <Text>
-            Le Labo Rouennais — Rouen, Normandie, France. Site actuellement en
-            phase de test. Aucun service de livraison n’est actuellement proposé.
-            Les produits sont fabriqués à la commande. Retours acceptés pendant
-            un délai d’un mois après la commande, sous réserve de vérification de
-            l’état du produit. Toute commande implique l’acceptation des
-            conditions générales de vente.
+          Le Labo Rouennais — Rouen, Normandie, France. Site en phase de test.
+  Produits fabriqués à la commande. Aucun service de livraison actuellement.
+  Retours acceptés pendant un mois après commande. Toute commande implique
+  l’acceptation des CGV.
           </Text>
         </View>
       </Page>
