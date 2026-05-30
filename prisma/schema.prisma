@@ -44,6 +44,12 @@ model Product {
   price       Int
   image       String?
 
+  category            String?
+  customizableText    Boolean @default(false)
+  customizationPrice  Int     @default(4)
+  availableColors     Json?
+  unavailableColors   Json?
+
   orderItems OrderItem[]
 
   createdAt DateTime @default(now())
@@ -85,6 +91,9 @@ model OrderItem {
 
   quantity Int
   price    Float
+
+  selectedColor String?
+  customText    String?
 
   order   Order   @relation(fields: [orderId], references: [id])
   product Product @relation(fields: [productId], references: [id])

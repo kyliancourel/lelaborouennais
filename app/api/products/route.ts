@@ -38,6 +38,11 @@ export async function POST(req: Request) {
         description: data.description ?? "",
         price: Number(data.price),
         image: data.image ?? "",
+        category: data.category ?? "",
+        customizableText: Boolean(data.customizableText),
+        customizationPrice: Number(data.customizationPrice || 4),
+        availableColors: data.availableColors || [],
+        unavailableColors: data.unavailableColors || [],
       },
     });
 

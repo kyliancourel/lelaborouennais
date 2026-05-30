@@ -9,6 +9,8 @@ type Props = {
     name: string;
     price: number;
     image?: string;
+    selectedColor?: string;
+    customText?: string;
   };
 };
 

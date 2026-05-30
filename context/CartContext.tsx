@@ -15,6 +15,8 @@ type CartItem = {
   price: number;
   image?: string;
   quantity: number;
+  selectedColor?: string;
+  customText?: string;
 };
 
 type CartContextType = {
@@ -54,7 +56,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     if (stored) {
       try {
         setCart(JSON.parse(stored));
-      } catch {}
+      } catch { }
     }
 
     setHydrated(true);
@@ -68,11 +70,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const addToCart = useCallback((item: Omit<CartItem, "quantity">) => {
     setCart((prev) => {
-      const existing = prev.find((i) => i.id === item.id);
+      const existing = prev.find(
+        (i) =>
+          i.id === item.id &&
+          i.selectedColor === item.selectedColor &&
+          i.customText === item.customText
+      );
 
       if (existing) {
         return prev.map((i) =>
-          i.id === item.id
+          i.id === item.id &&
+            i.selectedColor === item.selectedColor &&
+            i.customText === item.customText
             ? { ...i, quantity: i.quantity + 1 }
             : i
         );

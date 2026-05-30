@@ -1,8 +1,17 @@
 import { prisma } from "@/lib/prisma";
-import AddToCart from "@/components/AddToCart";
 import Link from "next/link";
+import ProductCustomizer from "@/components/ProductCustomizer";
 
 export const dynamic = "force-dynamic";
+
+function normalizeStringArray(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+
+  return value
+    .filter((item): item is string => typeof item === "string")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
 
 export default async function ProductPage({
   params,
@@ -19,7 +28,6 @@ export default async function ProductPage({
     return (
       <div className="empty-state">
         <h1 className="empty-title">Produit introuvable</h1>
-
         <p className="empty-subtitle">
           Ce produit n'existe plus ou a été supprimé.
         </p>
@@ -36,29 +44,29 @@ export default async function ProductPage({
   return (
     <div className="product-page">
       <div className="product-grid">
-        <div>
-          <img
-            src={product.image || "/placeholder.png"}
-            alt={product.name}
-            className="product-image"
-          />
-        </div>
+        <ProductCustomizer
+          product={{
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            image: product.image ?? undefined,
+            customizableText: product.customizableText,
+            customizationPrice: product.customizationPrice,
+            availableColors: normalizeStringArray(product.availableColors),
+            unavailableColors: normalizeStringArray(product.unavailableColors),
+          }}
+        />
 
         <div>
+          {product.category && (
+            <p className="product-category">{product.category}</p>
+          )}
+
           <h1>{product.name}</h1>
 
           {product.description && <p>{product.description}</p>}
 
           <h2>{product.price} €</h2>
-
-          <AddToCart
-            product={{
-              id: product.id,
-              name: product.name,
-              price: product.price,
-              image: product.image ?? undefined,
-            }}
-          />
         </div>
       </div>
     </div>
