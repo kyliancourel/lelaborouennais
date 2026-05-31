@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { is } from "zod/locales";
 
 function arrayToText(value: unknown) {
   if (!Array.isArray(value)) return "";
@@ -37,6 +38,7 @@ export default function EditProductPage() {
     availableColorsText: "",
     unavailableColorsText: "",
     colorZonesText: "",
+    isArchived: false,
   });
 
   useEffect(() => {
@@ -57,6 +59,7 @@ export default function EditProductPage() {
           availableColorsText: arrayToText(data.availableColors),
           unavailableColorsText: arrayToText(data.unavailableColors),
           colorZonesText: arrayToText(data.colorZones),
+          isArchived: Boolean(data.isArchived),
         })
       );
   }, [id]);
@@ -231,6 +234,33 @@ Bordure`}
             {loading ? "Mise à jour..." : "Modifier"}
           </button>
         </form>
+        <button
+          className="btn btn-outline mt-3"
+          onClick={async () => {
+            const res = await fetch(`/api/products/${id}`, {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                isArchived: !form.isArchived,
+              }),
+            });
+
+            if (!res.ok) {
+              const err = await res.json();
+              alert(err.error || "Erreur");
+              return;
+            }
+
+            router.refresh();
+            window.location.reload();
+          }}
+        >
+          {form.isArchived
+            ? "Restaurer le produit"
+            : "Archiver le produit"}
+        </button>
 
         <button className="btn btn-danger mt-3" onClick={handleDelete}>
           Supprimer le produit

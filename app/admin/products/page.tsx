@@ -6,6 +6,7 @@ type Product = {
   id: string;
   name: string;
   price: number;
+  isArchived: boolean;
 };
 
 export default async function AdminProductsPage() {
@@ -33,12 +34,27 @@ export default async function AdminProductsPage() {
             <div className="card-row" key={p.id}>
               <div className="card-info">
                 <strong className="card-title">{p.name}</strong>
-                <span className="card-subtitle">{p.price} €</span>
+
+                <span className="card-subtitle">
+                  {p.price} €
+                </span>
+
+                <span
+                  className={
+                    p.isArchived
+                      ? "status-badge status-cancelled"
+                      : "status-badge status-paid"
+                  }
+                >
+                  {p.isArchived ? "Archivé" : "Actif"}
+                </span>
               </div>
 
               <div className="card-actions">
                 <a className="btn btn-outline" href={`/admin/products/${p.id}`}>
-                  Modifier
+                  {p.isArchived
+                    ? "Restaurer / Modifier"
+                    : "Modifier"}
                 </a>
               </div>
             </div>
