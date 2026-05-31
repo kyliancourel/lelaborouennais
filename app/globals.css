@@ -2489,6 +2489,16 @@ textarea.input {
    RESPONSIVE
 ========================================================= */
 
+.required-star {
+  color: #ef4444;
+  margin-left: 4px;
+  font-weight: 700;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
 @media (max-width: 1024px) {
   .products-grid {
     grid-template-columns: repeat(3, 1fr);

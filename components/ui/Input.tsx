@@ -1,16 +1,28 @@
 "use client";
 
-import { InputHTMLAttributes } from "react";
+import React from "react";
 
-type Props = InputHTMLAttributes<HTMLInputElement> & {
+type Props = React.InputHTMLAttributes<HTMLInputElement> & {
   label?: string;
+  required?: boolean;
   error?: boolean;
 };
 
-export default function Input({ label, error, className = "", ...props }: Props) {
+export default function Input({
+  label,
+  required,
+  error,
+  className = "",
+  ...props
+}: Props) {
   return (
     <div className="input-wrapper">
-      {label && <label className="input-label">{label}</label>}
+      {label && (
+        <label className="input-label">
+          {label}
+          {required && <span className="required-star">*</span>}
+        </label>
+      )}
 
       <input
         className={`input ${error ? "input-error" : ""} ${className}`}

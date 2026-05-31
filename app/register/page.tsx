@@ -83,30 +83,33 @@ export default function RegisterPage() {
         <Form onSubmit={handleSubmit}>
           <Input
             label="Nom"
+            required
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
 
           <Input
             label="Prénom"
+            required
             value={firstname}
             onChange={(e) => setFirstname(e.target.value)}
           />
 
           <Input
-            label="Pseudo"
+            label="Pseudo (facultatif)"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
           />
 
           <p className="text-muted">
-            Facultatif. 3 à 20 caractères, sans espace. <br></br>
+            3 à 20 caractères, sans espace. <br></br>
             Exemple : monpseudo_76
           </p>
 
           <Input
             label="Email"
             type="email"
+            required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
@@ -114,6 +117,7 @@ export default function RegisterPage() {
           <Input
             label="Confirmer l'email"
             type="email"
+            required
             value={emailConfirm}
             onChange={(e) => setEmailConfirm(e.target.value)}
           />
@@ -121,6 +125,7 @@ export default function RegisterPage() {
           <Input
             label="Mot de passe"
             type="password"
+            required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
@@ -128,6 +133,7 @@ export default function RegisterPage() {
           <Input
             label="Confirmer le mot de passe"
             type="password"
+            required
             value={passwordConfirm}
             onChange={(e) => setPasswordConfirm(e.target.value)}
           />
