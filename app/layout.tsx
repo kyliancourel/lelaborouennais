@@ -22,7 +22,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Laboratoire de la Seine",
+    default: "Le Labo Rouennais",
     template: "%s | Labo Seine",
   },
   description: "Boutique premium de création et impression 3D en France.",

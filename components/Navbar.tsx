@@ -6,7 +6,13 @@ import { useCart } from "@/context/CartContext";
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import { useUserLoyalty } from "@/hooks/useUserLoyalty";
-import { Search, ShoppingCart } from "lucide-react";
+import {
+  Search,
+  ShoppingCart,
+  User,
+  Package,
+  LogOut,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function Navbar() {
@@ -86,11 +92,32 @@ export default function Navbar() {
           <div className="navbar-links desktop-only">
             <Link href="/products">Produits</Link>
 
-            {isLoggedIn && <Link href="/dashboard">Mon compte</Link>}
+            {isLoggedIn && (
+              <Link
+                href="/dashboard"
+                className="navbar-icon-link"
+                aria-label="Mon compte"
+                title="Mon compte"
+              >
+                <User size={20} />
+              </Link>
+            )}
 
-            <Link href="/orders">Mes commandes</Link>
+            <Link
+              href="/orders"
+              className="navbar-icon-link"
+              aria-label="Mes commandes"
+              title="Mes commandes"
+            >
+              <Package size={20} />
+            </Link>
 
-            <Link href="/cart" className="navbar-cart-link" aria-label="Panier">
+            <Link
+              href="/cart"
+              className="navbar-cart-link"
+              aria-label="Panier"
+              title="Panier"
+            >
               <ShoppingCart size={20} />
               <span className="navbar-cart-count">{cartCount}</span>
             </Link>
@@ -109,7 +136,14 @@ export default function Navbar() {
                 <Link href="/register">Inscription</Link>
               </>
             ) : (
-              <button onClick={() => signOut()}>Déconnexion</button>
+              <button
+                className="navbar-icon-button"
+                onClick={() => signOut()}
+                aria-label="Déconnexion"
+                title="Déconnexion"
+              >
+                <LogOut size={20} />
+              </button>
             )}
           </div>
 
@@ -155,15 +189,18 @@ export default function Navbar() {
 
           {isLoggedIn && (
             <Link href="/dashboard" onClick={closeMenu}>
+              <User size={18} />
               Mon compte
             </Link>
           )}
 
           <Link href="/orders" onClick={closeMenu}>
+            <Package size={18} />
             Mes commandes
           </Link>
 
           <Link href="/cart" onClick={closeMenu}>
+            <ShoppingCart size={18} />
             Panier ({cartCount})
           </Link>
 
@@ -190,7 +227,9 @@ export default function Navbar() {
                 signOut();
                 closeMenu();
               }}
+              aria-label="Déconnexion"
             >
+              <LogOut size={18} />
               Déconnexion
             </button>
           )}
