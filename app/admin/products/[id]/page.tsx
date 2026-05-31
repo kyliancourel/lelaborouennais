@@ -150,10 +150,14 @@ export default function EditProductPage() {
           <input
             className="input"
             type="number"
+            step="0.01"
+            min="0"
             placeholder="Prix"
             value={form.price}
             onChange={(e) =>
-              setForm({ ...form, price: Number(e.target.value) })
+              setForm({ 
+                ...form, 
+                price: Number(e.target.value) })
             }
           />
 

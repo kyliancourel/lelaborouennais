@@ -51,7 +51,7 @@ model Product {
   name        String
   slug        String  @unique
   description String?
-  price       Int
+  price       Float
   image       String?
 
   category            String?

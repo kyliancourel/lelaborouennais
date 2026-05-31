@@ -96,9 +96,16 @@ export default function NewProductPage() {
           <input
             className="input"
             type="number"
-            placeholder="Prix (€)"
+            step="0.01"
+            min="0"
+            placeholder="Prix"
             value={form.price}
-            onChange={(e) => setForm({ ...form, price: e.target.value })}
+            onChange={(e) =>
+              setForm({
+                ...form,
+                price: e.target.value,
+              })
+            }
           />
 
           <input

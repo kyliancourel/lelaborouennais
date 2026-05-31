@@ -68,7 +68,7 @@ export default async function ProductPage({
 
           {product.description && <p>{product.description}</p>}
 
-          <h2>{product.price} €</h2>
+          <h2>{Number(product.price).toFixed(2)} €</h2>
         </div>
       </div>
     </div>

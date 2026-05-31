@@ -18,7 +18,7 @@ export default function ProductCard({ product }: any) {
 
         <h3 className="product-card-title">{product.name}</h3>
 
-        <p className="product-card-price">{product.price}€</p>
+        <p className="product-card-price">{Number(product.price).toFixed(2)}€</p>
       </Link>
 
       <Link href={`/products/${product.slug}`} className="add-to-cart-btn product-customize-link">

@@ -125,7 +125,7 @@ export default function CartPage() {
 
               <div className="cart-item-info">
                 <h3 className="cart-item-name">{item.name}</h3>
-                <p className="cart-item-price">{item.price} €</p>
+                <p className="cart-item-price">{Number(item.price).toFixed(2)} €</p>
 
                 {item.selectedColor && (
                   <p className="text-muted">Couleur : {item.selectedColor}</p>
@@ -172,7 +172,7 @@ export default function CartPage() {
 
           <div className="summary-row">
             <span>Total</span>
-            <strong>{total.toFixed(2)} €</strong>
+            <strong>{Number(total).toFixed(2)} €</strong>
           </div>
 
           <div className="loyalty-box">

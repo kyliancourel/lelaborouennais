@@ -55,7 +55,7 @@ export default async function Page({
           <p><strong>Remise :</strong> -{order.discount.toFixed(2)} €</p>
         )}
 
-        <p><strong>Total payé :</strong> {order.total.toFixed(2)} €</p>
+        <p><strong>Total payé :</strong> {Number(order.total).toFixed(2)} €</p>
         <p><strong>Statut :</strong> {order.status}</p>
 
         {order.rewardTitle && (
