@@ -71,7 +71,7 @@ export default function ProductCustomizer({ product }: { product: Product }) {
 
       {availableColors.length > 0 && (
         <div className="product-option-block">
-          <h3>Couleur disponible</h3>
+          <h3>Couleur(s) disponible(s)</h3>
 
           <div className="color-grid">
             {availableColors.map((color) => (
@@ -96,7 +96,7 @@ export default function ProductCustomizer({ product }: { product: Product }) {
 
       {unavailableColors.length > 0 && (
         <div className="product-option-block">
-          <h3>Couleur non disponible</h3>
+          <h3>Couleur(s) non disponible(s)</h3>
 
           <div className="color-grid">
             {unavailableColors.map((color) => (
