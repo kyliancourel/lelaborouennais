@@ -2027,6 +2027,7 @@ textarea.input {
   display: flex;
   align-items: center;
   gap: 10px;
+  margin: 12px 0;
   color: var(--text-secondary);
   cursor: pointer;
 }
@@ -2437,6 +2438,36 @@ textarea.input {
   border: 1px solid var(--border);
   color: var(--text-secondary);
   font-size: 13px;
+}
+
+/* =========================================================
+   ACCOUNT DELETE
+========================================================= */
+
+.delete-account-zone {
+  margin-top: 18px;
+}
+
+.delete-account-card {
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  background: rgba(239, 68, 68, 0.06);
+  border-radius: 20px;
+  padding: 20px;
+}
+
+.delete-summary {
+  margin: 16px 0;
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--card);
+  border: 1px solid var(--border);
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 14px;
 }
 
 /* =========================================================
