@@ -907,6 +907,8 @@ textarea.input {
   overflow: hidden;
 
   transition: all var(--transition);
+  display: flex;
+  flex-direction: column;
 }
 
 .product-card:hover {
@@ -920,6 +922,7 @@ textarea.input {
   gap: 14px;
 
   padding: 14px;
+  flex: 1;
 }
 
 .product-card-image {
