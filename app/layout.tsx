@@ -40,7 +40,10 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL!),
 
   icons: {
-    icon: "/icon.png",
+    icon: [
+      {url: "/favicon.ico"},
+      {url: "/icon.png", type: "image/png"},
+    ],
     apple: "/apple-icon.png",
   },
 
