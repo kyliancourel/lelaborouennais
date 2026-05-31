@@ -49,7 +49,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         return {
           id: user.id,
           email: user.email ?? "",   // ✅ safe
-          name: user.name ?? "",     // ✅ safe
+          name: `${user.firstname || ""} ${user.lastname || ""}`.trim(),     // ✅ safe
           role: user.role ?? "USER",
         };
       },

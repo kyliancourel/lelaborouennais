@@ -49,7 +49,7 @@ export async function POST(req: Request) {
       user: {
         id: user.id,
         email: user.email,
-        name: user.name,
+        name: `${user.firstname || ""} ${user.lastname || ""}`.trim(),
         role: user.role,
         points: user.points,
       },

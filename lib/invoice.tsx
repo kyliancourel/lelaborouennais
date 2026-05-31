@@ -239,7 +239,11 @@ function InvoiceDocument({ order }: any) {
           <Text style={styles.blockTitle}>Client</Text>
 
           <View style={styles.customerBox}>
-            <Text>{order.user?.name || "Client invité"}</Text>
+            <Text>
+              {`${order.user?.firstname || ""} ${order.user?.lastname || ""}`.trim() ||
+                order.user?.username ||
+                "Client invité"}
+            </Text>
             <Text style={styles.muted}>{order.email}</Text>
           </View>
         </View>

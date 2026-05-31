@@ -12,6 +12,7 @@ export default function RegisterPage() {
 
   const [name, setName] = useState("");
   const [firstname, setFirstname] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [emailConfirm, setEmailConfirm] = useState("");
   const [password, setPassword] = useState("");
@@ -35,6 +36,13 @@ export default function RegisterPage() {
       return;
     }
 
+    if (username.trim() && !/^[a-zA-Z0-9_-]{3,20}$/.test(username.trim())) {
+      setError(
+        "Le pseudo doit contenir 3 à 20 caractères : lettres, chiffres, tiret ou underscore uniquement."
+      );
+      return;
+    }
+
     setLoading(true);
 
     const res = await fetch("/api/auth/register", {
@@ -45,6 +53,7 @@ export default function RegisterPage() {
       body: JSON.stringify({
         name,
         firstname,
+        username,
         email,
         emailConfirm,
         password,
@@ -72,13 +81,27 @@ export default function RegisterPage() {
         <p className="auth-subtitle">Rejoignez le programme fidélité</p>
 
         <Form onSubmit={handleSubmit}>
-          <Input label="Nom" value={name} onChange={(e) => setName(e.target.value)} />
+          <Input
+            label="Nom"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
 
           <Input
             label="Prénom"
             value={firstname}
             onChange={(e) => setFirstname(e.target.value)}
           />
+
+          <Input
+            label="Pseudo"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+
+          <p className="text-muted">
+            Facultatif. 3 à 20 caractères, sans espace. Exemple : Kylian_76
+          </p>
 
           <Input
             label="Email"

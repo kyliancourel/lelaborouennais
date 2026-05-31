@@ -17,7 +17,9 @@ export async function GET() {
     select: {
       id: true,
       email: true,
-      name: true,
+      firstname: true,
+      lastname: true,
+      username: true,
       loyaltyTier: true,
     },
   });

@@ -39,6 +39,46 @@ export async function sendVerificationEmail(to: string, verifyUrl: string) {
   }
 }
 
+export async function sendEmailChangeVerificationEmail(
+  to: string,
+  verifyUrl: string
+) {
+  const html = `
+    <div style="background:#0b0d11;padding:40px;font-family:Arial,sans-serif;color:#fff;">
+      <div style="max-width:560px;margin:auto;background:#141922;border:1px solid #232936;border-radius:20px;padding:32px;">
+        <h1 style="margin:0 0 12px;font-size:28px;">Confirme ton nouvel email</h1>
+
+        <p style="color:#a1a8b3;line-height:1.6;">
+          Tu as demandé à modifier l'adresse email de ton compte Le Labo Rouennais.
+          Clique sur le bouton ci-dessous pour confirmer ce nouvel email.
+        </p>
+
+        <a href="${verifyUrl}"
+          style="display:inline-block;margin-top:22px;padding:13px 18px;background:#fff;color:#000;text-decoration:none;border-radius:12px;font-weight:700;">
+          Confirmer mon nouvel email
+        </a>
+
+        <p style="margin-top:28px;color:#6b7280;font-size:12px;">
+          Si tu n'es pas à l'origine de cette demande, ignore simplement cet email.
+          Ton email actuel restera inchangé.
+        </p>
+      </div>
+    </div>
+  `;
+
+  const { error } = await resendClient.emails.send({
+    from: process.env.EMAIL_FROM!,
+    to,
+    subject: "Confirme ton nouvel email - Le Labo Rouennais",
+    html,
+  });
+
+  if (error) {
+    console.error("EMAIL CHANGE VERIFICATION ERROR:", error);
+    throw new Error("Email change verification failed");
+  }
+}
+
 export async function sendOrderEmail(to: string, order: any) {
   const invoicePdf = await generateInvoicePDF(order);
 
