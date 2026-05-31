@@ -11,8 +11,8 @@ import {
 
 const styles = StyleSheet.create({
   page: {
-    padding: 30,
-    fontSize: 10,
+    padding: 28,
+    fontSize: 9,
     fontFamily: "Helvetica",
     color: "#111111",
     backgroundColor: "#ffffff",
@@ -21,81 +21,81 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: 22,
-    paddingBottom: 14,
+    marginBottom: 16,
+    paddingBottom: 10,
     borderBottomWidth: 1,
     borderBottomColor: "#e5e7eb",
   },
 
   logo: {
-    width: 58,
-    height: 58,
+    width: 50,
+    height: 50,
     objectFit: "contain",
-    marginBottom: 6,
+    marginBottom: 5,
   },
 
   brandName: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 700,
-    marginBottom: 4,
+    marginBottom: 3,
   },
 
   muted: {
     color: "#6b7280",
-    lineHeight: 1.5,
+    lineHeight: 1.35,
   },
 
   invoiceTitle: {
-    fontSize: 28,
+    fontSize: 25,
     fontWeight: 700,
     textAlign: "right",
-    marginBottom: 8,
+    marginBottom: 6,
   },
 
   invoiceMeta: {
     textAlign: "right",
     color: "#6b7280",
-    lineHeight: 1.5,
+    lineHeight: 1.35,
   },
 
   block: {
-    marginBottom: 14,
+    marginBottom: 10,
   },
 
   blockTitle: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: 700,
-    marginBottom: 8,
+    marginBottom: 6,
   },
 
-  customerBox: {
-    padding: 14,
+  infoBox: {
+    padding: 10,
     borderWidth: 1,
     borderColor: "#e5e7eb",
-    borderRadius: 10,
+    borderRadius: 9,
     backgroundColor: "#fafafa",
+    lineHeight: 1.35,
   },
 
   table: {
-    marginTop: 10,
+    marginTop: 8,
     borderWidth: 1,
     borderColor: "#e5e7eb",
-    borderRadius: 10,
+    borderRadius: 9,
   },
 
   tableHeader: {
     flexDirection: "row",
     backgroundColor: "#111111",
     color: "#ffffff",
-    paddingVertical: 9,
-    paddingHorizontal: 10,
+    paddingVertical: 7,
+    paddingHorizontal: 9,
   },
 
   row: {
     flexDirection: "row",
-    paddingVertical: 7,
-    paddingHorizontal: 10,
+    paddingVertical: 6,
+    paddingHorizontal: 9,
     borderBottomWidth: 1,
     borderBottomColor: "#e5e7eb",
   },
@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
   },
 
   qtyCell: {
-    flex: 0.6,
+    flex: 0.5,
     textAlign: "center",
   },
 
@@ -115,78 +115,78 @@ const styles = StyleSheet.create({
   },
 
   rewardBox: {
-    marginTop: 14,
-    padding: 12,
+    marginTop: 8,
+    padding: 9,
     borderWidth: 1,
     borderColor: "#e5e7eb",
-    borderRadius: 10,
+    borderRadius: 9,
     backgroundColor: "#fafafa",
   },
 
   rewardTitle: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: 700,
-    marginBottom: 6,
+    marginBottom: 4,
   },
 
   totalBox: {
-    marginTop: 14,
+    marginTop: 10,
     alignSelf: "flex-end",
-    width: 230,
-    padding: 12,
+    width: 220,
+    padding: 10,
     backgroundColor: "#111111",
     color: "#ffffff",
-    borderRadius: 10,
+    borderRadius: 9,
   },
 
   totalLine: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 5,
+    marginBottom: 4,
   },
 
   totalLabel: {
-    fontSize: 10,
+    fontSize: 9,
     color: "#d1d5db",
   },
 
   totalValueSmall: {
-    fontSize: 10,
+    fontSize: 9,
     color: "#ffffff",
   },
 
   totalFinalLabel: {
-    fontSize: 10,
+    fontSize: 9,
     color: "#d1d5db",
-    marginTop: 6,
-    marginBottom: 5,
+    marginTop: 5,
+    marginBottom: 4,
   },
 
   totalValue: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: 700,
   },
 
   message: {
-    marginTop: 18,
-    padding: 12,
+    marginTop: 12,
+    padding: 10,
     backgroundColor: "#f8fafc",
-    borderRadius: 10,
-    lineHeight: 1.4,
+    borderRadius: 9,
+    lineHeight: 1.3,
     color: "#374151",
   },
 
   legal: {
     position: "absolute",
-    left: 30,
-    right: 30,
-    bottom: 22,
-    fontSize: 7,
+    left: 28,
+    right: 28,
+    bottom: 20,
+    fontSize: 6.5,
     color: "#6b7280",
-    lineHeight: 1.3,
+    lineHeight: 1.25,
     borderTopWidth: 1,
     borderTopColor: "#e5e7eb",
-    paddingTop: 8,
+    paddingTop: 7,
   },
 });
 
@@ -204,6 +204,13 @@ function getSubtotal(order: any) {
       sum + Number(item.price) * Number(item.quantity),
     0
   );
+}
+
+function getClientName(order: any) {
+  const lastname = String(order.user?.lastname || "").trim().toUpperCase();
+  const firstname = String(order.user?.firstname || "").trim();
+
+  return `${lastname} ${firstname}`.trim() || "Client invité";
 }
 
 function InvoiceDocument({ order }: any) {
@@ -238,13 +245,31 @@ function InvoiceDocument({ order }: any) {
         <View style={styles.block}>
           <Text style={styles.blockTitle}>Client</Text>
 
-          <View style={styles.customerBox}>
+          <View style={styles.infoBox}>
+            <Text>Nom / Prénom : {getClientName(order)}</Text>
+            <Text>Email : {order.email}</Text>
+
+            {order.user?.username && (
+              <Text>Pseudo : {order.user.username}</Text>
+            )}
+
             <Text>
-              {`${order.user?.firstname || ""} ${order.user?.lastname || ""}`.trim() ||
-                order.user?.username ||
-                "Client invité"}
+              Points accumulés : {Number(order.pointsBeforeOrder || 0)} pts
             </Text>
-            <Text style={styles.muted}>{order.email}</Text>
+
+            <Text>
+              Points cumulés avec la commande :{" "}
+              {Number(order.pointsEarned || 0)} pts
+            </Text>
+
+            <Text>
+              Point total : {Number(order.pointsAfterOrder || 0)} pts
+            </Text>
+
+            <Text>
+              Niveau actuel suite à cette commande :{" "}
+              {order.loyaltyTierAfterOrder || order.user?.loyaltyTier || "BRONZE"}
+            </Text>
           </View>
         </View>
 
@@ -277,18 +302,11 @@ function InvoiceDocument({ order }: any) {
         {order.rewardTitle && (
           <View style={styles.rewardBox}>
             <Text style={styles.rewardTitle}>Récompense utilisée</Text>
-
             <Text>{order.rewardTitle}</Text>
 
             {order.rewardSelectedOption && (
               <Text style={styles.muted}>
                 Choix : {order.rewardSelectedOption}
-              </Text>
-            )}
-
-            {discount > 0 && (
-              <Text style={styles.muted}>
-                Remise appliquée : {discount.toFixed(2)} €
               </Text>
             )}
           </View>
@@ -297,7 +315,6 @@ function InvoiceDocument({ order }: any) {
         {order.welcomeOfferCode && (
           <View style={styles.rewardBox}>
             <Text style={styles.rewardTitle}>Offre de bienvenue utilisée</Text>
-
             <Text>Code : {order.welcomeOfferCode}</Text>
 
             {order.welcomeOfferValue > 0 && (

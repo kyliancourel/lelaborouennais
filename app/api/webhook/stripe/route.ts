@@ -47,18 +47,19 @@ export async function POST(req: Request) {
       ? Number(session.metadata.rewardValue)
       : null;
 
-  const rewardSelectedOption =
-    session.metadata?.rewardSelectedOption || "";
+  const rewardSelectedOption = session.metadata?.rewardSelectedOption || "";
 
   const welcomeOfferId = session.metadata?.welcomeOfferId || "";
   const welcomeOfferCode = session.metadata?.welcomeOfferCode || "";
   const welcomeOfferDiscount = Number(
     session.metadata?.welcomeOfferDiscount || 0
   );
+
   const welcomeOfferType = session.metadata?.welcomeOfferType || "";
+
   const welcomeOfferValue =
     session.metadata?.welcomeOfferValue &&
-      session.metadata.welcomeOfferValue !== ""
+    session.metadata.welcomeOfferValue !== ""
       ? Number(session.metadata.welcomeOfferValue)
       : null;
 
@@ -140,25 +141,6 @@ export async function POST(req: Request) {
       throw new Error("Order not found");
     }
 
-    await sendOrderEmail(email, {
-      orderNumber: fullOrder.orderNumber!,
-      total: fullOrder.total,
-      createdAt: fullOrder.createdAt,
-      email,
-      user: fullOrder.user,
-      items: fullOrder.items,
-
-      discount: fullOrder.discount,
-
-      rewardTitle: fullOrder.rewardTitle,
-      rewardType: fullOrder.rewardType,
-      rewardValue: fullOrder.rewardValue,
-      rewardSelectedOption: fullOrder.rewardSelectedOption,
-
-      welcomeOfferCode: fullOrder.welcomeOfferCode,
-      welcomeOfferValue: fullOrder.welcomeOfferValue,
-    });
-
     if (userId) {
       const user = await prisma.user.findUnique({
         where: {
@@ -166,11 +148,12 @@ export async function POST(req: Request) {
         },
       });
 
-      const tier = user?.loyaltyTier || "BRONZE";
+      const tierBeforeOrder = user?.loyaltyTier || "BRONZE";
+      const pointsBeforeOrder = user?.points || 0;
 
       const pointsEarned = calculateFinalEarnedPoints(
         fullOrder.total,
-        tier
+        tierBeforeOrder
       );
 
       await prisma.loyaltyLog.create({
@@ -214,13 +197,15 @@ export async function POST(req: Request) {
             metadata: {
               title: "Offre de bienvenue",
               code: welcomeOfferCode,
-              value: welcomeOfferDiscount,
+              type: welcomeOfferType,
+              value: welcomeOfferValue,
+              discount: welcomeOfferDiscount,
             },
           },
         });
       }
 
-      await prisma.user.update({
+      const updatedUser = await prisma.user.update({
         where: {
           id: userId,
         },
@@ -232,7 +217,74 @@ export async function POST(req: Request) {
       });
 
       await updateUserTier(userId);
+
+      const userAfterTierUpdate = await prisma.user.findUnique({
+        where: {
+          id: userId,
+        },
+      });
+
+      await sendOrderEmail(email, {
+        orderNumber: fullOrder.orderNumber!,
+        total: fullOrder.total,
+        createdAt: fullOrder.createdAt,
+        email,
+        user: {
+          ...fullOrder.user,
+          loyaltyTier:
+            userAfterTierUpdate?.loyaltyTier ||
+            updatedUser.loyaltyTier ||
+            tierBeforeOrder,
+        },
+        items: fullOrder.items,
+
+        discount: fullOrder.discount,
+
+        rewardTitle: fullOrder.rewardTitle,
+        rewardType: fullOrder.rewardType,
+        rewardValue: fullOrder.rewardValue,
+        rewardSelectedOption: fullOrder.rewardSelectedOption,
+
+        welcomeOfferCode: fullOrder.welcomeOfferCode,
+        welcomeOfferValue: fullOrder.welcomeOfferValue,
+
+        pointsBeforeOrder,
+        pointsEarned,
+        pointsAfterOrder: pointsBeforeOrder + pointsEarned,
+        loyaltyTierAfterOrder:
+          userAfterTierUpdate?.loyaltyTier ||
+          updatedUser.loyaltyTier ||
+          tierBeforeOrder,
+      });
+
+      return NextResponse.json({
+        received: true,
+      });
     }
+
+    await sendOrderEmail(email, {
+      orderNumber: fullOrder.orderNumber!,
+      total: fullOrder.total,
+      createdAt: fullOrder.createdAt,
+      email,
+      user: fullOrder.user,
+      items: fullOrder.items,
+
+      discount: fullOrder.discount,
+
+      rewardTitle: fullOrder.rewardTitle,
+      rewardType: fullOrder.rewardType,
+      rewardValue: fullOrder.rewardValue,
+      rewardSelectedOption: fullOrder.rewardSelectedOption,
+
+      welcomeOfferCode: fullOrder.welcomeOfferCode,
+      welcomeOfferValue: fullOrder.welcomeOfferValue,
+
+      pointsBeforeOrder: 0,
+      pointsEarned: 0,
+      pointsAfterOrder: 0,
+      loyaltyTierAfterOrder: "BRONZE",
+    });
 
     return NextResponse.json({
       received: true,
