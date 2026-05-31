@@ -90,6 +90,8 @@ export async function POST(req: Request) {
   let welcomeOfferDiscount = 0;
   let welcomeOfferId = "";
   let welcomeOfferCode = "";
+  let welcomeOfferValue = "";
+  let welcomeOfferType = "";
 
   const cleanWelcomeCode = String(welcomeCode || "").trim().toUpperCase();
 
@@ -151,9 +153,19 @@ export async function POST(req: Request) {
       );
     }
 
-    welcomeOfferDiscount = Math.min(offer.value, cartTotal);
+    if (offer.type === "PERCENT") {
+      welcomeOfferDiscount = Math.min(
+        cartTotal,
+        (cartTotal * offer.value) / 100
+      );
+    } else {
+      welcomeOfferDiscount = Math.min(offer.value, cartTotal);
+    }
+
     welcomeOfferId = offer.id;
     welcomeOfferCode = offer.code;
+    welcomeOfferValue = String(offer.value);
+    welcomeOfferType = offer.type;
   }
 
   const totalDiscount = Math.min(
@@ -226,6 +238,8 @@ export async function POST(req: Request) {
       welcomeOfferId,
       welcomeOfferCode,
       welcomeOfferDiscount: String(welcomeOfferDiscount),
+      welcomeOfferValue,
+      welcomeOfferType,
     },
   });
 

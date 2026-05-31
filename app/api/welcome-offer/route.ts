@@ -10,7 +10,6 @@ function generateCode() {
 export async function POST(req: Request) {
   try {
     const { email } = await req.json();
-
     const cleanEmail = String(email || "").trim().toLowerCase();
 
     if (!cleanEmail) {
@@ -31,19 +30,19 @@ export async function POST(req: Request) {
       );
     }
 
-    const code = generateCode();
-
     const offer = await prisma.welcomeOffer.create({
       data: {
         email: cleanEmail,
-        code,
-        value: 5,
+        code: generateCode(),
+        value: 10,
+        type: "PERCENT",
       },
     });
 
     await sendWelcomeOfferEmail(cleanEmail, {
       code: offer.code,
       value: offer.value,
+      type: offer.type,
     });
 
     return NextResponse.json({

@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "WelcomeOffer" ADD COLUMN     "type" TEXT NOT NULL DEFAULT 'PERCENT',
+ALTER COLUMN "value" SET DEFAULT 10;

@@ -107,11 +107,15 @@ model WelcomeOffer {
 
   email String @unique
   code  String @unique
-  value Float  @default(5)
+
+  value Float @default(10)
+
+  type String @default("PERCENT")
 
   status WelcomeOfferStatus @default(SENT)
 
-  usedAt    DateTime?
+  usedAt DateTime?
+
   createdAt DateTime @default(now())
 }
 

@@ -302,7 +302,7 @@ function InvoiceDocument({ order }: any) {
 
             {order.welcomeOfferValue > 0 && (
               <Text style={styles.muted}>
-                Remise appliquée : {Number(order.welcomeOfferValue).toFixed(2)} €
+                Réduction : {Number(order.welcomeOfferValue).toFixed(0)} %
               </Text>
             )}
           </View>

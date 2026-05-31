@@ -84,6 +84,7 @@ export async function sendWelcomeOfferEmail(
   offer: {
     code: string;
     value: number;
+    type?: string;
   }
 ) {
   const html = `
@@ -110,7 +111,7 @@ export async function sendWelcomeOfferEmail(
         <p style="color:#a1a8b3;line-height:1.6;">
           Valeur de l'offre :
           <strong style="color:#fff;">
-            ${offer.value.toFixed(2)} €
+            ${offer.value} %
           </strong>
         </p>
 

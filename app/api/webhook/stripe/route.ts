@@ -55,6 +55,12 @@ export async function POST(req: Request) {
   const welcomeOfferDiscount = Number(
     session.metadata?.welcomeOfferDiscount || 0
   );
+  const welcomeOfferType = session.metadata?.welcomeOfferType || "";
+  const welcomeOfferValue =
+    session.metadata?.welcomeOfferValue &&
+      session.metadata.welcomeOfferValue !== ""
+      ? Number(session.metadata.welcomeOfferValue)
+      : null;
 
   const cart = session.metadata?.cart
     ? JSON.parse(session.metadata.cart)
@@ -101,8 +107,7 @@ export async function POST(req: Request) {
 
         welcomeOfferId: welcomeOfferId || null,
         welcomeOfferCode: welcomeOfferCode || null,
-        welcomeOfferValue:
-          welcomeOfferDiscount > 0 ? welcomeOfferDiscount : null,
+        welcomeOfferValue,
 
         items: {
           create: cart.map((item: any) => ({
