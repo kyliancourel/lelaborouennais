@@ -31,6 +31,9 @@ model User {
   emailVerifyExpires DateTime?
   emailLastSentAt    DateTime?
 
+  passwordResetToken    String?
+  passwordResetExpires  DateTime?
+
   orders Order[]
 
   loyaltyHistory LoyaltyLog[]

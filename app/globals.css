@@ -1427,6 +1427,21 @@ textarea.input {
   font-size: 14px;
 }
 
+.auth-links {
+  margin-top: -8px;
+  text-align: right;
+}
+
+.auth-links a {
+  color: var(--text-secondary);
+  font-size: 13px;
+  transition: var(--transition);
+}
+
+.auth-links a:hover {
+  color: white;
+}
+
 /* ERROR STATE */
 
 .auth-container--error {

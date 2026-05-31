@@ -84,6 +84,51 @@ export async function sendEmailChangeVerificationEmail(
   }
 }
 
+export async function sendPasswordResetEmail(
+  to: string,
+  resetUrl: string
+) {
+  const html = `
+    <div style="background:#0b0d11;padding:40px;font-family:Arial,sans-serif;color:#fff;">
+      <div style="max-width:560px;margin:auto;background:#141922;border:1px solid #232936;border-radius:20px;padding:32px;">
+        <h1 style="margin:0 0 12px;font-size:28px;">
+          Réinitialisation du mot de passe
+        </h1>
+
+        <p style="color:#a1a8b3;line-height:1.6;">
+          Une demande de réinitialisation du mot de passe a été effectuée pour votre compte Le Labo Rouennais.
+        </p>
+
+        <a href="${resetUrl}"
+          style="display:inline-block;margin-top:22px;padding:13px 18px;background:#fff;color:#000;text-decoration:none;border-radius:12px;font-weight:700;">
+          Réinitialiser mon mot de passe
+        </a>
+
+        <p style="margin-top:24px;color:#a1a8b3;">
+          Ce lien est valable pendant 1 heure.
+        </p>
+
+        <p style="margin-top:24px;color:#6b7280;font-size:12px;">
+          Si vous n'êtes pas à l'origine de cette demande, ignorez simplement cet email.
+        </p>
+      </div>
+    </div>
+  `;
+
+  const { error } = await resendClient.emails.send({
+    from,
+    to,
+    replyTo,
+    subject: "Réinitialisation du mot de passe - Le Labo Rouennais",
+    html,
+  });
+
+  if (error) {
+    console.error("PASSWORD RESET EMAIL ERROR:", error);
+    throw new Error("Password reset email failed");
+  }
+}
+
 export async function sendWelcomeOfferEmail(
   to: string,
   offer: {

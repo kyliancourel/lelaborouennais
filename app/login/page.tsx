@@ -13,11 +13,13 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+
     setLoading(true);
     setError("");
 
@@ -50,6 +52,7 @@ export default function LoginPage() {
           <Input
             label="Email"
             type="email"
+            required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
@@ -57,9 +60,16 @@ export default function LoginPage() {
           <Input
             label="Mot de passe"
             type="password"
+            required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
+
+          <div className="auth-links">
+            <a href="/forgot-password">
+              Mot de passe oublié ?
+            </a>
+          </div>
 
           <Button type="submit" disabled={loading}>
             {loading ? "Connexion..." : "Se connecter"}
