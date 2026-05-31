@@ -21,7 +21,7 @@ export default function ProductCard({ product }: any) {
         <p className="product-card-price">{product.price}€</p>
       </Link>
 
-      <Link href={`/products/${product.slug}`} className="add-to-cart-btn">
+      <Link href={`/products/${product.slug}`} className="add-to-cart-btn product-customize-link">
         Personnaliser
       </Link>
     </div>
