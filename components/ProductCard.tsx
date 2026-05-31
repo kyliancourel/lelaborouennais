@@ -1,13 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import AddToCart from "@/components/AddToCart";
 
 export default function ProductCard({ product }: any) {
   return (
     <div className="product-card">
       <div className="product-card-glow" />
-      
+
       <Link href={`/products/${product.slug}`} className="product-card-link">
         {product.image && (
           <img
@@ -22,14 +21,9 @@ export default function ProductCard({ product }: any) {
         <p className="product-card-price">{product.price}€</p>
       </Link>
 
-      <AddToCart
-        product={{
-          id: product.id,
-          name: product.name,
-          price: product.price,
-          image: product.image ?? undefined,
-        }}
-      />
+      <Link href={`/products/${product.slug}`} className="add-to-cart-btn">
+        Personnaliser
+      </Link>
     </div>
   );
 }
