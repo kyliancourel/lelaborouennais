@@ -23,7 +23,10 @@ export async function GET(req: NextRequest, context: Context) {
     });
 
     if (!product) {
-      return NextResponse.json({ error: "Produit introuvable" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Produit introuvable" },
+        { status: 404 }
+      );
     }
 
     return NextResponse.json(product);
@@ -45,8 +48,8 @@ export async function PUT(req: NextRequest, context: Context) {
     const product = await prisma.product.update({
       where: { id },
       data: {
-        name: String(data.name).trim(),
-        slug: String(data.slug).trim(),
+        name: String(data.name || "").trim(),
+        slug: String(data.slug || "").trim(),
         description: data.description ?? "",
         price: Number(data.price),
         image: data.image ?? "",
@@ -55,6 +58,7 @@ export async function PUT(req: NextRequest, context: Context) {
         customizationPrice: Number(data.customizationPrice || 4),
         availableColors: normalizeStringArray(data.availableColors),
         unavailableColors: normalizeStringArray(data.unavailableColors),
+        colorZones: normalizeStringArray(data.colorZones),
       },
     });
 

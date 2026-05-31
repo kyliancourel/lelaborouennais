@@ -33,13 +33,15 @@ export default function ProductCustomizer({ product }: { product: Product }) {
   const availableColors = product.availableColors.map(parseColor);
   const unavailableColors = product.unavailableColors.map(parseColor);
 
+  const hasColorZones = product.colorZones.length > 0;
+
   const [selectedColor, setSelectedColor] = useState<ColorOption | null>(
     availableColors[0] || null
   );
 
-  const [selectedColors, setSelectedColors] = useState<
-    Record<string, string>
-  >({});
+  const [selectedColors, setSelectedColors] = useState<Record<string, string>>(
+    {}
+  );
 
   const [customText, setCustomText] = useState("");
 
@@ -74,17 +76,18 @@ export default function ProductCustomizer({ product }: { product: Product }) {
         />
       </div>
 
-      {availableColors.length > 0 && (
+      {availableColors.length > 0 && !hasColorZones && (
         <div className="product-option-block">
-          <h3>Couleur(s) disponible(s)</h3>
+          <h3>Couleur disponible</h3>
 
           <div className="color-grid">
             {availableColors.map((color) => (
               <button
                 key={`${color.name}-${color.hex}`}
                 type="button"
-                className={`color-choice ${selectedColor?.name === color.name ? "active" : ""
-                  }`}
+                className={`color-choice ${
+                  selectedColor?.name === color.name ? "active" : ""
+                }`}
                 onClick={() => setSelectedColor(color)}
               >
                 <span
@@ -95,6 +98,46 @@ export default function ProductCustomizer({ product }: { product: Product }) {
               </button>
             ))}
           </div>
+        </div>
+      )}
+
+      {hasColorZones && (
+        <div className="product-option-block">
+          <h3>Personnalisation des couleurs</h3>
+
+          {product.colorZones.map((zone) => (
+            <div key={zone} className="zone-selector">
+              <label className="input-label">{zone}</label>
+
+              <select
+                className="input"
+                value={selectedColors[zone] || ""}
+                onChange={(e) => {
+                  const selectedName = e.target.value;
+                  const selectedColorData =
+                    availableColors.find((c) => c.name === selectedName) ||
+                    null;
+
+                  setSelectedColors({
+                    ...selectedColors,
+                    [zone]: selectedName,
+                  });
+
+                  if (selectedColorData) {
+                    setSelectedColor(selectedColorData);
+                  }
+                }}
+              >
+                <option value="">Choisir une couleur</option>
+
+                {availableColors.map((color) => (
+                  <option key={`${zone}-${color.name}`} value={color.name}>
+                    {color.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ))}
         </div>
       )}
 
@@ -120,46 +163,6 @@ export default function ProductCustomizer({ product }: { product: Product }) {
           </div>
         </div>
       )}
-
-      {product.colorZones.length > 0 && (
-        <div className="product-option-block">
-
-          <h3>Personnalisation couleurs</h3>
-
-          {product.colorZones.map((zone) => (
-            <div key={zone} className="zone-selector">
-
-              <label>{zone}</label>
-
-              <select
-                className="input"
-                value={selectedColors[zone] || ""}
-                onChange={(e) =>
-                  setSelectedColors({
-                    ...selectedColors,
-                    [zone]: e.target.value,
-                  })
-                }
-              >
-                <option value="">
-                  Choisir une couleur
-                </option>
-
-                {product.availableColors.map((color) => (
-                  <option
-                    key={color}
-                    value={color}
-                  >
-                    {color}
-                  </option>
-                ))}
-              </select>
-
-            </div>
-          ))}
-        </div>
-      )}
-
 
       {product.customizableText && (
         <div className="product-option-block">
@@ -190,8 +193,8 @@ export default function ProductCustomizer({ product }: { product: Product }) {
           name: product.name,
           price: finalPrice,
           image: product.image,
-          selectedColor: selectedColor?.name || undefined,
-          selectedColors,
+          selectedColor: !hasColorZones ? selectedColor?.name : undefined,
+          selectedColors: hasColorZones ? selectedColors : undefined,
           customText: customText.trim() || undefined,
         }}
       />

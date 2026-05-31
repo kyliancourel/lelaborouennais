@@ -66,9 +66,9 @@ export const metadata = {
         <section>
           <h2>Phase de test</h2>
           <p>
-            Le site étant en phase de test, certaines informations légales
-            définitives, comme le SIRET, l’adresse professionnelle ou l’email SAV
-            officiel, seront ajoutées lorsque l’activité sera déclarée.
+          Les informations figurant sur cette page sont susceptibles d’être mises à 
+          jour afin de refléter au mieux l’évolution de l’activité et des services 
+          proposés.
           </p>
         </section>
       </main>
