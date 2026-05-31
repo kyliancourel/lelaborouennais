@@ -36,6 +36,7 @@ export default function EditProductPage() {
     customizationPrice: 4,
     availableColorsText: "",
     unavailableColorsText: "",
+    colorZonesText: "",
   });
 
   useEffect(() => {
@@ -55,6 +56,7 @@ export default function EditProductPage() {
           customizationPrice: data.customizationPrice ?? 4,
           availableColorsText: arrayToText(data.availableColors),
           unavailableColorsText: arrayToText(data.unavailableColors),
+          colorZonesText: arrayToText(data.colorZones),
         })
       );
   }, [id]);
@@ -77,6 +79,7 @@ export default function EditProductPage() {
         customizationPrice: Number(form.customizationPrice || 4),
         availableColors: textToArray(form.availableColorsText),
         unavailableColors: textToArray(form.unavailableColorsText),
+        colorZones: textToArray(form.colorZonesText),
       }),
     });
 
@@ -204,6 +207,23 @@ export default function EditProductPage() {
             value={form.unavailableColorsText}
             onChange={(e) =>
               setForm({ ...form, unavailableColorsText: e.target.value })
+            }
+          />
+
+          <textarea
+            className="input"
+            placeholder={`Zones personnalisables :
+
+Base
+Texte
+Logo
+Bordure`}
+            value={form.colorZonesText}
+            onChange={(e) =>
+              setForm({
+                ...form,
+                colorZonesText: e.target.value,
+              })
             }
           />
 
