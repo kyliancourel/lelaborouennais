@@ -101,7 +101,7 @@ export default function RegisterPage() {
             onChange={(e) => setUsername(e.target.value)}
           />
 
-          <p className="text-muted">
+          <p className="form-help">
             3 à 20 caractères, sans espace. <br></br>
             Exemple : monpseudo_76
           </p>
