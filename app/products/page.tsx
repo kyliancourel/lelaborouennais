@@ -13,6 +13,9 @@ type Product = {
 
 export default async function ProductsPage() {
   const products: Product[] = await prisma.product.findMany({
+    where: {
+      isArchived: false,
+    },
     orderBy: { createdAt: "desc" },
   });
 

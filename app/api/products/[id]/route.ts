@@ -77,13 +77,16 @@ export async function DELETE(req: NextRequest, context: Context) {
   try {
     const { id } = await context.params;
 
-    await prisma.product.delete({
+    await prisma.product.update({
       where: { id },
+      data: {
+        isArchived: true,
+      },
     });
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    console.error("DELETE PRODUCT ERROR:", error);
+    console.error("ARCHIVE PRODUCT ERROR:", error);
 
     return NextResponse.json(
       { error: error?.message || "Erreur serveur" },

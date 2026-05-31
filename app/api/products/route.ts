@@ -13,6 +13,9 @@ function normalizeStringArray(value: unknown): string[] {
 export async function GET() {
   try {
     const products = await prisma.product.findMany({
+      where: {
+        isArchived: false,
+      },
       orderBy: { createdAt: "desc" },
     });
 
