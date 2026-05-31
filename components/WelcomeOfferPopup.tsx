@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-const STORAGE_KEY = "welcome-offer-popup-closed";
+const STORAGE_KEY = "welcome-offer-popup-closed-session";
 
 export default function WelcomeOfferPopup() {
   const [open, setOpen] = useState(false);
@@ -12,16 +12,16 @@ export default function WelcomeOfferPopup() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const closed = localStorage.getItem(STORAGE_KEY);
+    const closedThisSession = sessionStorage.getItem(STORAGE_KEY);
 
-    if (!closed) {
+    if (!closedThisSession) {
       const timer = setTimeout(() => setOpen(true), 1200);
       return () => clearTimeout(timer);
     }
   }, []);
 
   function close() {
-    localStorage.setItem(STORAGE_KEY, "true");
+    sessionStorage.setItem(STORAGE_KEY, "true");
     setOpen(false);
   }
 
@@ -46,11 +46,21 @@ export default function WelcomeOfferPopup() {
 
     if (!res.ok) {
       setError(data.error || "Erreur lors de l'envoi.");
+
+      if (res.status === 409) {
+        sessionStorage.setItem(STORAGE_KEY, "true");
+      }
+
       return;
     }
 
     setMessage(data.message || "Offre envoyée par email.");
-    localStorage.setItem(STORAGE_KEY, "true");
+
+    sessionStorage.setItem(STORAGE_KEY, "true");
+
+    setTimeout(() => {
+      setOpen(false);
+    }, 1800);
   }
 
   if (!open) return null;
@@ -67,8 +77,8 @@ export default function WelcomeOfferPopup() {
         <h2>Bienvenue au Labo Rouennais</h2>
 
         <p className="text-muted">
-          Reçois une récompense exclusive par email à utiliser lors de ta
-          première commande.
+          Reçois 10 % de réduction par email à utiliser lors de ta première
+          commande.
         </p>
 
         <form onSubmit={handleSubmit} className="form mt-3">
