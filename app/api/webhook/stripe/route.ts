@@ -5,7 +5,6 @@ import Stripe from "stripe";
 import { sendOrderEmail } from "@/lib/email";
 import { calculateFinalEarnedPoints } from "@/lib/loyaltyEngine";
 import { updateUserTier } from "@/lib/loyaltyTierEngine";
-import { select } from "framer-motion/client";
 
 export const runtime = "nodejs";
 
@@ -36,22 +35,26 @@ export async function POST(req: Request) {
   const session = event.data.object as Stripe.Checkout.Session;
 
   const userId = session.metadata?.userId || null;
-const usedPoints = Number(session.metadata?.usedPoints || 0);
-const rewardId = session.metadata?.rewardId || "";
-const rewardDiscount = Number(session.metadata?.rewardDiscount || 0);
+  const usedPoints = Number(session.metadata?.usedPoints || 0);
 
-const rewardTitle = session.metadata?.rewardTitle || "";
+  const rewardId = session.metadata?.rewardId || "";
+  const rewardDiscount = Number(session.metadata?.rewardDiscount || 0);
+  const rewardTitle = session.metadata?.rewardTitle || "";
+  const rewardType = session.metadata?.rewardType || "";
 
-const rewardType = session.metadata?.rewardType || "";
+  const rewardValue =
+    session.metadata?.rewardValue && session.metadata.rewardValue !== ""
+      ? Number(session.metadata.rewardValue)
+      : null;
 
-const rewardValue =
-  session.metadata?.rewardValue &&
-  session.metadata.rewardValue !== ""
-    ? Number(session.metadata.rewardValue)
-    : null;
+  const rewardSelectedOption =
+    session.metadata?.rewardSelectedOption || "";
 
-const rewardSelectedOption =
-  session.metadata?.rewardSelectedOption || "";
+  const welcomeOfferId = session.metadata?.welcomeOfferId || "";
+  const welcomeOfferCode = session.metadata?.welcomeOfferCode || "";
+  const welcomeOfferDiscount = Number(
+    session.metadata?.welcomeOfferDiscount || 0
+  );
 
   const cart = session.metadata?.cart
     ? JSON.parse(session.metadata.cart)
@@ -68,7 +71,9 @@ const rewardSelectedOption =
   }
 
   const existing = await prisma.order.findFirst({
-    where: { stripeSessionId: session.id },
+    where: {
+      stripeSessionId: session.id,
+    },
   });
 
   if (existing) {
@@ -86,12 +91,18 @@ const rewardSelectedOption =
         status: "PAID",
 
         usedPoints,
-        discount: usedPoints + rewardDiscount,
+        discount: usedPoints + rewardDiscount + welcomeOfferDiscount,
+
         rewardId: rewardId || null,
         rewardTitle: rewardTitle || null,
         rewardType: rewardType ? (rewardType as any) : null,
         rewardValue,
         rewardSelectedOption: rewardSelectedOption || null,
+
+        welcomeOfferId: welcomeOfferId || null,
+        welcomeOfferCode: welcomeOfferCode || null,
+        welcomeOfferValue:
+          welcomeOfferDiscount > 0 ? welcomeOfferDiscount : null,
 
         items: {
           create: cart.map((item: any) => ({
@@ -107,14 +118,22 @@ const rewardSelectedOption =
     });
 
     const fullOrder = await prisma.order.findUnique({
-      where: { id: order.id },
+      where: {
+        id: order.id,
+      },
       include: {
         user: true,
-        items: { include: { product: true } },
+        items: {
+          include: {
+            product: true,
+          },
+        },
       },
     });
 
-    if (!fullOrder) throw new Error("Order not found");
+    if (!fullOrder) {
+      throw new Error("Order not found");
+    }
 
     await sendOrderEmail(email, {
       orderNumber: fullOrder.orderNumber!,
@@ -123,16 +142,23 @@ const rewardSelectedOption =
       email,
       user: fullOrder.user,
       items: fullOrder.items,
+
       discount: fullOrder.discount,
+
       rewardTitle: fullOrder.rewardTitle,
       rewardType: fullOrder.rewardType,
       rewardValue: fullOrder.rewardValue,
       rewardSelectedOption: fullOrder.rewardSelectedOption,
+
+      welcomeOfferCode: fullOrder.welcomeOfferCode,
+      welcomeOfferValue: fullOrder.welcomeOfferValue,
     });
 
     if (userId) {
       const user = await prisma.user.findUnique({
-        where: { id: userId },
+        where: {
+          id: userId,
+        },
       });
 
       const tier = user?.loyaltyTier || "BRONZE";
@@ -153,7 +179,9 @@ const rewardSelectedOption =
 
       if (rewardId) {
         await prisma.loyaltyReward.update({
-          where: { id: rewardId },
+          where: {
+            id: rewardId,
+          },
           data: {
             status: "USED",
             usedAt: new Date(),
@@ -161,8 +189,36 @@ const rewardSelectedOption =
         });
       }
 
+      if (welcomeOfferId) {
+        await prisma.welcomeOffer.update({
+          where: {
+            id: welcomeOfferId,
+          },
+          data: {
+            status: "USED",
+            usedAt: new Date(),
+          },
+        });
+
+        await prisma.loyaltyLog.create({
+          data: {
+            userId,
+            points: 0,
+            type: "BONUS",
+            source: `welcome_offer_${welcomeOfferId}`,
+            metadata: {
+              title: "Offre de bienvenue",
+              code: welcomeOfferCode,
+              value: welcomeOfferDiscount,
+            },
+          },
+        });
+      }
+
       await prisma.user.update({
-        where: { id: userId },
+        where: {
+          id: userId,
+        },
         data: {
           points: {
             increment: pointsEarned,
@@ -173,10 +229,15 @@ const rewardSelectedOption =
       await updateUserTier(userId);
     }
 
-    return NextResponse.json({ received: true });
+    return NextResponse.json({
+      received: true,
+    });
   } catch (err) {
     console.error(err);
 
-    return NextResponse.json({ error: "Webhook failed" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Webhook failed" },
+      { status: 500 }
+    );
   }
 }

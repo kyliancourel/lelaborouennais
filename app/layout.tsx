@@ -8,6 +8,7 @@ import Providers from "./providers";
 import { Toaster } from "react-hot-toast";
 import Footer from "@/components/Footer";
 import CookieBanner from "@/components/CookieBanner";
+import WelcomeOfferPopup from "@/components/WelcomeOfferPopup";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -67,6 +68,7 @@ export default function RootLayout({
               }}
             />
             <CookieBanner />
+            <WelcomeOfferPopup />
           </CartProvider>
         </Providers>
       </body>

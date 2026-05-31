@@ -294,6 +294,20 @@ function InvoiceDocument({ order }: any) {
           </View>
         )}
 
+        {order.welcomeOfferCode && (
+          <View style={styles.rewardBox}>
+            <Text style={styles.rewardTitle}>Offre de bienvenue utilisée</Text>
+
+            <Text>Code : {order.welcomeOfferCode}</Text>
+
+            {order.welcomeOfferValue > 0 && (
+              <Text style={styles.muted}>
+                Remise appliquée : {Number(order.welcomeOfferValue).toFixed(2)} €
+              </Text>
+            )}
+          </View>
+        )}
+
         <View style={styles.totalBox}>
           <View style={styles.totalLine}>
             <Text style={styles.totalLabel}>Total avant remise</Text>

@@ -88,8 +88,31 @@ model Order {
 
   items OrderItem[]
 
+  welcomeOfferId      String?
+  welcomeOfferCode    String?
+  welcomeOfferValue   Float?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+enum WelcomeOfferStatus {
+  SENT
+  USED
+  EXPIRED
+}
+
+model WelcomeOffer {
+  id String @id @default(cuid())
+
+  email String @unique
+  code  String @unique
+  value Float  @default(5)
+
+  status WelcomeOfferStatus @default(SENT)
+
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
 }
 
 model OrderItem {

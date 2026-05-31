@@ -49,6 +49,7 @@ export default function CartPage() {
 
   const [loading, setLoading] = useState(false);
   const [rewards, setRewards] = useState<Reward[]>([]);
+  const [welcomeCode, setWelcomeCode] = useState("");
 
   const availablePoints = user?.points ?? 0;
 
@@ -85,6 +86,7 @@ export default function CartPage() {
         body: JSON.stringify({
           cart,
           rewardId: selectedRewardId,
+          welcomeCode,
         }),
       });
 
@@ -228,6 +230,21 @@ export default function CartPage() {
             <p className="final-total">
               Total final : {finalTotal.toFixed(2)} €
             </p>
+          </div>
+
+          <div className="loyalty-box mt-3">
+            <h3>🎁 Offre de bienvenue</h3>
+
+            <p className="text-muted">
+              Si tu as reçu un code par email, tu peux l'utiliser ici.
+            </p>
+
+            <input
+              className="input"
+              placeholder="Ex : WELCOME-XXXXXX"
+              value={welcomeCode}
+              onChange={(e) => setWelcomeCode(e.target.value.toUpperCase())}
+            />
           </div>
 
           <button className="checkout-btn" disabled={loading} onClick={handleCheckout}>

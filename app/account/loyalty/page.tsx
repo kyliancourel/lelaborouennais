@@ -91,15 +91,21 @@ export default async function LoyaltyPage() {
             {user.loyaltyHistory.map((log) => (
               <div key={log.id} className="loyalty-history-item">
                 <span>
-                  {log.type === "EARNED" && "Points gagnés"}
-                  {log.type === "USED" && "Points utilisés"}
-                  {log.type === "BONUS" && "Bonus"}
-                  {log.type === "EXPIRED" && "Points expirés"}
+                  {log.source?.startsWith("welcome_offer_")
+                    ? "Offre de bienvenue utilisée"
+                    : log.type === "EARNED"
+                      ? "Points gagnés"
+                      : log.type === "USED"
+                        ? "Points utilisés"
+                        : log.type === "BONUS"
+                          ? "Bonus"
+                          : "Points expirés"}
                 </span>
 
                 <strong>
-                  {log.type === "USED" || log.type === "EXPIRED" ? "-" : "+"}
-                  {log.points} pts
+                  {log.points === 0
+                    ? "Utilisée"
+                    : `${log.type === "USED" || log.type === "EXPIRED" ? "-" : "+"}${log.points} pts`}
                 </strong>
               </div>
             ))}

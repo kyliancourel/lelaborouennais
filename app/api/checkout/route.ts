@@ -16,7 +16,13 @@ export async function POST(req: Request) {
   }
 
   const session = await auth();
-  const { cart, usedPoints = 0, rewardId = null } = await req.json();
+
+  const {
+    cart,
+    usedPoints = 0,
+    rewardId = null,
+    welcomeCode = "",
+  } = await req.json();
 
   if (usedPoints > 0) {
     return NextResponse.json(
@@ -74,11 +80,86 @@ export async function POST(req: Request) {
     safeRewardId = reward.id;
     rewardTitle = rule?.title || "Récompense fidélité";
     rewardType = reward.type;
-    rewardValue = reward.value !== null && reward.value !== undefined ? String(reward.value) : "";
+    rewardValue =
+      reward.value !== null && reward.value !== undefined
+        ? String(reward.value)
+        : "";
     rewardSelectedOption = reward.selectedOption || "";
   }
 
-  const totalDiscount = Math.min(cartTotal, rewardDiscount);
+  let welcomeOfferDiscount = 0;
+  let welcomeOfferId = "";
+  let welcomeOfferCode = "";
+
+  const cleanWelcomeCode = String(welcomeCode || "").trim().toUpperCase();
+
+  if (cleanWelcomeCode) {
+    if (!userId || !email) {
+      return NextResponse.json(
+        {
+          error:
+            "Connecte-toi avec l'adresse email qui a reçu l'offre de bienvenue.",
+        },
+        { status: 401 }
+      );
+    }
+
+    const offer = await prisma.welcomeOffer.findUnique({
+      where: { code: cleanWelcomeCode },
+    });
+
+    if (!offer) {
+      return NextResponse.json(
+        { error: "Code de bienvenue invalide" },
+        { status: 400 }
+      );
+    }
+
+    if (offer.status !== "SENT") {
+      return NextResponse.json(
+        { error: "Cette offre de bienvenue a déjà été utilisée" },
+        { status: 400 }
+      );
+    }
+
+    if (offer.email.toLowerCase() !== email.toLowerCase()) {
+      return NextResponse.json(
+        {
+          error:
+            "Ce code de bienvenue n'est pas associé à l'email de ce compte.",
+        },
+        { status: 400 }
+      );
+    }
+
+    const previousOrders = await prisma.order.count({
+      where: {
+        userId,
+        status: {
+          in: ["PAID", "SHIPPED", "COMPLETED"],
+        },
+      },
+    });
+
+    if (previousOrders > 0) {
+      return NextResponse.json(
+        {
+          error:
+            "L'offre de bienvenue est valable uniquement sur la première commande.",
+        },
+        { status: 400 }
+      );
+    }
+
+    welcomeOfferDiscount = Math.min(offer.value, cartTotal);
+    welcomeOfferId = offer.id;
+    welcomeOfferCode = offer.code;
+  }
+
+  const totalDiscount = Math.min(
+    cartTotal,
+    rewardDiscount + welcomeOfferDiscount
+  );
 
   const safeCart = cart.map((item: any) => ({
     id: item.id,
@@ -96,7 +177,7 @@ export async function POST(req: Request) {
           amount_off: Math.round(totalDiscount * 100),
           currency: "eur",
           duration: "once",
-          name: rewardTitle || "Réduction fidélité",
+          name: "Réduction fidélité / bienvenue",
         })
       : null;
 
@@ -134,12 +215,17 @@ export async function POST(req: Request) {
       email: email || "",
       cart: JSON.stringify(safeCart),
       usedPoints: "0",
+
       rewardId: safeRewardId,
       rewardDiscount: String(rewardDiscount),
       rewardTitle,
       rewardType,
       rewardValue,
       rewardSelectedOption,
+
+      welcomeOfferId,
+      welcomeOfferCode,
+      welcomeOfferDiscount: String(welcomeOfferDiscount),
     },
   });
 

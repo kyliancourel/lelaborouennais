@@ -2495,12 +2495,61 @@ textarea.input {
 }
 
 /* =========================================================
-   RESPONSIVE
+   REQUIRED FIELDS STAR
 ========================================================= */
 
 .required-star {
   color: #ef4444;
   margin-left: 4px;
+  font-weight: 700;
+}
+
+/* =========================================================
+   WELCOME OFFER OVERLAY
+========================================================= */
+
+.welcome-offer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 24px;
+  pointer-events: none;
+}
+
+.welcome-offer-card {
+  position: relative;
+  width: min(440px, 100%);
+  padding: 26px;
+  border-radius: 24px;
+  background: rgba(15, 18, 25, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
+  color: white;
+  pointer-events: auto;
+}
+
+.welcome-offer-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.welcome-offer-badge {
+  display: inline-flex;
+  margin-bottom: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255, 107, 53, 0.14);
+  color: #ff8a4c;
+  font-size: 0.8rem;
   font-weight: 700;
 }
 
