@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Home() {
   return (
@@ -6,7 +7,19 @@ export default function Home() {
 
       {/* HERO */}
       <section className="home-hero">
-        <h1 className="home-title">Le Labo Rouennais</h1>
+
+        <Image
+          src="/logo_clair.png"
+          alt="Logo Le Labo Rouennais"
+          width={180}
+          height={180}
+          className="home-logo"
+          priority
+        />
+
+        <h1 className="home-title">
+          Le Labo Rouennais
+        </h1>
 
         <p className="home-subtitle">
           Objets 3D premium imprimés en France.
@@ -21,6 +34,7 @@ export default function Home() {
             En savoir plus
           </Link>
         </div>
+
       </section>
 
       {/* VALUE PROPS */}
@@ -37,7 +51,9 @@ export default function Home() {
 
         <div className="home-feature">
           <h3>✅ Sélection unique</h3>
-          <p>Une sélection d’objets décoratifs et d’accessoires de bureau</p>
+          <p>
+            Une sélection d’objets décoratifs et d’accessoires de bureau
+          </p>
         </div>
       </section>
 

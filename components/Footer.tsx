@@ -4,7 +4,13 @@ export default function Footer() {
   return (
     <footer className="footer">
       <div className="footer-inner">
-        <p>© {new Date().getFullYear()} Le Labo Rouennais</p>
+        <div>
+          <p>© {new Date().getFullYear()} Le Labo Rouennais</p>
+
+          <a className="footer-sav" href="mailto:sav@lelaborouennais.fr">
+            Contact / SAV : sav@lelaborouennais.fr
+          </a>
+        </div>
 
         <div className="footer-links">
           <Link href="/privacy-policy">Confidentialité</Link>

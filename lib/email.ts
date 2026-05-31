@@ -3,6 +3,9 @@ import { generateInvoicePDF } from "./invoice";
 
 const resendClient = resend();
 
+const from = process.env.EMAIL_FROM!;
+const replyTo = process.env.EMAIL_REPLY_TO || "sav@lelaborouennais.fr";
+
 export async function sendVerificationEmail(to: string, verifyUrl: string) {
   const html = `
     <div style="background:#0b0d11;padding:40px;font-family:Arial,sans-serif;color:#fff;">
@@ -27,8 +30,9 @@ export async function sendVerificationEmail(to: string, verifyUrl: string) {
   `;
 
   const { error } = await resendClient.emails.send({
-    from: process.env.EMAIL_FROM!,
+    from,
     to,
+    replyTo,
     subject: "Confirme ton email - Le Labo Rouennais",
     html,
   });
@@ -67,8 +71,9 @@ export async function sendEmailChangeVerificationEmail(
   `;
 
   const { error } = await resendClient.emails.send({
-    from: process.env.EMAIL_FROM!,
+    from,
     to,
+    replyTo,
     subject: "Confirme ton nouvel email - Le Labo Rouennais",
     html,
   });
@@ -109,9 +114,9 @@ export async function sendWelcomeOfferEmail(
         </div>
 
         <p style="color:#a1a8b3;line-height:1.6;">
-          Valeur de l'offre :
+          Avantage :
           <strong style="color:#fff;">
-            ${offer.value} %
+            ${offer.value} % de réduction
           </strong>
         </p>
 
@@ -122,14 +127,16 @@ export async function sendWelcomeOfferEmail(
 
         <p style="margin-top:28px;color:#6b7280;font-size:12px;">
           Offre valable une seule fois, uniquement lors de la première commande.
+          Pour toute question, répondez simplement à cet email.
         </p>
       </div>
     </div>
   `;
 
   const { error } = await resendClient.emails.send({
-    from: process.env.EMAIL_FROM!,
+    from,
     to,
+    replyTo,
     subject: "Ton offre de bienvenue - Le Labo Rouennais",
     html,
   });
@@ -200,9 +207,9 @@ export async function sendOrderEmail(to: string, order: any) {
 
         ${
           order.welcomeOfferValue > 0
-            ? `<p style="margin:8px 0 0;color:#a1a8b3;">Remise appliquée : ${Number(
+            ? `<p style="margin:8px 0 0;color:#a1a8b3;">Réduction : ${Number(
                 order.welcomeOfferValue
-              ).toFixed(2)} €</p>`
+              ).toFixed(0)} %</p>`
             : ""
         }
       </div>
@@ -232,17 +239,9 @@ export async function sendOrderEmail(to: string, order: any) {
           <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
             <thead>
               <tr>
-                <th style="text-align:left;color:#6b7280;font-size:12px;padding-bottom:10px;">
-                  Produit
-                </th>
-
-                <th style="text-align:center;color:#6b7280;font-size:12px;padding-bottom:10px;">
-                  Qté
-                </th>
-
-                <th style="text-align:right;color:#6b7280;font-size:12px;padding-bottom:10px;">
-                  Prix
-                </th>
+                <th style="text-align:left;color:#6b7280;font-size:12px;padding-bottom:10px;">Produit</th>
+                <th style="text-align:center;color:#6b7280;font-size:12px;padding-bottom:10px;">Qté</th>
+                <th style="text-align:right;color:#6b7280;font-size:12px;padding-bottom:10px;">Prix</th>
               </tr>
             </thead>
 
@@ -267,6 +266,11 @@ export async function sendOrderEmail(to: string, order: any) {
             Votre facture PDF est jointe à cet email.
           </p>
 
+          <p style="margin-top:12px;color:#a1a8b3;line-height:1.6;">
+            Besoin d'aide ? Répondez à cet email ou contactez-nous à
+            <strong style="color:#fff;"> ${replyTo}</strong>.
+          </p>
+
           <a href="${process.env.NEXT_PUBLIC_APP_URL}/orders"
             style="display:inline-block;margin-top:12px;padding:13px 18px;background:#fff;color:#000;text-decoration:none;border-radius:12px;font-weight:700;">
             Voir mes commandes
@@ -275,6 +279,7 @@ export async function sendOrderEmail(to: string, order: any) {
 
         <div style="padding:24px 32px;border-top:1px solid #232936;color:#6b7280;font-size:12px;line-height:1.6;">
           Le Labo Rouennais — Rouen, Normandie, France<br />
+          Contact / SAV : ${replyTo}<br />
           Site actuellement en phase de test.
         </div>
       </div>
@@ -282,8 +287,9 @@ export async function sendOrderEmail(to: string, order: any) {
   `;
 
   const { error } = await resendClient.emails.send({
-    from: process.env.EMAIL_FROM!,
+    from,
     to,
+    replyTo,
     subject: `Commande ${order.orderNumber} confirmée - Le Labo Rouennais`,
     html,
     attachments: [

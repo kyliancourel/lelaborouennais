@@ -9,24 +9,58 @@ type Product = {
   price: number;
   image?: string | null;
   slug: string;
+  category?: string | null;
 };
 
-export default async function ProductsPage() {
+export default async function ProductsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ search?: string }>;
+}) {
+  const params = await searchParams;
+  const search = params?.search?.trim() || "";
+
   const products: Product[] = await prisma.product.findMany({
     where: {
       isArchived: false,
+      ...(search
+        ? {
+            OR: [
+              {
+                name: {
+                  contains: search,
+                  mode: "insensitive",
+                },
+              },
+              {
+                description: {
+                  contains: search,
+                  mode: "insensitive",
+                },
+              },
+              {
+                category: {
+                  contains: search,
+                  mode: "insensitive",
+                },
+              },
+            ],
+          }
+        : {}),
     },
     orderBy: { createdAt: "desc" },
   });
 
   return (
     <div className="products-page">
-      <h1 className="page-title">Produits</h1>
+      <h1 className="page-title">
+        {search ? `Recherche : ${search}` : "Produits"}
+      </h1>
 
       {products.length === 0 ? (
         <div className="products-empty">
-          <h2>Aucun produit</h2>
-          <p>Reviens bientôt 👀</p>
+          <h2>Aucun produit trouvé</h2>
+          <p>Essaie avec un autre mot-clé.</p>
         </div>
       ) : (
         <div className="products-grid">

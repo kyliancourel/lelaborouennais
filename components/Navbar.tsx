@@ -6,13 +6,18 @@ import { useCart } from "@/context/CartContext";
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import { useUserLoyalty } from "@/hooks/useUserLoyalty";
+import { Search, ShoppingCart } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function Navbar() {
+  const router = useRouter();
+
   const { cartCount } = useCart();
   const { data: session, status } = useSession();
   const { user } = useUserLoyalty();
 
   const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
 
   const isLoading = status === "loading";
   const isLoggedIn = status === "authenticated";
@@ -21,6 +26,21 @@ export default function Navbar() {
   const loyaltyPoints = user?.points ?? 0;
 
   const closeMenu = () => setOpen(false);
+
+  function handleSearch(e: React.FormEvent) {
+    e.preventDefault();
+
+    const cleanSearch = search.trim();
+
+    if (!cleanSearch) {
+      router.push("/products");
+      closeMenu();
+      return;
+    }
+
+    router.push(`/products?search=${encodeURIComponent(cleanSearch)}`);
+    closeMenu();
+  }
 
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -52,13 +72,28 @@ export default function Navbar() {
             </div>
           </Link>
 
+          <form className="navbar-search desktop-only" onSubmit={handleSearch}>
+            <Search size={16} />
+
+            <input
+              type="search"
+              placeholder="Rechercher un produit..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </form>
+
           <div className="navbar-links desktop-only">
             <Link href="/products">Produits</Link>
 
             {isLoggedIn && <Link href="/dashboard">Mon compte</Link>}
 
             <Link href="/orders">Mes commandes</Link>
-            <Link href="/cart">Panier ({cartCount})</Link>
+
+            <Link href="/cart" className="navbar-cart-link" aria-label="Panier">
+              <ShoppingCart size={20} />
+              <span className="navbar-cart-count">{cartCount}</span>
+            </Link>
 
             {isLoggedIn && (
               <Link href="/account/loyalty" className="navbar-loyalty-pill">
@@ -91,6 +126,17 @@ export default function Navbar() {
           <button className="close-btn" onClick={closeMenu}>
             ✕
           </button>
+
+          <form className="mobile-search" onSubmit={handleSearch}>
+            <Search size={16} />
+
+            <input
+              type="search"
+              placeholder="Rechercher..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </form>
 
           {isLoggedIn && (
             <Link
