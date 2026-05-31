@@ -129,6 +129,18 @@ export default function CartPage() {
                   <p className="text-muted">Couleur : {item.selectedColor}</p>
                 )}
 
+                {item.selectedColors &&
+                  Object.entries(item.selectedColors).map(
+                    ([zone, color]) => (
+                      <p
+                        key={zone}
+                        className="text-muted"
+                      >
+                        {zone} : {String(color)}
+                      </p>
+                    )
+                  )}
+
                 {item.customText && (
                   <p className="text-muted">Texte : {item.customText}</p>
                 )}

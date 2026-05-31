@@ -56,6 +56,7 @@ model Product {
   customizationPrice  Int     @default(4)
   availableColors     Json?
   unavailableColors   Json?
+  colorZones          Json?
 
   orderItems OrderItem[]
 
@@ -99,8 +100,9 @@ model OrderItem {
   quantity Int
   price    Float
 
-  selectedColor String?
-  customText    String?
+  selectedColor   String?
+  selectedColors  Json?
+  customText      String?
 
   order   Order   @relation(fields: [orderId], references: [id])
   product Product @relation(fields: [productId], references: [id])

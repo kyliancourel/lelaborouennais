@@ -11,6 +11,7 @@ type Props = {
     image?: string;
     selectedColor?: string;
     customText?: string;
+    selectedColors?: Record<string, string>;
   };
 };
 

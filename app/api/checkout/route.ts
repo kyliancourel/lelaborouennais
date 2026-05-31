@@ -86,6 +86,7 @@ export async function POST(req: Request) {
     price: item.price,
     name: item.name,
     selectedColor: item.selectedColor || "",
+    selectedColors: item.selectedColors || {},
     customText: item.customText || "",
   }));
 

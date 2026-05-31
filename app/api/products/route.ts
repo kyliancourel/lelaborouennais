@@ -50,6 +50,7 @@ export async function POST(req: Request) {
         customizationPrice: Number(data.customizationPrice || 4),
         availableColors: normalizeStringArray(data.availableColors),
         unavailableColors: normalizeStringArray(data.unavailableColors),
+        colorZones: data.colorZones ?? [],
       },
     });
 

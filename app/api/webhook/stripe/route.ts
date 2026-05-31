@@ -5,6 +5,7 @@ import Stripe from "stripe";
 import { sendOrderEmail } from "@/lib/email";
 import { calculateFinalEarnedPoints } from "@/lib/loyaltyEngine";
 import { updateUserTier } from "@/lib/loyaltyTierEngine";
+import { select } from "framer-motion/client";
 
 export const runtime = "nodejs";
 
@@ -98,6 +99,7 @@ const rewardSelectedOption =
             quantity: item.quantity ?? 1,
             price: item.price ?? 0,
             selectedColor: item.selectedColor || null,
+            selectedColors: item.selectedColors || {},
             customText: item.customText || null,
           })),
         },

@@ -24,6 +24,7 @@ export default function NewProductPage() {
     customizationPrice: 4,
     availableColorsText: "",
     unavailableColorsText: "",
+    colorZonesText: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -160,6 +161,25 @@ export default function NewProductPage() {
               setForm({ ...form, unavailableColorsText: e.target.value })
             }
           />
+
+          <textarea
+            className="input"
+            placeholder={`Zones personnalisables :
+
+Base
+Texte
+Logo
+Bordure`}
+            value={form.colorZonesText}
+            onChange={(e) =>
+              setForm({
+                ...form,
+                colorZonesText: e.target.value,
+              })
+            }
+          />
+
+
 
           <button className="btn btn-primary" disabled={loading}>
             {loading ? "Création..." : "Créer le produit"}

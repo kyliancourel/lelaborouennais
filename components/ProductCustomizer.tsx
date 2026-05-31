@@ -17,6 +17,7 @@ type Product = {
   customizationPrice: number;
   availableColors: string[];
   unavailableColors: string[];
+  colorZones: string[];
 };
 
 function parseColor(value: string): ColorOption {
@@ -35,6 +36,10 @@ export default function ProductCustomizer({ product }: { product: Product }) {
   const [selectedColor, setSelectedColor] = useState<ColorOption | null>(
     availableColors[0] || null
   );
+
+  const [selectedColors, setSelectedColors] = useState<
+    Record<string, string>
+  >({});
 
   const [customText, setCustomText] = useState("");
 
@@ -78,9 +83,8 @@ export default function ProductCustomizer({ product }: { product: Product }) {
               <button
                 key={`${color.name}-${color.hex}`}
                 type="button"
-                className={`color-choice ${
-                  selectedColor?.name === color.name ? "active" : ""
-                }`}
+                className={`color-choice ${selectedColor?.name === color.name ? "active" : ""
+                  }`}
                 onClick={() => setSelectedColor(color)}
               >
                 <span
@@ -117,6 +121,46 @@ export default function ProductCustomizer({ product }: { product: Product }) {
         </div>
       )}
 
+      {product.colorZones.length > 0 && (
+        <div className="product-option-block">
+
+          <h3>Personnalisation couleurs</h3>
+
+          {product.colorZones.map((zone) => (
+            <div key={zone} className="zone-selector">
+
+              <label>{zone}</label>
+
+              <select
+                className="input"
+                value={selectedColors[zone] || ""}
+                onChange={(e) =>
+                  setSelectedColors({
+                    ...selectedColors,
+                    [zone]: e.target.value,
+                  })
+                }
+              >
+                <option value="">
+                  Choisir une couleur
+                </option>
+
+                {product.availableColors.map((color) => (
+                  <option
+                    key={color}
+                    value={color}
+                  >
+                    {color}
+                  </option>
+                ))}
+              </select>
+
+            </div>
+          ))}
+        </div>
+      )}
+
+
       {product.customizableText && (
         <div className="product-option-block">
           <h3>Texte personnalisable</h3>
@@ -147,6 +191,7 @@ export default function ProductCustomizer({ product }: { product: Product }) {
           price: finalPrice,
           image: product.image,
           selectedColor: selectedColor?.name || undefined,
+          selectedColors,
           customText: customText.trim() || undefined,
         }}
       />

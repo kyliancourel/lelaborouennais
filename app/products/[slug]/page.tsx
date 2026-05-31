@@ -55,6 +55,7 @@ export default async function ProductPage({
             customizationPrice: product.customizationPrice,
             availableColors: normalizeStringArray(product.availableColors),
             unavailableColors: normalizeStringArray(product.unavailableColors),
+            colorZones: normalizeStringArray(product.colorZones),
           }}
         />
 

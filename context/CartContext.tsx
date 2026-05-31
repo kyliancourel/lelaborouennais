@@ -16,6 +16,7 @@ type CartItem = {
   image?: string;
   quantity: number;
   selectedColor?: string;
+  selectedColors?: Record<string, string>;
   customText?: string;
 };
 
