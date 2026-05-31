@@ -100,7 +100,8 @@ export default function RegisterPage() {
           />
 
           <p className="text-muted">
-            Facultatif. 3 à 20 caractères, sans espace. Exemple : Kylian_76
+            Facultatif. 3 à 20 caractères, sans espace. 
+            Exemple : monpseudo_76
           </p>
 
           <Input

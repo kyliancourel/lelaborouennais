@@ -100,6 +100,7 @@ export async function POST(req: Request) {
         firstname: cleanFirstname || null,
         lastname: cleanLastname || null,
         username: cleanUsername || null,
+        usernameUpdatedAt: cleanUsername ? new Date() : null,
         isVerified: false,
         emailVerifyToken: token,
         emailVerifyExpires: expires,

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import DeleteAccountButton from "@/components/DeleteAccountButton";
 import ChangeEmailForm from "@/components/ChangeEmailForm";
+import ProfileSettingsForm from "@/components/ProfileSettingsForm";
 
 type User = {
   id: string;
@@ -10,6 +11,7 @@ type User = {
   firstname: string | null;
   lastname: string | null;
   username: string | null;
+  usernameUpdatedAt: string | null;
   points: number;
   loyaltyTier: "BRONZE" | "SILVER" | "GOLD" | "VIP";
 };
@@ -43,7 +45,7 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard-page">
-      <h1 className="page-title">Dashboard</h1>
+      <h1 className="page-title">Mon compte</h1>
 
       <div className="card">
         <h2>👋 Bienvenue {getDisplayName(user)}</h2>
@@ -75,6 +77,20 @@ export default function Dashboard() {
 
       <div className="card mt-3">
         <h2>Paramètres du compte</h2>
+        <div className="mt-3">
+          <h3>Modifier mon profil</h3>
+
+          <p className="text-muted">
+            Tu peux renseigner ton prénom, ton nom et ton pseudo.
+          </p>
+
+          <ProfileSettingsForm
+            firstname={user.firstname}
+            lastname={user.lastname}
+            username={user.username}
+            usernameUpdatedAt={user.usernameUpdatedAt}
+          />
+        </div>
 
         <div className="mt-3">
           <h3>Changer mon email</h3>
