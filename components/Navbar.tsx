@@ -54,6 +54,9 @@ export default function Navbar() {
 
           <div className="navbar-links desktop-only">
             <Link href="/products">Produits</Link>
+
+            {isLoggedIn && <Link href="/dashboard">Mon compte</Link>}
+
             <Link href="/orders">Mes commandes</Link>
             <Link href="/cart">Panier ({cartCount})</Link>
 
@@ -103,6 +106,12 @@ export default function Navbar() {
           <Link href="/products" onClick={closeMenu}>
             Produits
           </Link>
+
+          {isLoggedIn && (
+            <Link href="/dashboard" onClick={closeMenu}>
+              Mon compte
+            </Link>
+          )}
 
           <Link href="/orders" onClick={closeMenu}>
             Mes commandes
