@@ -2352,9 +2352,9 @@ textarea.input {
 }
 
 .product-preview-frame {
-  border: 1px solid var(--border);
+  border: 2px solid var(--border);
   border-radius: 28px;
-  padding: 22px;
+  padding: 26px;
   box-shadow: var(--shadow);
   transition: var(--transition);
 }
@@ -2391,8 +2391,9 @@ textarea.input {
 
 .color-choice:hover,
 .color-choice.active {
-  border-color: var(--border-light);
+  border-color: white;
   background: var(--card);
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.18);
   transform: translateY(-1px);
 }
 
@@ -2403,10 +2404,10 @@ textarea.input {
 }
 
 .color-dot {
-  width: 14px;
-  height: 14px;
+  width: 18px;
+  height: 18px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.35);
+  border: 2px solid rgba(255, 255, 255, 0.55);
 }
 
 .product-final-price {

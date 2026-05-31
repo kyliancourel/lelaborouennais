@@ -54,8 +54,12 @@ export default function ProductCustomizer({ product }: { product: Product }) {
       <div
         className="product-preview-frame"
         style={{
-          background: `radial-gradient(circle at center, ${previewColor}55, transparent 62%)`,
-          borderColor: `${previewColor}88`,
+          background: `
+            radial-gradient(circle at center, ${previewColor}cc 0%, ${previewColor}88 35%, transparent 72%),
+            linear-gradient(135deg, ${previewColor}55, rgba(255,255,255,0.04))
+          `,
+          borderColor: previewColor,
+          boxShadow: `0 0 45px ${previewColor}88`,
         }}
       >
         <img
