@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -34,15 +35,12 @@ export default function ForgotPasswordPage() {
         <h1 className="auth-title">Mot de passe oublié</h1>
 
         <p className="auth-subtitle">
-          Saisissez votre adresse email pour recevoir un lien de
-          réinitialisation.
+          Saisis ton adresse email pour recevoir un lien de réinitialisation.
         </p>
 
         <form className="form" onSubmit={handleSubmit}>
           <div className="input-wrapper">
-            <label className="input-label">
-              Adresse email
-            </label>
+            <label className="input-label">Adresse email</label>
 
             <input
               className="input"
@@ -53,21 +51,15 @@ export default function ForgotPasswordPage() {
             />
           </div>
 
-          <button
-            type="submit"
-            className="btn btn-primary"
-            disabled={loading}
-          >
-            {loading
-              ? "Envoi..."
-              : "Envoyer le lien"}
+          <button className="btn btn-primary" type="submit" disabled={loading}>
+            {loading ? "Envoi..." : "Envoyer le lien"}
           </button>
 
-          {success && (
-            <p className="auth-success">
-              {success}
-            </p>
-          )}
+          {success && <p className="auth-success">{success}</p>}
+
+          <div className="auth-links">
+            <Link href="/login">Retour à la connexion</Link>
+          </div>
         </form>
       </div>
     </div>
