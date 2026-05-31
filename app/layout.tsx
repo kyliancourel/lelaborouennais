@@ -23,18 +23,35 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: {
     default: "Le Labo Rouennais",
-    template: "%s | Labo Seine",
+    template: "%s | Le Labo Rouennais",
   },
-  description: "Boutique premium de création et impression 3D en France.",
-  keywords: ["3D printing", "impression 3D", "France", "design", "objets 3D"],
+
+  description:
+    "Boutique premium d'impression 3D en France.",
+
+  keywords: [
+    "3D printing",
+    "impression 3D",
+    "France",
+    "design",
+    "objets 3D",
+  ],
+
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL!),
+
+  icons: {
+    icon: "/icon.png",
+    apple: "/apple-icon.png",
+  },
+
   openGraph: {
     title: "Le Labo Rouennais",
     description: "Objets 3D premium fabriqués en France",
     url: "/",
-    siteName: "Labo Seine",
+    siteName: "Le Labo Rouennais",
     type: "website",
   },
+
   robots: {
     index: true,
     follow: true,
