@@ -136,6 +136,8 @@ export default function NewProductPage() {
           <input
             className="input"
             type="number"
+            step="0.01"
+            min="0"
             placeholder="Prix option personnalisation"
             value={form.customizationPrice}
             onChange={(e) =>

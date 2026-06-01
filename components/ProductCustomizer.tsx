@@ -85,9 +85,8 @@ export default function ProductCustomizer({ product }: { product: Product }) {
               <button
                 key={`${color.name}-${color.hex}`}
                 type="button"
-                className={`color-choice ${
-                  selectedColor?.name === color.name ? "active" : ""
-                }`}
+                className={`color-choice ${selectedColor?.name === color.name ? "active" : ""
+                  }`}
                 onClick={() => setSelectedColor(color)}
               >
                 <span
@@ -169,7 +168,9 @@ export default function ProductCustomizer({ product }: { product: Product }) {
           <h3>Texte personnalisable</h3>
 
           <p className="text-muted">
-            Ajout d’un texte personnalisé : +{product.customizationPrice} €.
+            {product.customizationPrice > 0
+              ? `Ajout d’un texte personnalisé : +${product.customizationPrice.toFixed(2)} €.`
+              : "Texte personnalisé inclus dans le prix."}
           </p>
 
           <input
@@ -184,7 +185,7 @@ export default function ProductCustomizer({ product }: { product: Product }) {
 
       <div className="product-final-price">
         <span>Prix final</span>
-        <strong>{finalPrice} €</strong>
+        <strong>{Number(finalPrice).toFixed(2)} €</strong>
       </div>
 
       <AddToCart

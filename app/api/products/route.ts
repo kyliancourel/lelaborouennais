@@ -50,7 +50,12 @@ export async function POST(req: Request) {
         image: data.image ?? "",
         category: data.category ?? "",
         customizableText: Boolean(data.customizableText),
-        customizationPrice: Number(data.customizationPrice || 4),
+        customizationPrice:
+          data.customizationPrice === "" ||
+            data.customizationPrice === null ||
+            data.customizationPrice === undefined
+            ? 0
+            : Number(data.customizationPrice),
         availableColors: normalizeStringArray(data.availableColors),
         unavailableColors: normalizeStringArray(data.unavailableColors),
         colorZones: data.colorZones ?? [],

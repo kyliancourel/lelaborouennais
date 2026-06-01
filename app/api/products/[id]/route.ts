@@ -55,7 +55,12 @@ export async function PUT(req: NextRequest, context: Context) {
         image: data.image ?? "",
         category: data.category ?? "",
         customizableText: Boolean(data.customizableText),
-        customizationPrice: Number(data.customizationPrice || 4),
+        customizationPrice:
+          data.customizationPrice === "" ||
+            data.customizationPrice === null ||
+            data.customizationPrice === undefined
+            ? 0
+            : Number(data.customizationPrice),
         availableColors: normalizeStringArray(data.availableColors),
         unavailableColors: normalizeStringArray(data.unavailableColors),
         colorZones: normalizeStringArray(data.colorZones),

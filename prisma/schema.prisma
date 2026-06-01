@@ -56,7 +56,7 @@ model Product {
 
   category            String?
   customizableText    Boolean @default(false)
-  customizationPrice  Int     @default(4)
+  customizationPrice  Float     @default(0)
   availableColors     Json?
   unavailableColors   Json?
   colorZones          Json?
