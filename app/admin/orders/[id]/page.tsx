@@ -86,11 +86,11 @@ export default async function AdminOrderDetailPage({
 
         <form className="status-form mt-3" action={updateStatus}>
           <select name="status" defaultValue={order.status} className="input">
-            <option value="PENDING">PENDING</option>
-            <option value="PAID">PAID</option>
-            <option value="SHIPPED">SHIPPED</option>
-            <option value="COMPLETED">COMPLETED</option>
-            <option value="CANCELLED">CANCELLED</option>
+            <option value="PENDING">EN ATTENTE</option>
+            <option value="PAID">PAYÉ</option>
+            <option value="SHIPPED">EXPÉDIÉ</option>
+            <option value="COMPLETED">TERMINÉ</option>
+            <option value="CANCELLED">ANNULÉ</option>
           </select>
 
           <button className="btn btn-primary" type="submit">

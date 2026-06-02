@@ -9,6 +9,7 @@ import { Toaster } from "react-hot-toast";
 import Footer from "@/components/Footer";
 import CookieBanner from "@/components/CookieBanner";
 import WelcomeOfferPopup from "@/components/WelcomeOfferPopup";
+import SiteAnnouncementBar from "@/components/SiteAnnouncementBar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -72,6 +73,7 @@ export default function RootLayout({
         <Providers>
           <CartProvider>
             <Navbar />
+            <SiteAnnouncementBar />
 
             <main className="site-main">{children}</main>
 

@@ -2731,6 +2731,26 @@ textarea.input {
 }
 
 /* =========================================================
+   SITE ANNOUNCEMENT BAR
+========================================================= */
+
+.site-announcement-bar {
+  width: 100%;
+  padding: 10px 20px;
+  background: linear-gradient(90deg, #ff6b35, #f97316);
+  color: white;
+  text-align: center;
+  font-weight: 700;
+  font-size: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.site-announcement-bar p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* =========================================================
    RESPONSIVE
 ========================================================= */
 

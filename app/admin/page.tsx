@@ -12,6 +12,15 @@ export default function AdminPage() {
       </div>
 
       <div className="admin-grid">
+        <Link href="/admin/announcement" className="admin-card">
+          <div className="admin-card-icon">📢</div>
+
+          <div>
+            <h2>Bandeau info</h2>
+            <p>Informer les clients d'une promotion ou d'une nouveauté</p>
+          </div>
+        </Link>
+
         <Link href="/admin/products" className="admin-card">
           <div className="admin-card-icon">📦</div>
 
