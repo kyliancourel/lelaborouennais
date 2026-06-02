@@ -43,10 +43,10 @@ export default function SiteAnnouncementBar() {
   return (
     <div className="site-announcement-bar">
       <div className="announcement-marquee">
-      📢 {announcement.message
+      ✨ {announcement.message
           .split("|")
           .map((msg) => msg.trim())
-          .join(" • ")}
+          .join(" • ")} ✨
       </div>
     </div>
   );
