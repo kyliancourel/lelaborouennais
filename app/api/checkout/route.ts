@@ -134,25 +134,6 @@ export async function POST(req: Request) {
       );
     }
 
-    const previousOrders = await prisma.order.count({
-      where: {
-        userId,
-        status: {
-          in: ["PAID", "SHIPPED", "COMPLETED"],
-        },
-      },
-    });
-
-    if (previousOrders > 0) {
-      return NextResponse.json(
-        {
-          error:
-            "L'offre de bienvenue est valable uniquement sur la première commande.",
-        },
-        { status: 400 }
-      );
-    }
-
     if (offer.type === "PERCENT") {
       welcomeOfferDiscount = Math.min(
         cartTotal,
