@@ -15,6 +15,17 @@ type Reward = {
   selectedOption: string | null;
 };
 
+type WelcomePreview = {
+  code: string;
+  type: string;
+  value: number;
+  discount: number;
+};
+
+function formatEuro(value: number) {
+  return Number(value).toFixed(2) + " €";
+}
+
 function getRewardLabel(reward: Reward) {
   if (reward.selectedOption) {
     return `${reward.title} — ${reward.selectedOption}`;
@@ -27,7 +38,9 @@ function getRewardDiscount(reward: Reward | null, total: number) {
   if (!reward || !reward.value) return 0;
 
   if (reward.type === "COUPON_EURO") return Math.min(reward.value, total);
-  if (reward.type === "PERCENT") return Math.min(total, (total * reward.value) / 100);
+  if (reward.type === "PERCENT") {
+    return Math.min(total, (total * reward.value) / 100);
+  }
   if (reward.type === "PRODUCT_DISCOUNT") return Math.min(reward.value, total);
   if (reward.type === "GIFT") return Math.min(reward.value, total);
 
@@ -49,7 +62,14 @@ export default function CartPage() {
 
   const [loading, setLoading] = useState(false);
   const [rewards, setRewards] = useState<Reward[]>([]);
+
   const [welcomeCode, setWelcomeCode] = useState("");
+  const [welcomePreview, setWelcomePreview] = useState<WelcomePreview | null>(
+    null
+  );
+  const [welcomeLoading, setWelcomeLoading] = useState(false);
+  const [welcomeError, setWelcomeError] = useState("");
+  const [welcomeSuccess, setWelcomeSuccess] = useState("");
 
   const availablePoints = user?.points ?? 0;
 
@@ -71,8 +91,49 @@ export default function CartPage() {
   );
 
   const rewardDiscount = getRewardDiscount(selectedReward, total);
-  const finalTotal = Math.max(0, total - rewardDiscount);
+  const welcomeDiscount = welcomePreview?.discount ?? 0;
+
+  const totalDiscount = Math.min(total, rewardDiscount + welcomeDiscount);
+  const finalTotal = Math.max(0, total - totalDiscount);
   const earnedPointsAfterPayment = Math.floor(finalTotal);
+
+  async function validateWelcomeCode() {
+    setWelcomeError("");
+    setWelcomeSuccess("");
+    setWelcomePreview(null);
+
+    const cleanCode = welcomeCode.trim().toUpperCase();
+
+    if (!cleanCode) {
+      setWelcomeError("Entre un code de bienvenue.");
+      return;
+    }
+
+    setWelcomeLoading(true);
+
+    const res = await fetch("/api/welcome-offer/validate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        code: cleanCode,
+        cartTotal: total,
+      }),
+    });
+
+    const data = await res.json();
+
+    setWelcomeLoading(false);
+
+    if (!res.ok) {
+      setWelcomeError(data.error || "Code invalide.");
+      return;
+    }
+
+    setWelcomePreview(data.offer);
+    setWelcomeSuccess("Code appliqué au panier.");
+  }
 
   async function handleCheckout() {
     if (loading) return;
@@ -86,7 +147,7 @@ export default function CartPage() {
         body: JSON.stringify({
           cart,
           rewardId: selectedRewardId,
-          welcomeCode,
+          welcomeCode: welcomePreview ? welcomeCode : "",
         }),
       });
 
@@ -120,28 +181,27 @@ export default function CartPage() {
           {cart.map((item) => (
             <div key={item.id} className="cart-item-card">
               {item.image && (
-                <img src={item.image} alt={item.name} className="cart-item-image" />
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  className="cart-item-image"
+                />
               )}
 
               <div className="cart-item-info">
                 <h3 className="cart-item-name">{item.name}</h3>
-                <p className="cart-item-price">{Number(item.price).toFixed(2)} €</p>
+                <p className="cart-item-price">{formatEuro(item.price)}</p>
 
                 {item.selectedColor && (
                   <p className="text-muted">Couleur : {item.selectedColor}</p>
                 )}
 
                 {item.selectedColors &&
-                  Object.entries(item.selectedColors).map(
-                    ([zone, color]) => (
-                      <p
-                        key={zone}
-                        className="text-muted"
-                      >
-                        {zone} : {String(color)}
-                      </p>
-                    )
-                  )}
+                  Object.entries(item.selectedColors).map(([zone, color]) => (
+                    <p key={zone} className="text-muted">
+                      {zone} : {String(color)}
+                    </p>
+                  ))}
 
                 {item.customText && (
                   <p className="text-muted">Texte : {item.customText}</p>
@@ -159,7 +219,10 @@ export default function CartPage() {
                   </button>
                 </div>
 
-                <button className="cart-remove-btn" onClick={() => remove(item.id)}>
+                <button
+                  className="cart-remove-btn"
+                  onClick={() => remove(item.id)}
+                >
                   <Trash2 size={16} />
                 </button>
               </div>
@@ -171,8 +234,8 @@ export default function CartPage() {
           <h2 className="section-title">Résumé</h2>
 
           <div className="summary-row">
-            <span>Total</span>
-            <strong>{Number(total).toFixed(2)} €</strong>
+            <span>Total avant remise</span>
+            <strong>{formatEuro(total)}</strong>
           </div>
 
           <div className="loyalty-box">
@@ -213,7 +276,9 @@ export default function CartPage() {
 
             {selectedReward && (
               <div className="reward-checkout-detail">
-                <strong>{selectedReward.icon || "🎁"} {selectedReward.title}</strong>
+                <strong>
+                  {selectedReward.icon || "🎁"} {selectedReward.title}
+                </strong>
 
                 {selectedReward.selectedOption ? (
                   <p>Choix : {selectedReward.selectedOption}</p>
@@ -224,12 +289,8 @@ export default function CartPage() {
             )}
 
             {rewardDiscount > 0 && (
-              <p>Remise récompense : {rewardDiscount.toFixed(2)} €</p>
+              <p>Remise récompense : -{formatEuro(rewardDiscount)}</p>
             )}
-
-            <p className="final-total">
-              Total final : {finalTotal.toFixed(2)} €
-            </p>
           </div>
 
           <div className="loyalty-box mt-3">
@@ -243,11 +304,59 @@ export default function CartPage() {
               className="input"
               placeholder="Ex : WELCOME-XXXXXX"
               value={welcomeCode}
-              onChange={(e) => setWelcomeCode(e.target.value.toUpperCase())}
+              onChange={(e) => {
+                setWelcomeCode(e.target.value.toUpperCase());
+                setWelcomePreview(null);
+                setWelcomeError("");
+                setWelcomeSuccess("");
+              }}
             />
+
+            <button
+              type="button"
+              className="btn btn-outline"
+              onClick={validateWelcomeCode}
+              disabled={welcomeLoading}
+            >
+              {welcomeLoading ? "Vérification..." : "Appliquer le code"}
+            </button>
+
+            {welcomeError && <p className="auth-error">{welcomeError}</p>}
+            {welcomeSuccess && <p className="auth-success">{welcomeSuccess}</p>}
+
+            {welcomePreview && (
+              <div className="reward-checkout-detail">
+                <strong>Code : {welcomePreview.code}</strong>
+
+                <p>
+                  Avantage :{" "}
+                  {welcomePreview.type === "PERCENT"
+                    ? `${welcomePreview.value}%`
+                    : formatEuro(welcomePreview.value)}
+                </p>
+
+                <p>Remise bienvenue : -{formatEuro(welcomePreview.discount)}</p>
+              </div>
+            )}
           </div>
 
-          <button className="checkout-btn" disabled={loading} onClick={handleCheckout}>
+          <div className="loyalty-box">
+            <h3>Total commande</h3>
+
+            {totalDiscount > 0 && (
+              <p className="text-muted">
+                Total des remises : -{formatEuro(totalDiscount)}
+              </p>
+            )}
+
+            <p className="final-total">Total final : {formatEuro(finalTotal)}</p>
+          </div>
+
+          <button
+            className="checkout-btn"
+            disabled={loading}
+            onClick={handleCheckout}
+          >
             {loading ? "Redirection..." : "Payer maintenant"}
           </button>
         </div>

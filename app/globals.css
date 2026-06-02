@@ -2751,6 +2751,50 @@ textarea.input {
 }
 
 /* =========================================================
+   ORDER DETAILS
+========================================================= */
+
+.order-items-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+
+.order-item-preview {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.order-item-preview:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.order-summary-preview {
+  margin-top: 18px;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+@media (max-width: 600px) {
+  .order-item-preview {
+    flex-direction: column;
+  }
+}
+
+/* =========================================================
    RESPONSIVE
 ========================================================= */
 
@@ -2878,4 +2922,3 @@ textarea.input {
     width: 100%;
   }
 }
-

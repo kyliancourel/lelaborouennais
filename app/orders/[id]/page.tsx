@@ -1,8 +1,28 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import Link from "next/link";
-import Card from "@/components/ui/Card";
 import { redirect } from "next/navigation";
+
+function formatEuro(value: number) {
+  return Number(value).toFixed(2) + " €";
+}
+
+function formatDate(date: Date) {
+  return new Date(date).toLocaleDateString("fr-FR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
+}
+
+function formatSelectedColors(value: unknown) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return [];
+
+  return Object.entries(value as Record<string, unknown>).map(([zone, color]) => ({
+    zone,
+    color: String(color),
+  }));
+}
 
 export default async function Page({
   params,
@@ -37,7 +57,7 @@ export default async function Page({
   }
 
   const subtotal = order.items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+    (sum, item) => sum + Number(item.price) * Number(item.quantity),
     0
   );
 
@@ -47,36 +67,97 @@ export default async function Page({
         Commande #{order.orderNumber ?? order.id}
       </h1>
 
-      <Card>
-        <p><strong>Client :</strong> {order.user?.email ?? "—"}</p>
-        <p><strong>Total avant remise :</strong> {subtotal.toFixed(2)} €</p>
+      <div className="order-card">
+        <div className="order-header">
+          <div>
+            <p className="order-date">Date : {formatDate(order.createdAt)}</p>
 
-        {order.discount > 0 && (
-          <p><strong>Remise :</strong> -{order.discount.toFixed(2)} €</p>
-        )}
+            <p>
+              <strong>Client :</strong> {order.user?.email ?? "—"}
+            </p>
+          </div>
 
-        <p><strong>Total payé :</strong> {Number(order.total).toFixed(2)} €</p>
-        <p><strong>Statut :</strong> {order.status}</p>
+          <span className={`status-badge status-${order.status.toLowerCase()}`}>
+            {order.status}
+          </span>
+        </div>
 
-        {order.rewardTitle && (
+        <div className="order-summary-preview">
           <p>
-            <strong>Récompense utilisée :</strong> {order.rewardTitle}
-            {order.rewardSelectedOption ? ` — ${order.rewardSelectedOption}` : ""}
+            Total avant remise : <strong>{formatEuro(subtotal)}</strong>
           </p>
-        )}
-      </Card>
 
-      <h3 className="section-title">Produits</h3>
+          {order.discount > 0 && (
+            <p>
+              Remise totale : <strong>-{formatEuro(order.discount)}</strong>
+            </p>
+          )}
+
+          {order.rewardTitle && (
+            <p>
+              Récompense utilisée :{" "}
+              <strong>
+                {order.rewardTitle}
+                {order.rewardSelectedOption
+                  ? ` — ${order.rewardSelectedOption}`
+                  : ""}
+              </strong>
+            </p>
+          )}
+
+          {order.welcomeOfferCode && (
+            <p>
+              Offre de bienvenue utilisée :{" "}
+              <strong>{order.welcomeOfferCode}</strong>
+            </p>
+          )}
+
+          {order.welcomeOfferValue && (
+            <p>
+              Valeur offre bienvenue :{" "}
+              <strong>{Number(order.welcomeOfferValue).toFixed(0)}%</strong>
+            </p>
+          )}
+
+          <p className="final-total">Total payé : {formatEuro(order.total)}</p>
+        </div>
+      </div>
+
+      <h3 className="section-title mt-3">Produits commandés</h3>
 
       <div className="orders-list">
         {order.items.map((item) => (
-          <Card key={item.id}>
+          <div key={item.id} className="order-card">
             <div className="card-row">
-              <span>{item.product?.name ?? "Produit supprimé"}</span>
-              <span>x{item.quantity}</span>
-              <strong>{item.price.toFixed(2)} €</strong>
+              <div>
+                <strong>{item.product?.name ?? "Produit supprimé"}</strong>
+
+                <p className="text-muted">Quantité : {item.quantity}</p>
+
+                <p className="text-muted">
+                  Prix unitaire : {formatEuro(item.price)}
+                </p>
+
+                {item.selectedColor && (
+                  <p className="text-muted">Couleur : {item.selectedColor}</p>
+                )}
+
+                {formatSelectedColors(item.selectedColors).map(
+                  ({ zone, color }) => (
+                    <p key={zone} className="text-muted">
+                      {zone} : {color}
+                    </p>
+                  )
+                )}
+
+                {item.customText && (
+                  <p className="text-muted">Texte : {item.customText}</p>
+                )}
+              </div>
+
+              <strong>{formatEuro(item.price * item.quantity)}</strong>
             </div>
-          </Card>
+          </div>
         ))}
       </div>
 
