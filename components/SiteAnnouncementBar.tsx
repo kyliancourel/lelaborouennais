@@ -1,20 +1,39 @@
-import { prisma } from "@/lib/prisma";
+"use client";
 
-export const dynamic = "force-dynamic";
+import { useEffect, useState } from "react";
 
-export default async function SiteAnnouncementBar() {
-  const announcement = await prisma.siteAnnouncement.findFirst({
-    where: {
-      isActive: true,
-    },
-    orderBy: {
-      updatedAt: "desc",
-    },
-  });
+type Announcement = {
+  id: string;
+  message: string;
+  isActive: boolean;
+};
 
-  if (!announcement || !announcement.message.trim()) {
-    return null;
-  }
+export default function SiteAnnouncementBar() {
+  const [announcement, setAnnouncement] = useState<Announcement | null>(null);
+
+  useEffect(() => {
+    async function loadAnnouncement() {
+      const res = await fetch("/api/admin/announcement", {
+        cache: "no-store",
+      });
+
+      if (!res.ok) return;
+
+      const data = await res.json();
+
+      if (
+        data.announcement &&
+        data.announcement.isActive &&
+        data.announcement.message?.trim()
+      ) {
+        setAnnouncement(data.announcement);
+      }
+    }
+
+    loadAnnouncement();
+  }, []);
+
+  if (!announcement) return null;
 
   return (
     <div className="site-announcement-bar">
