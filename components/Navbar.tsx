@@ -138,7 +138,7 @@ export default function Navbar() {
             ) : (
               <button
                 className="navbar-icon-button"
-                onClick={() => signOut()}
+                onClick={() => signOut({ callbackUrl: "https://www.lelaborouennais.fr" })}
                 aria-label="Déconnexion"
                 title="Déconnexion"
               >
@@ -224,7 +224,7 @@ export default function Navbar() {
             <button
               className="mobile-menu-btn"
               onClick={() => {
-                signOut();
+                signOut({ callbackUrl: "https://www.lelaborouennais.fr" });
                 closeMenu();
               }}
               aria-label="Déconnexion"
