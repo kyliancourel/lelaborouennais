@@ -2,6 +2,18 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
 
+function getStatusLabel(status: string) {
+  const labels: Record<string, string> = {
+    PENDING: "En attente",
+    PAID: "Payé",
+    SHIPPED: "Expédié",
+    COMPLETED: "Terminé",
+    CANCELLED: "Annulé",
+  };
+
+  return labels[status] || status;
+}
+
 export default async function AdminOrderDetailPage({
   params,
 }: {
@@ -61,36 +73,53 @@ export default async function AdminOrderDetailPage({
       </div>
 
       <div className="card">
-        <p><strong>Client :</strong> {order.user?.email ?? "—"}</p>
-        <p><strong>Total avant remise :</strong> {subtotal.toFixed(2)} €</p>
+        <p>
+          <strong>Client :</strong> {order.user?.email ?? "—"}
+        </p>
+
+        <p>
+          <strong>Total avant remise :</strong> {subtotal.toFixed(2)} €
+        </p>
 
         {order.discount > 0 && (
-          <p><strong>Remise :</strong> -{order.discount.toFixed(2)} €</p>
+          <p>
+            <strong>Remise :</strong> -{order.discount.toFixed(2)} €
+          </p>
         )}
 
-        <p><strong>Total payé :</strong> {order.total.toFixed(2)} €</p>
+        <p>
+          <strong>Total payé :</strong> {order.total.toFixed(2)} €
+        </p>
 
         <p>
           <strong>Statut :</strong>{" "}
           <span className={`badge status-${order.status.toLowerCase()}`}>
-            {order.status}
+            {getStatusLabel(order.status)}
           </span>
         </p>
 
         {order.rewardTitle && (
           <p>
             <strong>Récompense utilisée :</strong> {order.rewardTitle}
-            {order.rewardSelectedOption ? ` — ${order.rewardSelectedOption}` : ""}
+            {order.rewardSelectedOption
+              ? ` — ${order.rewardSelectedOption}`
+              : ""}
+          </p>
+        )}
+
+        {order.welcomeOfferCode && (
+          <p>
+            <strong>Offre de bienvenue :</strong> {order.welcomeOfferCode}
           </p>
         )}
 
         <form className="status-form mt-3" action={updateStatus}>
           <select name="status" defaultValue={order.status} className="input">
-            <option value="PENDING">EN ATTENTE</option>
-            <option value="PAID">PAYÉ</option>
-            <option value="SHIPPED">EXPÉDIÉ</option>
-            <option value="COMPLETED">TERMINÉ</option>
-            <option value="CANCELLED">ANNULÉ</option>
+            <option value="PENDING">En attente</option>
+            <option value="PAID">Payé</option>
+            <option value="SHIPPED">Expédié</option>
+            <option value="COMPLETED">Terminé</option>
+            <option value="CANCELLED">Annulé</option>
           </select>
 
           <button className="btn btn-primary" type="submit">
@@ -112,7 +141,7 @@ export default async function AdminOrderDetailPage({
         </div>
 
         <div className="mt-3">
-          <Link className="btn btn-secondary" href="/admin/orders">
+          <Link className="btn btn-outline" href="/admin/orders">
             ← Retour commandes
           </Link>
         </div>
