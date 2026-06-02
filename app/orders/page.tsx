@@ -14,13 +14,27 @@ function formatDate(date: Date) {
   });
 }
 
+function getStatusLabel(status: string) {
+  const labels: Record<string, string> = {
+    PENDING: "En attente",
+    PAID: "Payé",
+    SHIPPED: "Expédié",
+    COMPLETED: "Terminé",
+    CANCELLED: "Annulé",
+  };
+
+  return labels[status] || status;
+}
+
 function formatSelectedColors(value: unknown) {
   if (!value || typeof value !== "object" || Array.isArray(value)) return [];
 
-  return Object.entries(value as Record<string, unknown>).map(([zone, color]) => ({
-    zone,
-    color: String(color),
-  }));
+  return Object.entries(value as Record<string, unknown>).map(
+    ([zone, color]) => ({
+      zone,
+      color: String(color),
+    })
+  );
 }
 
 export default async function OrdersPage() {
@@ -91,7 +105,7 @@ export default async function OrdersPage() {
                 <span
                   className={`status-badge status-${order.status.toLowerCase()}`}
                 >
-                  {order.status}
+                  {getStatusLabel(order.status)}
                 </span>
               </div>
 

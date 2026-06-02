@@ -319,7 +319,7 @@ textarea.input {
   letter-spacing: -0.03em;
 }
 
-.logo-wrapper{
+.logo-wrapper {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -921,7 +921,7 @@ textarea.input {
 
   margin-bottom: 24px;
 
-  filter: drop-shadow(0 10px 30px rgba(255,255,255,0.08));
+  filter: drop-shadow(0 10px 30px rgba(255, 255, 255, 0.08));
 
   transition: transform 0.3s ease;
 }
@@ -1248,7 +1248,8 @@ textarea.input {
   font-size: 24px;
   font-weight: 700;
 
-  margin-left: 24px; /* espace entre Total et prix */
+  margin-left: 24px;
+  /* espace entre Total et prix */
 }
 
 /* =========================================================
@@ -1312,11 +1313,9 @@ textarea.input {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(
-    circle at center,
-    rgba(255, 77, 77, 0.25),
-    transparent 70%
-  );
+  background: radial-gradient(circle at center,
+      rgba(255, 77, 77, 0.25),
+      transparent 70%);
   opacity: 0;
   transition: opacity 0.25s ease;
 }
@@ -1334,11 +1333,9 @@ textarea.input {
   padding: 14px 18px;
   border: none;
   border-radius: 14px;
-  background: linear-gradient(
-    135deg,
-    #ffffff 0%,
-    #d9d9d9 100%
-  );
+  background: linear-gradient(135deg,
+      #ffffff 0%,
+      #d9d9d9 100%);
   color: #000;
   font-size: 15px;
   font-weight: 700;
@@ -1676,12 +1673,10 @@ textarea.input {
 ========================================================= */
 
 .skeleton {
-  background: linear-gradient(
-    90deg,
-    #171b22 25%,
-    #232936 37%,
-    #171b22 63%
-  );
+  background: linear-gradient(90deg,
+      #171b22 25%,
+      #232936 37%,
+      #171b22 63%);
 
   background-size: 400% 100%;
 
@@ -1992,11 +1987,9 @@ textarea.input {
   inset: 0;
 
   background:
-    radial-gradient(
-      circle at top,
-      rgba(255,255,255,0.08),
-      transparent 60%
-    );
+    radial-gradient(circle at top,
+      rgba(255, 255, 255, 0.08),
+      transparent 60%);
 
   opacity: 0;
 
@@ -2257,6 +2250,7 @@ textarea.input {
 }
 
 @media (max-width: 900px) {
+
   .about-split,
   .about-loyalty {
     grid-template-columns: 1fr;
@@ -2283,7 +2277,7 @@ textarea.input {
   margin-bottom: 20px;
 }
 
-.legal-page > p {
+.legal-page>p {
   color: var(--text-secondary);
   line-height: 1.8;
   margin-bottom: 34px;
@@ -2490,7 +2484,7 @@ textarea.input {
 .color-choice.active {
   border-color: white;
   background: var(--card);
-  box-shadow: 0 0 0 2px rgba(255,255,255,0.18);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.18);
   transform: translateY(-1px);
 }
 
@@ -2736,18 +2730,29 @@ textarea.input {
 
 .site-announcement-bar {
   width: 100%;
-  padding: 10px 20px;
+  overflow: hidden;
   background: linear-gradient(90deg, #ff6b35, #f97316);
   color: white;
-  text-align: center;
-  font-weight: 700;
-  font-size: 14px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .site-announcement-bar p {
-  margin: 0;
-  line-height: 1.5;
+  display: inline-block;
+  white-space: nowrap;
+  padding: 10px 0;
+  font-weight: 700;
+  font-size: 14px;
+  animation: announcement-scroll 18s linear infinite;
+}
+
+@keyframes announcement-scroll {
+  from {
+    transform: translateX(100vw);
+  }
+
+  to {
+    transform: translateX(-100%);
+  }
 }
 
 /* =========================================================
@@ -2881,10 +2886,11 @@ textarea.input {
   .home-subtitle {
     font-size: 16px;
   }
-    .cart-item-image {
-      width: 100%;
-      min-width: 100%;
-      height: 240px;
+
+  .cart-item-image {
+    width: 100%;
+    min-width: 100%;
+    height: 240px;
   }
 }
 
