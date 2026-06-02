@@ -31,6 +31,11 @@ export default function SiteAnnouncementBar() {
     }
 
     loadAnnouncement();
+    const interval = setInterval(() => {
+      loadAnnouncement();
+    }, 5000); // toutes les 5 secondes
+
+    return () => clearInterval(interval);
   }, []);
 
   if (!announcement) return null;
@@ -38,7 +43,10 @@ export default function SiteAnnouncementBar() {
   return (
     <div className="site-announcement-bar">
       <div className="announcement-marquee">
-        {announcement.message}
+        {announcement.message
+          .split("|")
+          .map((msg) => msg.trim())
+          .join(" • ")}
       </div>
     </div>
   );
