@@ -13,18 +13,33 @@ type Props = {
     customText?: string;
     selectedColors?: Record<string, string>;
   };
+  disabled?: boolean;
+  disabledMessage?: string;
 };
 
-export default function AddToCart({ product }: Props) {
+export default function AddToCart({
+  product,
+  disabled = false,
+  disabledMessage = "Personnalisation requise",
+}: Props) {
   const { addToCart } = useCart();
 
   const handleAdd = () => {
+    if (disabled) {
+      toast.error(disabledMessage);
+      return;
+    }
+
     addToCart(product);
     toast.success(`${product.name} ajouté au panier`);
   };
 
   return (
-    <button onClick={handleAdd} className="add-to-cart-btn">
+    <button
+      onClick={handleAdd}
+      className="add-to-cart-btn"
+      disabled={disabled}
+    >
       Ajouter au panier
     </button>
   );

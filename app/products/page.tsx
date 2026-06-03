@@ -10,6 +10,8 @@ type Product = {
   image?: string | null;
   slug: string;
   category?: string | null;
+  customizableText: boolean;
+  colorZones: unknown;
 };
 
 export default async function ProductsPage({
@@ -26,24 +28,9 @@ export default async function ProductsPage({
       ...(search
         ? {
             OR: [
-              {
-                name: {
-                  contains: search,
-                  mode: "insensitive",
-                },
-              },
-              {
-                description: {
-                  contains: search,
-                  mode: "insensitive",
-                },
-              },
-              {
-                category: {
-                  contains: search,
-                  mode: "insensitive",
-                },
-              },
+              { name: { contains: search, mode: "insensitive" } },
+              { description: { contains: search, mode: "insensitive" } },
+              { category: { contains: search, mode: "insensitive" } },
             ],
           }
         : {}),
@@ -64,7 +51,7 @@ export default async function ProductsPage({
         </div>
       ) : (
         <div className="products-grid">
-          {products.map((p: Product) => (
+          {products.map((p) => (
             <ProductCard key={p.id} product={p} />
           ))}
         </div>

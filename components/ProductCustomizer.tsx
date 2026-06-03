@@ -48,6 +48,17 @@ export default function ProductCustomizer({ product }: { product: Product }) {
   const hasCustomText =
     product.customizableText && customText.trim().length > 0;
 
+  const allColorZonesSelected =
+    !hasColorZones || product.colorZones.every((zone) => selectedColors[zone]);
+
+  const canAddToCart =
+    (!product.customizableText || hasCustomText) && allColorZonesSelected;
+
+  const disabledMessage =
+    product.customizableText && !hasCustomText
+      ? "Ajoute un texte personnalisé avant d'ajouter au panier."
+      : "Choisis toutes les couleurs avant d'ajouter au panier.";
+
   const finalPrice = useMemo(() => {
     return hasCustomText
       ? product.price + product.customizationPrice
@@ -85,8 +96,9 @@ export default function ProductCustomizer({ product }: { product: Product }) {
               <button
                 key={`${color.name}-${color.hex}`}
                 type="button"
-                className={`color-choice ${selectedColor?.name === color.name ? "active" : ""
-                  }`}
+                className={`color-choice ${
+                  selectedColor?.name === color.name ? "active" : ""
+                }`}
                 onClick={() => setSelectedColor(color)}
               >
                 <span
@@ -188,7 +200,15 @@ export default function ProductCustomizer({ product }: { product: Product }) {
         <strong>{Number(finalPrice).toFixed(2)} €</strong>
       </div>
 
+      {!canAddToCart && (
+        <p className="auth-error">
+          Personnalisation obligatoire avant ajout au panier.
+        </p>
+      )}
+
       <AddToCart
+        disabled={!canAddToCart}
+        disabledMessage={disabledMessage}
         product={{
           id: product.id,
           name: product.name,
