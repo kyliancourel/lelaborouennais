@@ -25,6 +25,7 @@ export default function NewProductPage() {
     availableColorsText: "",
     unavailableColorsText: "",
     colorZonesText: "",
+    packOptionsText: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -47,6 +48,8 @@ export default function NewProductPage() {
         customizationPrice: Number(form.customizationPrice),
         availableColors: textToArray(form.availableColorsText),
         unavailableColors: textToArray(form.unavailableColorsText),
+        colorZones: textToArray(form.colorZonesText),
+        packOptions: textToArray(form.packOptionsText),
       }),
     });
 
@@ -98,7 +101,7 @@ export default function NewProductPage() {
             type="number"
             step="0.01"
             min="0"
-            placeholder="Prix"
+            placeholder="Prix de base"
             value={form.price}
             onChange={(e) =>
               setForm({
@@ -151,9 +154,9 @@ export default function NewProductPage() {
           <textarea
             className="input"
             placeholder={`Couleurs disponibles, une par ligne :
-              Noir|#111111
-              Blanc de Jade|#dfeee6
-              Bleu Glacier|#9bdaf2`}
+Noir|#111111
+Blanc de Jade|#dfeee6
+Bleu Glacier|#9bdaf2`}
             value={form.availableColorsText}
             onChange={(e) =>
               setForm({ ...form, availableColorsText: e.target.value })
@@ -163,8 +166,8 @@ export default function NewProductPage() {
           <textarea
             className="input"
             placeholder={`Couleurs non disponibles, une par ligne :
-              Rouge|#ef4444
-              Vert|#22c55e`}
+Rouge|#ef4444
+Vert|#22c55e`}
             value={form.unavailableColorsText}
             onChange={(e) =>
               setForm({ ...form, unavailableColorsText: e.target.value })
@@ -174,7 +177,6 @@ export default function NewProductPage() {
           <textarea
             className="input"
             placeholder={`Zones personnalisables :
-
 Base
 Texte
 Logo
@@ -188,7 +190,20 @@ Bordure`}
             }
           />
 
-
+          <textarea
+            className="input"
+            placeholder={`Sets / packs, une par ligne :
+Set de 2|8.90
+Set de 4|15.90
+Set de 8|29.90`}
+            value={form.packOptionsText}
+            onChange={(e) =>
+              setForm({
+                ...form,
+                packOptionsText: e.target.value,
+              })
+            }
+          />
 
           <button className="btn btn-primary" disabled={loading}>
             {loading ? "Création..." : "Créer le produit"}

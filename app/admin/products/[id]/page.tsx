@@ -2,13 +2,26 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { is } from "zod/locales";
 
 function arrayToText(value: unknown) {
   if (!Array.isArray(value)) return "";
 
   return value
-    .filter((item): item is string => typeof item === "string")
+    .map((item) => {
+      if (typeof item === "string") return item;
+
+      if (
+        typeof item === "object" &&
+        item !== null &&
+        "label" in item &&
+        "price" in item
+      ) {
+        return `${String(item.label)}|${String(item.price)}`;
+      }
+
+      return "";
+    })
+    .filter(Boolean)
     .join("\n");
 }
 
@@ -38,6 +51,7 @@ export default function EditProductPage() {
     availableColorsText: "",
     unavailableColorsText: "",
     colorZonesText: "",
+    packOptionsText: "",
     isArchived: false,
   });
 
@@ -59,6 +73,7 @@ export default function EditProductPage() {
           availableColorsText: arrayToText(data.availableColors),
           unavailableColorsText: arrayToText(data.unavailableColors),
           colorZonesText: arrayToText(data.colorZones),
+          packOptionsText: arrayToText(data.packOptions),
           isArchived: Boolean(data.isArchived),
         })
       );
@@ -83,6 +98,7 @@ export default function EditProductPage() {
         availableColors: textToArray(form.availableColorsText),
         unavailableColors: textToArray(form.unavailableColorsText),
         colorZones: textToArray(form.colorZonesText),
+        packOptions: textToArray(form.packOptionsText),
       }),
     });
 
@@ -152,12 +168,13 @@ export default function EditProductPage() {
             type="number"
             step="0.01"
             min="0"
-            placeholder="Prix"
+            placeholder="Prix de base"
             value={form.price}
             onChange={(e) =>
-              setForm({ 
-                ...form, 
-                price: Number(e.target.value) })
+              setForm({
+                ...form,
+                price: Number(e.target.value),
+              })
             }
           />
 
@@ -222,7 +239,6 @@ export default function EditProductPage() {
           <textarea
             className="input"
             placeholder={`Zones personnalisables :
-
 Base
 Texte
 Logo
@@ -236,10 +252,26 @@ Bordure`}
             }
           />
 
+          <textarea
+            className="input"
+            placeholder={`Sets / packs, une par ligne :
+Set de 2|8.90
+Set de 4|15.90
+Set de 8|29.90`}
+            value={form.packOptionsText}
+            onChange={(e) =>
+              setForm({
+                ...form,
+                packOptionsText: e.target.value,
+              })
+            }
+          />
+
           <button className="btn btn-primary" disabled={loading}>
             {loading ? "Mise à jour..." : "Modifier"}
           </button>
         </form>
+
         <button
           className="btn btn-outline mt-3"
           onClick={async () => {
@@ -263,9 +295,7 @@ Bordure`}
             window.location.reload();
           }}
         >
-          {form.isArchived
-            ? "Restaurer le produit"
-            : "Archiver le produit"}
+          {form.isArchived ? "Restaurer le produit" : "Archiver le produit"}
         </button>
 
         <button className="btn btn-danger mt-3" onClick={handleDelete}>

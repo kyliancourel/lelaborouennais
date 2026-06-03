@@ -252,6 +252,10 @@ export default function CartPage() {
                 <h3 className="cart-item-name">{item.name}</h3>
                 <p className="cart-item-price">{formatEuro(item.price)}</p>
 
+                {item.packLabel && (
+                  <p className="text-muted">Set : {item.packLabel}</p>
+                )}
+
                 {item.selectedColor && (
                   <p className="text-muted">Couleur : {item.selectedColor}</p>
                 )}

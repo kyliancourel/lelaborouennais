@@ -12,6 +12,7 @@ type Props = {
     selectedColor?: string;
     customText?: string;
     selectedColors?: Record<string, string>;
+    packLabel?: string;
   };
   disabled?: boolean;
   disabledMessage?: string;

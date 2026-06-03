@@ -10,6 +10,22 @@ function normalizeStringArray(value: unknown): string[] {
     .filter(Boolean);
 }
 
+function normalizePackOptions(value: unknown) {
+  if (!Array.isArray(value)) return [];
+
+  return value
+    .filter((item): item is string => typeof item === "string")
+    .map((item) => {
+      const [label, price] = item.split("|").map((part) => part.trim());
+
+      return {
+        label,
+        price: Number(price),
+      };
+    })
+    .filter((item) => item.label && !Number.isNaN(item.price));
+}
+
 export async function GET() {
   try {
     const products = await prisma.product.findMany({
@@ -34,7 +50,7 @@ export async function POST(req: Request) {
   try {
     const data = await req.json();
 
-    if (!data.name || !data.slug || !data.price) {
+    if (!data.name || !data.slug || data.price === "") {
       return NextResponse.json(
         { error: "Nom, slug et prix requis" },
         { status: 400 }
@@ -52,13 +68,14 @@ export async function POST(req: Request) {
         customizableText: Boolean(data.customizableText),
         customizationPrice:
           data.customizationPrice === "" ||
-            data.customizationPrice === null ||
-            data.customizationPrice === undefined
+          data.customizationPrice === null ||
+          data.customizationPrice === undefined
             ? 0
             : Number(data.customizationPrice),
         availableColors: normalizeStringArray(data.availableColors),
         unavailableColors: normalizeStringArray(data.unavailableColors),
-        colorZones: data.colorZones ?? [],
+        colorZones: normalizeStringArray(data.colorZones),
+        packOptions: normalizePackOptions(data.packOptions),
       },
     });
 

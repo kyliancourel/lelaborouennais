@@ -8,6 +8,11 @@ type ColorOption = {
   hex: string;
 };
 
+type PackOption = {
+  label: string;
+  price: number;
+};
+
 type Product = {
   id: string;
   name: string;
@@ -18,6 +23,7 @@ type Product = {
   availableColors: string[];
   unavailableColors: string[];
   colorZones: string[];
+  packOptions: PackOption[];
 };
 
 function parseColor(value: string): ColorOption {
@@ -34,6 +40,10 @@ export default function ProductCustomizer({ product }: { product: Product }) {
   const unavailableColors = product.unavailableColors.map(parseColor);
 
   const hasColorZones = product.colorZones.length > 0;
+
+  const [selectedPack, setSelectedPack] = useState<PackOption | null>(
+    product.packOptions[0] || null
+  );
 
   const [selectedColor, setSelectedColor] = useState<ColorOption | null>(
     availableColors[0] || null
@@ -59,11 +69,13 @@ export default function ProductCustomizer({ product }: { product: Product }) {
       ? "Ajoute un texte personnalisé avant d'ajouter au panier."
       : "Choisis toutes les couleurs avant d'ajouter au panier.";
 
+  const basePrice = selectedPack ? selectedPack.price : product.price;
+
   const finalPrice = useMemo(() => {
     return hasCustomText
-      ? product.price + product.customizationPrice
-      : product.price;
-  }, [product.price, product.customizationPrice, hasCustomText]);
+      ? basePrice + product.customizationPrice
+      : basePrice;
+  }, [basePrice, product.customizationPrice, hasCustomText]);
 
   const previewColor = selectedColor?.hex || "#ffffff";
 
@@ -86,6 +98,27 @@ export default function ProductCustomizer({ product }: { product: Product }) {
           className="product-image"
         />
       </div>
+
+      {product.packOptions.length > 0 && (
+        <div className="product-option-block">
+          <h3>Choisir un set</h3>
+
+          <div className="color-grid">
+            {product.packOptions.map((pack) => (
+              <button
+                key={pack.label}
+                type="button"
+                className={`color-choice ${
+                  selectedPack?.label === pack.label ? "active" : ""
+                }`}
+                onClick={() => setSelectedPack(pack)}
+              >
+                {pack.label} — {Number(pack.price).toFixed(2)} €
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {availableColors.length > 0 && !hasColorZones && (
         <div className="product-option-block">
@@ -217,6 +250,7 @@ export default function ProductCustomizer({ product }: { product: Product }) {
           selectedColor: !hasColorZones ? selectedColor?.name : undefined,
           selectedColors: hasColorZones ? selectedColors : undefined,
           customText: customText.trim() || undefined,
+          packLabel: selectedPack?.label,
         }}
       />
     </div>

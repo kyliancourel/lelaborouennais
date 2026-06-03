@@ -13,6 +13,26 @@ function normalizeStringArray(value: unknown): string[] {
     .filter(Boolean);
 }
 
+function normalizePackOptions(
+  value: unknown
+): { label: string; price: number }[] {
+  if (!Array.isArray(value)) return [];
+
+  return value
+    .filter(
+      (item): item is { label: string; price: number } =>
+        typeof item === "object" &&
+        item !== null &&
+        "label" in item &&
+        "price" in item
+    )
+    .map((item) => ({
+      label: String(item.label),
+      price: Number(item.price),
+    }))
+    .filter((item) => item.label && !Number.isNaN(item.price));
+}
+
 export default async function ProductPage({
   params,
 }: {
@@ -42,6 +62,9 @@ export default async function ProductPage({
     );
   }
 
+  const packOptions = normalizePackOptions(product.packOptions);
+  const displayPrice = packOptions.length > 0 ? packOptions[0].price : product.price;
+
   return (
     <div className="product-page">
       <div className="product-grid">
@@ -56,6 +79,7 @@ export default async function ProductPage({
             availableColors: normalizeStringArray(product.availableColors),
             unavailableColors: normalizeStringArray(product.unavailableColors),
             colorZones: normalizeStringArray(product.colorZones),
+            packOptions,
           }}
         />
 
@@ -68,7 +92,11 @@ export default async function ProductPage({
 
           {product.description && <p>{product.description}</p>}
 
-          <h2>{Number(product.price).toFixed(2)} €</h2>
+          <h2>
+            {packOptions.length > 0
+              ? `À partir de ${Number(displayPrice).toFixed(2)} €`
+              : `${Number(product.price).toFixed(2)} €`}
+          </h2>
         </div>
       </div>
     </div>

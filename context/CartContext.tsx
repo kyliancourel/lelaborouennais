@@ -18,25 +18,21 @@ type CartItem = {
   selectedColor?: string;
   selectedColors?: Record<string, string>;
   customText?: string;
+  packLabel?: string;
 };
 
 type CartContextType = {
   cart: CartItem[];
-
   addToCart: (item: Omit<CartItem, "quantity">) => void;
   removeOne: (id: string) => void;
   remove: (id: string) => void;
   clear: () => void;
-
   total: number;
   cartCount: number;
-
   pointsUsed: number;
   setPointsUsed: (value: number) => void;
-
   selectedRewardId: string | null;
   setSelectedRewardId: (value: string | null) => void;
-
   earnedPointsPreview: number;
 };
 
@@ -57,7 +53,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     if (stored) {
       try {
         setCart(JSON.parse(stored));
-      } catch { }
+      } catch {}
     }
 
     setHydrated(true);
@@ -75,14 +71,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         (i) =>
           i.id === item.id &&
           i.selectedColor === item.selectedColor &&
-          i.customText === item.customText
+          i.customText === item.customText &&
+          i.packLabel === item.packLabel
       );
 
       if (existing) {
         return prev.map((i) =>
           i.id === item.id &&
-            i.selectedColor === item.selectedColor &&
-            i.customText === item.customText
+          i.selectedColor === item.selectedColor &&
+          i.customText === item.customText &&
+          i.packLabel === item.packLabel
             ? { ...i, quantity: i.quantity + 1 }
             : i
         );
@@ -96,9 +94,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setCart((prev) =>
       prev
         .map((item) =>
-          item.id === id
-            ? { ...item, quantity: item.quantity - 1 }
-            : item
+          item.id === id ? { ...item, quantity: item.quantity - 1 } : item
         )
         .filter((item) => item.quantity > 0)
     );
@@ -125,8 +121,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     [cart]
   );
 
-  // Points théoriquement gagnés APRÈS paiement.
-  // Ce n'est PAS un solde utilisable immédiatement.
   const earnedPointsPreview = useMemo(() => Math.floor(total), [total]);
 
   return (

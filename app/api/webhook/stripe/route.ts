@@ -128,6 +128,7 @@ export async function POST(req: Request) {
             selectedColor: item.selectedColor || null,
             selectedColors: item.selectedColors || {},
             customText: item.customText || null,
+            packLabel: item.packLabel || null,
           })),
         },
       },

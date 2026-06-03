@@ -214,6 +214,7 @@ export async function POST(req: Request) {
     selectedColor: item.selectedColor || "",
     selectedColors: item.selectedColors || {},
     customText: item.customText || "",
+    packLabel: item.packLabel || "",
   }));
 
   const coupon =
@@ -240,6 +241,7 @@ export async function POST(req: Request) {
         product_data: {
           name: [
             item.name,
+            item.packLabel ? `Set : ${item.packLabel}` : "",
             item.selectedColor ? `Couleur : ${item.selectedColor}` : "",
             item.customText ? `Texte : ${item.customText}` : "",
           ]
