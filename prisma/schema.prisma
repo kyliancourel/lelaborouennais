@@ -170,7 +170,7 @@ enum OrderStatus {
   SHIPPED
   COMPLETED
   CANCELLED
-  CANCELLED & REFUNDED
+  CANCELLED_REFUNDED
 }
 
 enum LoyaltyTier {

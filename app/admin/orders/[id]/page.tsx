@@ -9,6 +9,7 @@ function getStatusLabel(status: string) {
     SHIPPED: "Expédié",
     COMPLETED: "Terminé",
     CANCELLED: "Annulé",
+    CANCELLED_REFUNDED: "Annulé et remboursé",
   };
 
   return labels[status] || status;
@@ -116,10 +117,11 @@ export default async function AdminOrderDetailPage({
         <form className="status-form mt-3" action={updateStatus}>
           <select name="status" defaultValue={order.status} className="input">
             <option value="PENDING">En attente</option>
-            <option value="PAID">Payé</option>
-            <option value="SHIPPED">Expédié</option>
-            <option value="COMPLETED">Terminé</option>
-            <option value="CANCELLED">Annulé</option>
+            <option value="PAID">Payée</option>
+            <option value="SHIPPED">Expédiée</option>
+            <option value="COMPLETED">Terminée</option>
+            <option value="CANCELLED">Annulée</option>
+            <option value="CANCELLED_REFUNDED">Annulée et Remboursée</option>
           </select>
 
           <button className="btn btn-primary" type="submit">

@@ -21,7 +21,7 @@ function getStatusLabel(status: string) {
     SHIPPED: "Expédié",
     COMPLETED: "Terminé",
     CANCELLED: "Annulé",
-    CANCELLED & REFUNDED: "Annulé et remboursé",
+    CANCELLED_REFUNDED: "Annulé et remboursé",
   };
 
   return labels[status] || status;
