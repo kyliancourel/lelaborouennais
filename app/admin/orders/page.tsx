@@ -23,11 +23,11 @@ type Order = {
 function getStatusLabel(status: string) {
   const labels: Record<string, string> = {
     PENDING: "En attente",
-    PAID: "Payé",
-    SHIPPED: "Expédié",
-    COMPLETED: "Terminé",
-    CANCELLED: "Annulé",
-    CANCELLED_REFUNDED: "Annulé et remboursé",
+    PAID: "Payée",
+    SHIPPED: "Expédiée",
+    COMPLETED: "Terminée",
+    CANCELLED: "Annulée",
+    CANCELLED_REFUNDED: "Annulée et remboursée",
   };
 
   return labels[status] || status;
