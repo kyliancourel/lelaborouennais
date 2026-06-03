@@ -22,6 +22,13 @@ type WelcomePreview = {
   discount: number;
 };
 
+type PromoPreview = {
+  code: string;
+  type: string;
+  value: number;
+  discount: number;
+};
+
 function formatEuro(value: number) {
   return Number(value).toFixed(2) + " €";
 }
@@ -38,10 +45,13 @@ function getRewardDiscount(reward: Reward | null, total: number) {
   if (!reward || !reward.value) return 0;
 
   if (reward.type === "COUPON_EURO") return Math.min(reward.value, total);
+
   if (reward.type === "PERCENT") {
     return Math.min(total, (total * reward.value) / 100);
   }
+
   if (reward.type === "PRODUCT_DISCOUNT") return Math.min(reward.value, total);
+
   if (reward.type === "GIFT") return Math.min(reward.value, total);
 
   return 0;
@@ -71,6 +81,12 @@ export default function CartPage() {
   const [welcomeError, setWelcomeError] = useState("");
   const [welcomeSuccess, setWelcomeSuccess] = useState("");
 
+  const [promoCode, setPromoCode] = useState("");
+  const [promoPreview, setPromoPreview] = useState<PromoPreview | null>(null);
+  const [promoLoading, setPromoLoading] = useState(false);
+  const [promoError, setPromoError] = useState("");
+  const [promoSuccess, setPromoSuccess] = useState("");
+
   const availablePoints = user?.points ?? 0;
 
   useEffect(() => {
@@ -92,8 +108,13 @@ export default function CartPage() {
 
   const rewardDiscount = getRewardDiscount(selectedReward, total);
   const welcomeDiscount = welcomePreview?.discount ?? 0;
+  const promoDiscount = promoPreview?.discount ?? 0;
 
-  const totalDiscount = Math.min(total, rewardDiscount + welcomeDiscount);
+  const totalDiscount = Math.min(
+    total,
+    rewardDiscount + welcomeDiscount + promoDiscount
+  );
+
   const finalTotal = Math.max(0, total - totalDiscount);
   const earnedPointsAfterPayment = Math.floor(finalTotal);
 
@@ -135,6 +156,44 @@ export default function CartPage() {
     setWelcomeSuccess("Code appliqué au panier.");
   }
 
+  async function validatePromoCode() {
+    setPromoError("");
+    setPromoSuccess("");
+    setPromoPreview(null);
+
+    const cleanCode = promoCode.trim().toUpperCase();
+
+    if (!cleanCode) {
+      setPromoError("Entre un code promo.");
+      return;
+    }
+
+    setPromoLoading(true);
+
+    const res = await fetch("/api/promo-codes/validate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        code: cleanCode,
+        cartTotal: total,
+      }),
+    });
+
+    const data = await res.json();
+
+    setPromoLoading(false);
+
+    if (!res.ok) {
+      setPromoError(data.error || "Code promo invalide.");
+      return;
+    }
+
+    setPromoPreview(data.promo);
+    setPromoSuccess("Code promo appliqué au panier.");
+  }
+
   async function handleCheckout() {
     if (loading) return;
 
@@ -148,6 +207,7 @@ export default function CartPage() {
           cart,
           rewardId: selectedRewardId,
           welcomeCode: welcomePreview ? welcomeCode : "",
+          promoCode: promoPreview ? promoCode : "",
         }),
       });
 
@@ -208,7 +268,10 @@ export default function CartPage() {
                 )}
 
                 <div className="cart-qty">
-                  <button className="qty-btn" onClick={() => removeOne(item.id)}>
+                  <button
+                    className="qty-btn"
+                    onClick={() => removeOne(item.id)}
+                  >
                     −
                   </button>
 
@@ -242,7 +305,8 @@ export default function CartPage() {
             <h3>🌟 Fidélité</h3>
 
             <p>
-              Points disponibles sur ton compte : <strong>{availablePoints}</strong>
+              Points disponibles sur ton compte :{" "}
+              <strong>{availablePoints}</strong>
             </p>
 
             <p>
@@ -335,13 +399,80 @@ export default function CartPage() {
                     : formatEuro(welcomePreview.value)}
                 </p>
 
-                <p>Remise bienvenue : -{formatEuro(welcomePreview.discount)}</p>
+                <p>
+                  Remise bienvenue : -{formatEuro(welcomePreview.discount)}
+                </p>
+              </div>
+            )}
+          </div>
+
+          <div className="loyalty-box mt-3">
+            <h3>🏷️ Code promo</h3>
+
+            <p className="text-muted">
+              Entre un code promo public si tu en as un.
+            </p>
+
+            <input
+              className="input"
+              placeholder="Ex : PROMO10"
+              value={promoCode}
+              onChange={(e) => {
+                setPromoCode(e.target.value.toUpperCase());
+                setPromoPreview(null);
+                setPromoError("");
+                setPromoSuccess("");
+              }}
+            />
+
+            <button
+              type="button"
+              className="btn btn-outline"
+              onClick={validatePromoCode}
+              disabled={promoLoading}
+            >
+              {promoLoading ? "Vérification..." : "Appliquer le code promo"}
+            </button>
+
+            {promoError && <p className="auth-error">{promoError}</p>}
+            {promoSuccess && <p className="auth-success">{promoSuccess}</p>}
+
+            {promoPreview && (
+              <div className="reward-checkout-detail">
+                <strong>Code : {promoPreview.code}</strong>
+
+                <p>
+                  Avantage :{" "}
+                  {promoPreview.type === "PERCENT"
+                    ? `${promoPreview.value}%`
+                    : formatEuro(promoPreview.value)}
+                </p>
+
+                <p>Remise code promo : -{formatEuro(promoPreview.discount)}</p>
               </div>
             )}
           </div>
 
           <div className="loyalty-box">
             <h3>Total commande</h3>
+
+            {rewardDiscount > 0 && (
+              <p className="text-muted">
+                Remise fidélité : -{formatEuro(rewardDiscount)}
+              </p>
+            )}
+
+            {welcomeDiscount > 0 && (
+              <p className="text-muted">
+                Remise bienvenue : -{formatEuro(welcomeDiscount)}
+              </p>
+            )}
+
+            {promoDiscount > 0 && (
+              <p className="text-muted">
+                Remise code promo : -{formatEuro(promoDiscount)}
+              </p>
+            )}
 
             {totalDiscount > 0 && (
               <p className="text-muted">

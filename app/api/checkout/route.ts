@@ -22,7 +22,7 @@ export async function POST(req: Request) {
     usedPoints = 0,
     rewardId = null,
     welcomeCode = "",
-    promocode = "",
+    promoCode = "",
   } = await req.json();
 
   if (usedPoints > 0) {
@@ -154,7 +154,7 @@ export async function POST(req: Request) {
   let promoCodeId= "";
   let promoCodeValue = "";
   let promoCodeType = "";
-  let cleanPromoCode = String(promocode || "").trim().toUpperCase();
+  let cleanPromoCode = String(promoCode || "").trim().toUpperCase();
 
   if (cleanPromoCode) {
     if (!userId) {

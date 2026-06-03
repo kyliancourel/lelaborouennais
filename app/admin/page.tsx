@@ -38,6 +38,15 @@ export default function AdminPage() {
             <p>Suivre les commandes clients</p>
           </div>
         </Link>
+
+        <Link href="/admin/promo-codes" className="admin-card">
+          <div className="admin-card-icon">🏷️</div>
+
+          <div>
+            <h2>Codes promo</h2>
+            <p>Créer et gérer les codes de réduction</p>
+          </div>
+        </Link>
       </div>
     </div>
   );

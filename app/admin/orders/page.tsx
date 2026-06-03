@@ -20,6 +20,18 @@ type Order = {
   items: OrderItem[];
 };
 
+function getStatusLabel(status: string) {
+  const labels: Record<string, string> = {
+    PENDING: "En attente",
+    PAID: "Payé",
+    SHIPPED: "Expédié",
+    COMPLETED: "Terminé",
+    CANCELLED: "Annulé",
+  };
+
+  return labels[status] || status;
+}
+
 export default async function AdminOrdersPage() {
   const orders = await prisma.order.findMany({
     orderBy: { createdAt: "desc" },
@@ -46,7 +58,7 @@ export default async function AdminOrdersPage() {
               <strong>#{order.orderNumber ?? order.id.slice(0, 6)}</strong>
 
               <span className={`status-badge status-${order.status.toLowerCase()}`}>
-                {order.status}
+              {getStatusLabel(order.status)}
               </span>
             </div>
 
