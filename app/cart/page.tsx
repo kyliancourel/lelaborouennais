@@ -80,6 +80,7 @@ export default function CartPage() {
   const [welcomeLoading, setWelcomeLoading] = useState(false);
   const [welcomeError, setWelcomeError] = useState("");
   const [welcomeSuccess, setWelcomeSuccess] = useState("");
+  const [hasUsedWelcomeOffer, setHasUsedWelcomeOffer] = useState(false);
 
   const [promoCode, setPromoCode] = useState("");
   const [promoPreview, setPromoPreview] = useState<PromoPreview | null>(null);
@@ -99,6 +100,21 @@ export default function CartPage() {
     }
 
     loadRewards();
+  }, []);
+
+  useEffect(() => {
+    async function loadWelcomeOfferStatus() {
+      const res = await fetch("/api/welcome-offer/me", {
+        cache: "no-store",
+      });
+
+      if (!res.ok) return;
+
+      const data = await res.json();
+      setHasUsedWelcomeOffer(Boolean(data.hasUsedWelcomeOffer));
+    }
+
+    loadWelcomeOfferStatus();
   }, []);
 
   const selectedReward = useMemo(
@@ -361,54 +377,57 @@ export default function CartPage() {
             )}
           </div>
 
-          <div className="loyalty-box mt-3">
-            <h3>🎁 Offre de bienvenue</h3>
+          {!hasUsedWelcomeOffer && (
+            <div className="loyalty-box mt-3">
+              <h3>🎁 Offre de bienvenue</h3>
 
-            <p className="text-muted">
-              Si tu as reçu un code par email, tu peux l'utiliser ici.
-            </p>
+              <p className="text-muted">
+                Si tu as reçu un code par email, tu peux l'utiliser ici.
+              </p>
 
-            <input
-              className="input"
-              placeholder="Ex : WELCOME-XXXXXX"
-              value={welcomeCode}
-              onChange={(e) => {
-                setWelcomeCode(e.target.value.toUpperCase());
-                setWelcomePreview(null);
-                setWelcomeError("");
-                setWelcomeSuccess("");
-              }}
-            />
+              <input
+                className="input"
+                placeholder="Ex : WELCOME-XXXXXX"
+                value={welcomeCode}
+                onChange={(e) => {
+                  setWelcomeCode(e.target.value.toUpperCase());
+                  setWelcomePreview(null);
+                  setWelcomeError("");
+                  setWelcomeSuccess("");
+                }}
+              />
 
-            <button
-              type="button"
-              className="btn btn-outline"
-              onClick={validateWelcomeCode}
-              disabled={welcomeLoading}
-            >
-              {welcomeLoading ? "Vérification..." : "Appliquer le code"}
-            </button>
+              <button
+                type="button"
+                className="btn btn-outline"
+                onClick={validateWelcomeCode}
+                disabled={welcomeLoading}
+              >
+                {welcomeLoading ? "Vérification..." : "Appliquer le code"}
+              </button>
 
-            {welcomeError && <p className="auth-error">{welcomeError}</p>}
-            {welcomeSuccess && <p className="auth-success">{welcomeSuccess}</p>}
+              {welcomeError && <p className="auth-error">{welcomeError}</p>}
+              {welcomeSuccess && <p className="auth-success">{welcomeSuccess}</p>}
 
-            {welcomePreview && (
-              <div className="reward-checkout-detail">
-                <strong>Code : {welcomePreview.code}</strong>
+              {welcomePreview && (
+                <div className="reward-checkout-detail">
+                  <strong>Code : {welcomePreview.code}</strong>
 
-                <p>
-                  Avantage :{" "}
-                  {welcomePreview.type === "PERCENT"
-                    ? `${welcomePreview.value}%`
-                    : formatEuro(welcomePreview.value)}
-                </p>
+                  <p>
+                    Avantage :{" "}
+                    {welcomePreview.type === "PERCENT"
+                      ? `${welcomePreview.value}%`
+                      : formatEuro(welcomePreview.value)}
+                  </p>
 
-                <p>
-                  Remise bienvenue : -{formatEuro(welcomePreview.discount)}
-                </p>
-              </div>
-            )}
-          </div>
+                  <p>
+                    Remise bienvenue : -{formatEuro(welcomePreview.discount)}
+                  </p>
+                </div>
+              )}
+            </div>  
+          )}
+
 
           <div className="loyalty-box mt-3">
             <h3>🏷️ Code promo</h3>

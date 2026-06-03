@@ -3,13 +3,38 @@
 import Link from "next/link";
 import AddToCart from "@/components/AddToCart";
 
-function hasColorZones(value: unknown) {
+function hasArray(value: unknown) {
   return Array.isArray(value) && value.length > 0;
 }
 
+function getPackButtonLabel(packOptions: unknown) {
+  if (!Array.isArray(packOptions) || packOptions.length === 0) {
+    return "Personnaliser";
+  }
+
+  const first = packOptions[0];
+
+  const label =
+    typeof first === "string"
+      ? first
+      : typeof first === "object" && first !== null && "label" in first
+      ? String(first.label)
+      : "";
+
+  if (label.toLowerCase().includes("pack")) {
+    return "Choisir son pack";
+  }
+
+  return "Choisir son set";
+}
+
 export default function ProductCard({ product }: any) {
+  const hasPacks = hasArray(product.packOptions);
+
   const mustCustomize =
-    Boolean(product.customizableText) || hasColorZones(product.colorZones);
+    Boolean(product.customizableText) ||
+    hasArray(product.colorZones) ||
+    hasPacks;
 
   return (
     <div className="product-card">
@@ -36,7 +61,7 @@ export default function ProductCard({ product }: any) {
           href={`/products/${product.slug}`}
           className="add-to-cart-btn product-customize-link"
         >
-          Personnaliser
+          {hasPacks ? getPackButtonLabel(product.packOptions) : "Personnaliser"}
         </Link>
       ) : (
         <AddToCart

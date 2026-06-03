@@ -12,6 +12,7 @@ type Product = {
   category?: string | null;
   customizableText: boolean;
   colorZones: unknown;
+  packOptions: unknown;
 };
 
 export default async function ProductsPage({
