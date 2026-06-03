@@ -22,6 +22,7 @@ export async function POST(req: Request) {
     usedPoints = 0,
     rewardId = null,
     welcomeCode = "",
+    promocode = "",
   } = await req.json();
 
   if (usedPoints > 0) {
@@ -149,9 +150,60 @@ export async function POST(req: Request) {
     welcomeOfferType = offer.type;
   }
 
+  let promoDiscount = 0;
+  let promoCodeId= "";
+  let promoCodeValue = "";
+  let promoCodeType = "";
+  let cleanPromoCode = String(promocode || "").trim().toUpperCase();
+
+  if (cleanPromoCode) {
+    if (!userId) {
+      return NextResponse.json(
+        { error: "Connecte-toi pour utiliser un code promo." },
+        { status: 401 }
+      );
+    }
+  
+    const promo = await prisma.promoCode.findUnique({
+      where: { code: cleanPromoCode },
+    });
+  
+    if (!promo || !promo.isActive) {
+      return NextResponse.json(
+        { error: "Code promo invalide ou expiré." },
+        { status: 400 }
+      );
+    }
+  
+    const alreadyUsed = await prisma.promoCodeUsage.findUnique({
+      where: {
+        promoCodeId_userId: {
+          promoCodeId: promo.id,
+          userId,
+        },
+      },
+    });
+  
+    if (alreadyUsed) {
+      return NextResponse.json(
+        { error: "Tu as déjà utilisé ce code promo." },
+        { status: 400 }
+      );
+    }
+  
+    promoDiscount =
+      promo.type === "PERCENT"
+        ? Math.min(cartTotal, (cartTotal * promo.value) / 100)
+        : Math.min(promo.value, cartTotal);
+  
+    promoCodeId = promo.id;
+    promoCodeValue = String(promo.value);
+    promoCodeType = promo.type;
+  }
+
   const totalDiscount = Math.min(
     cartTotal,
-    rewardDiscount + welcomeOfferDiscount
+    rewardDiscount + welcomeOfferDiscount + promoDiscount
   );
 
   const safeCart = cart.map((item: any) => ({
@@ -221,6 +273,12 @@ export async function POST(req: Request) {
       welcomeOfferDiscount: String(welcomeOfferDiscount),
       welcomeOfferValue,
       welcomeOfferType,
+
+      promoCodeId,
+      promoCode: cleanPromoCode,
+      promoDiscount: String(promoDiscount),
+      promoCodeValue,
+      promoCodeType,
     },
   });
 

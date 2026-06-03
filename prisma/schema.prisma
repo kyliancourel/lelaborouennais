@@ -38,6 +38,7 @@ model User {
 
   loyaltyHistory LoyaltyLog[]
   loyaltyRewards LoyaltyReward[]
+  promoCodeUsages PromoCodeUsage[]
 
   accounts Account[]
   sessions Session[]
@@ -264,4 +265,36 @@ model SiteAnnouncement {
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model PromoCode {
+  id String @id @default(cuid())
+
+  code String @unique
+
+  type  String @default("PERCENT")
+  value Float
+
+  isActive Boolean @default(true)
+
+  usages PromoCodeUsage[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PromoCodeUsage {
+  id String @id @default(cuid())
+
+  promoCodeId String
+  promoCode   PromoCode @relation(fields: [promoCodeId], references: [id])
+
+  userId String
+  user   User @relation(fields: [userId], references: [id])
+
+  orderId String?
+
+  usedAt DateTime @default(now())
+
+  @@unique([promoCodeId, userId])
 }

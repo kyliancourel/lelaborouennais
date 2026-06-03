@@ -62,6 +62,16 @@ export async function POST(req: Request) {
     session.metadata.welcomeOfferValue !== ""
       ? Number(session.metadata.welcomeOfferValue)
       : null;
+  
+  const promoCodeId = session.metadata?.promoCodeId || "";
+  const promoCode = session.metadata?.promoCode || "";
+  const promoDiscount = Number(session.metadata?.promoDiscount || 0);
+  const promoCodeType = session.metadata?.promoCodeType || "";
+
+  const promoCodeValue =
+    session.metadata?.promoCodeValue && session.metadata.promoCodeValue !== ""
+      ? Number(session.metadata.promoCodeValue)
+      : null;
 
   const cart = session.metadata?.cart
     ? JSON.parse(session.metadata.cart)
@@ -98,7 +108,7 @@ export async function POST(req: Request) {
         status: "PAID",
 
         usedPoints,
-        discount: usedPoints + rewardDiscount + welcomeOfferDiscount,
+        discount: usedPoints + rewardDiscount + welcomeOfferDiscount + promoDiscount,
 
         rewardId: rewardId || null,
         rewardTitle: rewardTitle || null,
@@ -204,6 +214,32 @@ export async function POST(req: Request) {
           },
         });
       }
+
+      if (promoCodeId && userId) {
+  await prisma.promoCodeUsage.create({
+    data: {
+      promoCodeId,
+      userId,
+      orderId: fullOrder.id,
+    },
+  });
+
+  await prisma.loyaltyLog.create({
+    data: {
+      userId,
+      points: 0,
+      type: "BONUS",
+      source: `promo_code_${promoCodeId}`,
+      metadata: {
+        title: "Code promo",
+        code: promoCode,
+        type: promoCodeType,
+        value: promoCodeValue,
+        discount: promoDiscount,
+      },
+    },
+  });
+}
 
       const updatedUser = await prisma.user.update({
         where: {
