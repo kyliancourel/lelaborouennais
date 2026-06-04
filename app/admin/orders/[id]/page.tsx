@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
+import { updateUserTier } from "@/lib/loyaltyTierEngine";
 
 function getStatusLabel(status: string) {
   const labels: Record<string, string> = {
@@ -49,12 +50,84 @@ export default async function AdminOrderDetailPage({
 
     if (!status) return;
 
+    const orderBeforeUpdate = await prisma.order.findUnique({
+      where: { id },
+      include: {
+        user: true,
+      },
+    });
+
     await prisma.order.update({
       where: { id },
       data: {
         status: status as any,
       },
     });
+
+    const shouldRemovePoints =
+      status === "CANCELLED" || status === "CANCELLED_REFUNDED";
+
+    if (shouldRemovePoints && orderBeforeUpdate?.userId) {
+      const earnedLog = await prisma.loyaltyLog.findFirst({
+        where: {
+          userId: orderBeforeUpdate.userId,
+          type: "EARNED",
+          source: `order_${orderBeforeUpdate.id}`,
+        },
+      });
+
+      const alreadyRemoved = await prisma.loyaltyLog.findFirst({
+        where: {
+          userId: orderBeforeUpdate.userId,
+          type: "EXPIRED",
+          source: `cancel_order_${orderBeforeUpdate.id}`,
+        },
+      });
+
+      if (earnedLog && !alreadyRemoved) {
+        const user = await prisma.user.findUnique({
+          where: {
+            id: orderBeforeUpdate.userId,
+          },
+        });
+
+        const pointsToRemove = Math.min(
+          user?.points ?? 0,
+          Math.max(0, earnedLog.points)
+        );
+
+        if (pointsToRemove > 0) {
+          await prisma.user.update({
+            where: {
+              id: orderBeforeUpdate.userId,
+            },
+            data: {
+              points: {
+                decrement: pointsToRemove,
+              },
+            },
+          });
+        }
+
+        await prisma.loyaltyLog.create({
+          data: {
+            userId: orderBeforeUpdate.userId,
+            points: -pointsToRemove,
+            type: "EXPIRED",
+            source: `cancel_order_${orderBeforeUpdate.id}`,
+            metadata: {
+              reason: "Commande annulée ou remboursée",
+              orderId: orderBeforeUpdate.id,
+              orderNumber: orderBeforeUpdate.orderNumber,
+              status,
+              removedPoints: pointsToRemove,
+            },
+          },
+        });
+
+        await updateUserTier(orderBeforeUpdate.userId);
+      }
+    }
 
     revalidatePath(`/admin/orders/${id}`);
     revalidatePath("/admin/orders");
@@ -121,7 +194,9 @@ export default async function AdminOrderDetailPage({
             <option value="SHIPPED">Expédiée</option>
             <option value="COMPLETED">Terminée</option>
             <option value="CANCELLED">Annulée</option>
-            <option value="CANCELLED_REFUNDED">Annulée et Remboursée</option>
+            <option value="CANCELLED_REFUNDED">
+              Annulée et remboursée
+            </option>
           </select>
 
           <button className="btn btn-primary" type="submit">
