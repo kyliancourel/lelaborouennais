@@ -88,27 +88,41 @@ export default async function LoyaltyPage() {
           <p className="text-muted">Aucun mouvement pour le moment.</p>
         ) : (
           <div className="loyalty-history-list">
-            {user.loyaltyHistory.map((log) => (
-              <div key={log.id} className="loyalty-history-item">
-                <span>
-                  {log.source?.startsWith("welcome_offer_")
-                    ? "Offre de bienvenue utilisée"
-                    : log.type === "EARNED"
-                      ? "Points gagnés"
-                      : log.type === "USED"
-                        ? "Points utilisés"
-                        : log.type === "BONUS"
-                          ? "Bonus"
-                          : "Points expirés"}
-                </span>
+            {user.loyaltyHistory.map((log) => {
+              const isWelcomeOffer =
+                log.source?.startsWith("welcome_offer_");
 
-                <strong>
-                  {log.points === 0
-                    ? "Utilisée"
-                    : `${log.type === "USED" || log.type === "EXPIRED" ? "-" : "+"}${log.points} pts`}
-                </strong>
-              </div>
-            ))}
+              const isCancelledOrder =
+                log.source?.startsWith("cancel_order_");
+
+              const label = isWelcomeOffer
+                ? "Offre de bienvenue utilisée"
+                : isCancelledOrder
+                ? "Points retirés suite à annulation"
+                : log.type === "EARNED"
+                ? "Points gagnés"
+                : log.type === "USED"
+                ? "Points utilisés"
+                : log.type === "BONUS"
+                ? "Bonus"
+                : "Points expirés";
+
+              const pointsLabel =
+                log.points === 0
+                  ? "Utilisée"
+                  : `${log.points > 0 ? "+" : ""}${log.points} pts`;
+
+              return (
+                <div
+                  key={log.id}
+                  className="loyalty-history-item"
+                >
+                  <span>{label}</span>
+
+                  <strong>{pointsLabel}</strong>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
