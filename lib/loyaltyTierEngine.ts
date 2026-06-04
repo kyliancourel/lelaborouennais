@@ -1,5 +1,3 @@
-// /lib/loyaltyTierEngine.ts
-
 import { prisma } from "@/lib/prisma";
 
 export async function updateUserTier(userId: string) {

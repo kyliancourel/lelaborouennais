@@ -10,6 +10,7 @@ import Footer from "@/components/Footer";
 import CookieBanner from "@/components/CookieBanner";
 import WelcomeOfferPopup from "@/components/WelcomeOfferPopup";
 import SiteAnnouncementBar from "@/components/SiteAnnouncementBar";
+import { Analytics } from "@vercel/analytics/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,8 +43,8 @@ export const metadata: Metadata = {
 
   icons: {
     icon: [
-      {url: "/favicon.ico"},
-      {url: "/icon.png", type: "image/png"},
+      { url: "/favicon.ico" },
+      { url: "/icon.png", type: "image/png" },
     ],
     apple: "/apple-icon.png",
   },
@@ -93,6 +94,7 @@ export default function RootLayout({
             <WelcomeOfferPopup />
           </CartProvider>
         </Providers>
+        <Analytics />
       </body>
     </html>
   );

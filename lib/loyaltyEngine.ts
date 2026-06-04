@@ -1,4 +1,6 @@
 import type { LoyaltyRewardType, LoyaltyTier } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
+import { updateUserTier } from "@/lib/loyaltyTierEngine";
 
 type ValidateParams = {
   userPoints: number;
@@ -80,4 +82,86 @@ export function calculateRewardDiscount(params: {
 
 export function pointsToEuro(points: number) {
   return points;
+}
+
+export async function removeEarnedPointsForCancelledOrder(orderId: string) {
+  const order = await prisma.order.findUnique({
+    where: {
+      id: orderId,
+    },
+  });
+
+  if (!order?.userId) {
+    return;
+  }
+
+  const earnedLog = await prisma.loyaltyLog.findFirst({
+    where: {
+      userId: order.userId,
+      type: "EARNED",
+      source: `order_${order.id}`,
+    },
+  });
+
+  if (!earnedLog) {
+    return;
+  }
+
+  const alreadyRemoved = await prisma.loyaltyLog.findFirst({
+    where: {
+      userId: order.userId,
+      type: "EXPIRED",
+      source: `cancel_order_${order.id}`,
+    },
+  });
+
+  if (alreadyRemoved) {
+    return;
+  }
+
+  const user = await prisma.user.findUnique({
+    where: {
+      id: order.userId,
+    },
+  });
+
+  if (!user) {
+    return;
+  }
+
+  const pointsToRemove = Math.min(
+    user.points,
+    Math.max(0, earnedLog.points)
+  );
+
+  if (pointsToRemove > 0) {
+    await prisma.user.update({
+      where: {
+        id: order.userId,
+      },
+      data: {
+        points: {
+          decrement: pointsToRemove,
+        },
+      },
+    });
+  }
+
+  await prisma.loyaltyLog.create({
+    data: {
+      userId: order.userId,
+      points: -pointsToRemove,
+      type: "EXPIRED",
+      source: `cancel_order_${order.id}`,
+      metadata: {
+        reason: "Commande annulée ou remboursée",
+        orderId: order.id,
+        orderNumber: order.orderNumber,
+        previousStatus: order.status,
+        removedPoints: pointsToRemove,
+      },
+    },
+  });
+
+  await updateUserTier(order.userId);
 }

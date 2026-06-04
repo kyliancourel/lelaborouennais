@@ -2437,15 +2437,26 @@ textarea.input {
 }
 
 .product-customize-link {
-  display: flex;
+  width: calc(100% - 28px);
+  margin: 0 14px 14px;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
   min-height: 44px;
-  padding: 12px 16px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: white;
+  color: black;
+  font-weight: 700;
+  font-size: 15px;
   text-align: center;
-  text-decoration: none;
-  box-sizing: border-box;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.product-customize-link:hover {
+  transform: translateY(-1px);
+  opacity: 0.92;
 }
 
 .product-preview-frame {
