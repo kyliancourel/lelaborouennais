@@ -111,9 +111,8 @@ export default function ProductCustomizer({ product }: { product: Product }) {
               <button
                 key={pack.label}
                 type="button"
-                className={`color-choice ${
-                  selectedPack?.label === pack.label ? "active" : ""
-                }`}
+                className={`color-choice ${selectedPack?.label === pack.label ? "active" : ""
+                  }`}
                 onClick={() => setSelectedPack(pack)}
               >
                 {pack.label} — {Number(pack.price).toFixed(2)} €
@@ -125,16 +124,17 @@ export default function ProductCustomizer({ product }: { product: Product }) {
 
       {availableColors.length > 0 && !hasColorZones && (
         <div className="product-option-block">
-          <h3>Couleur disponible</h3>
+          <h4 className="color-section-title">
+            Couleur(s) disponible(s)
+          </h4>
 
           <div className="color-grid">
             {availableColors.map((color) => (
               <button
                 key={`${color.name}-${color.hex}`}
                 type="button"
-                className={`color-choice ${
-                  selectedColor?.name === color.name ? "active" : ""
-                }`}
+                className={`color-choice ${selectedColor?.name === color.name ? "active" : ""
+                  }`}
                 onClick={() => setSelectedColor(color)}
               >
                 <span
@@ -161,9 +161,8 @@ export default function ProductCustomizer({ product }: { product: Product }) {
                   <button
                     key={`${zone}-${color.name}`}
                     type="button"
-                    className={`color-choice ${
-                      selectedColors[zone] === color.name ? "active" : ""
-                    }`}
+                    className={`color-choice ${selectedColors[zone] === color.name ? "active" : ""
+                      }`}
                     onClick={() => {
                       setSelectedColors({
                         ...selectedColors,
@@ -207,7 +206,9 @@ export default function ProductCustomizer({ product }: { product: Product }) {
 
       {unavailableColors.length > 0 && !hasColorZones && (
         <div className="product-option-block">
-          <h3>Couleur(s) non disponible(s)</h3>
+          <h4 className="color-section-title unavailable">
+            Couleur(s) indisponible(s)
+          </h4>
 
           <div className="color-grid">
             {unavailableColors.map((color) => (
@@ -235,8 +236,8 @@ export default function ProductCustomizer({ product }: { product: Product }) {
           <p className="text-muted">
             {product.customizationPrice > 0
               ? `Ajout d’un texte personnalisé : +${product.customizationPrice.toFixed(
-                  2
-                )} €.`
+                2
+              )} €.`
               : "Texte personnalisé inclus dans le prix."}
           </p>
 
