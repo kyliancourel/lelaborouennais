@@ -62,6 +62,7 @@ model Product {
   unavailableColors   Json?
   colorZones          Json?
   packOptions         Json?
+  inStock             Boolean @default(true)
 
   orderItems OrderItem[]
 

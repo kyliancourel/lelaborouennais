@@ -24,6 +24,7 @@ type Product = {
   unavailableColors: string[];
   colorZones: string[];
   packOptions: PackOption[];
+  inStock: boolean;
 };
 
 function parseColor(value: string): ColorOption {
@@ -62,7 +63,9 @@ export default function ProductCustomizer({ product }: { product: Product }) {
     !hasColorZones || product.colorZones.every((zone) => selectedColors[zone]);
 
   const canAddToCart =
-    (!product.customizableText || hasCustomText) && allColorZonesSelected;
+    product.inStock &&
+    (!product.customizableText || hasCustomText) &&
+    allColorZonesSelected;
 
   const disabledMessage =
     product.customizableText && !hasCustomText
@@ -108,9 +111,8 @@ export default function ProductCustomizer({ product }: { product: Product }) {
               <button
                 key={pack.label}
                 type="button"
-                className={`color-choice ${
-                  selectedPack?.label === pack.label ? "active" : ""
-                }`}
+                className={`color-choice ${selectedPack?.label === pack.label ? "active" : ""
+                  }`}
                 onClick={() => setSelectedPack(pack)}
               >
                 {pack.label} — {Number(pack.price).toFixed(2)} €
@@ -129,9 +131,8 @@ export default function ProductCustomizer({ product }: { product: Product }) {
               <button
                 key={`${color.name}-${color.hex}`}
                 type="button"
-                className={`color-choice ${
-                  selectedColor?.name === color.name ? "active" : ""
-                }`}
+                className={`color-choice ${selectedColor?.name === color.name ? "active" : ""
+                  }`}
                 onClick={() => setSelectedColor(color)}
               >
                 <span
@@ -241,7 +242,12 @@ export default function ProductCustomizer({ product }: { product: Product }) {
 
       <AddToCart
         disabled={!canAddToCart}
-        disabledMessage={disabledMessage}
+        disabledMessage={
+          !product.inStock
+            ? "Ce produit est actuellement en rupture de stock."
+            : disabledMessage
+        }
+        label={!product.inStock ? "Rupture de stock" : "Ajouter au panier"}
         product={{
           id: product.id,
           name: product.name,

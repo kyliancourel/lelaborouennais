@@ -16,12 +16,14 @@ type Props = {
   };
   disabled?: boolean;
   disabledMessage?: string;
+  label?: string;
 };
 
 export default function AddToCart({
   product,
   disabled = false,
-  disabledMessage = "Personnalisation requise",
+  disabledMessage = "Action impossible",
+  label = "Ajouter au panier",
 }: Props) {
   const { addToCart } = useCart();
 
@@ -38,10 +40,10 @@ export default function AddToCart({
   return (
     <button
       onClick={handleAdd}
-      className="add-to-cart-btn"
+      className={`add-to-cart-btn ${disabled ? "btn-disabled" : ""}`}
       disabled={disabled}
     >
-      Ajouter au panier
+      {label}
     </button>
   );
 }

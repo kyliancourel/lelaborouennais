@@ -76,6 +76,7 @@ export async function POST(req: Request) {
         unavailableColors: normalizeStringArray(data.unavailableColors),
         colorZones: normalizeStringArray(data.colorZones),
         packOptions: normalizePackOptions(data.packOptions),
+        inStock: data.inStock === undefined ? true : Boolean(data.inStock),
       },
     });
 

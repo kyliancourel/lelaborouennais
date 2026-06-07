@@ -80,6 +80,7 @@ export default async function ProductPage({
             unavailableColors: normalizeStringArray(product.unavailableColors),
             colorZones: normalizeStringArray(product.colorZones),
             packOptions,
+            inStock: product.inStock,
           }}
         />
 

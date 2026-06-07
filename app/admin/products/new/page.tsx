@@ -26,6 +26,7 @@ export default function NewProductPage() {
     unavailableColorsText: "",
     colorZonesText: "",
     packOptionsText: "",
+    inStock: true,
   });
 
   const [loading, setLoading] = useState(false);
@@ -50,6 +51,7 @@ export default function NewProductPage() {
         unavailableColors: textToArray(form.unavailableColorsText),
         colorZones: textToArray(form.colorZonesText),
         packOptions: textToArray(form.packOptionsText),
+        inStock: form.inStock,
       }),
     });
 
@@ -204,6 +206,20 @@ Set de 8|29.90`}
               })
             }
           />
+
+          <label className="radio-row">
+            <input
+              type="checkbox"
+              checked={form.inStock}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  inStock: e.target.checked,
+                })
+              }
+            />
+            Produit en stock
+          </label>
 
           <button className="btn btn-primary" disabled={loading}>
             {loading ? "Création..." : "Créer le produit"}

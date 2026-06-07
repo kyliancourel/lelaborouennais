@@ -1066,6 +1066,21 @@ textarea.input {
   opacity: 0.92;
 }
 
+.btn-disabled,
+.add-to-cart-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  background: #3a3a3a;
+  color: #9ca3af;
+  border: 1px solid #4b5563;
+}
+
+.btn-disabled:hover,
+.add-to-cart-btn:disabled:hover {
+  transform: none;
+  opacity: 0.55;
+}
+
 /* =========================================================
    CART PAGE
 ========================================================= */

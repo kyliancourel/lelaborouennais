@@ -53,6 +53,7 @@ export default function EditProductPage() {
     colorZonesText: "",
     packOptionsText: "",
     isArchived: false,
+    inStock: true,
   });
 
   useEffect(() => {
@@ -75,6 +76,7 @@ export default function EditProductPage() {
           colorZonesText: arrayToText(data.colorZones),
           packOptionsText: arrayToText(data.packOptions),
           isArchived: Boolean(data.isArchived),
+          inStock: data.inStock ?? true,
         })
       );
   }, [id]);
@@ -99,6 +101,7 @@ export default function EditProductPage() {
         unavailableColors: textToArray(form.unavailableColorsText),
         colorZones: textToArray(form.colorZonesText),
         packOptions: textToArray(form.packOptionsText),
+        inStock: form.inStock,
       }),
     });
 
@@ -266,6 +269,20 @@ Set de 8|29.90`}
               })
             }
           />
+
+          <label className="radio-row">
+            <input
+              type="checkbox"
+              checked={form.inStock}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  inStock: e.target.checked,
+                })
+              }
+            />
+            Produit en stock
+          </label>
 
           <button className="btn btn-primary" disabled={loading}>
             {loading ? "Mise à jour..." : "Modifier"}

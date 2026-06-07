@@ -78,6 +78,7 @@ export async function PUT(req: NextRequest, context: Context) {
         unavailableColors: normalizeStringArray(data.unavailableColors),
         colorZones: normalizeStringArray(data.colorZones),
         packOptions: normalizePackOptions(data.packOptions),
+        inStock: data.inStock === undefined ? true : Boolean(data.inStock),
       },
     });
 

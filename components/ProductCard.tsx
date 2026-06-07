@@ -18,8 +18,8 @@ function getPackButtonLabel(packOptions: unknown) {
     typeof first === "string"
       ? first
       : typeof first === "object" && first !== null && "label" in first
-      ? String(first.label)
-      : "";
+        ? String(first.label)
+        : "";
 
   if (label.toLowerCase().includes("pack")) {
     return "Choisir son pack";
@@ -53,12 +53,15 @@ export default function ProductCard({ product }: any) {
 
         <p className="product-card-price">
           {hasPacks
-          ? `À partir de ${Number(product.price).toFixed(2)} €`
+            ? `À partir de ${Number(product.price).toFixed(2)} €`
             : `${Number(product.price).toFixed(2)} €`}
         </p>
       </Link>
-
-      {mustCustomize ? (
+      {!product.inStock ? (
+        <button className="add-to-cart-btn btn-disabled" disabled>
+          Rupture de stock
+        </button>
+      ) : mustCustomize ? (
         <Link
           href={`/products/${product.slug}`}
           className="add-to-cart-btn product-customize-link"
