@@ -2493,11 +2493,9 @@ textarea.input {
   position: relative;
   overflow: hidden;
 
-  background: linear-gradient(
-    180deg,
-    rgba(17, 24, 39, 0.98),
-    rgba(11, 15, 24, 0.98)
-  );
+  background: linear-gradient(180deg,
+      rgba(17, 24, 39, 0.98),
+      rgba(11, 15, 24, 0.98));
 
   border: 1px solid rgba(148, 163, 184, 0.18);
   border-radius: 24px;
@@ -2514,12 +2512,10 @@ textarea.input {
   position: absolute;
   inset: 0 0 auto 0;
   height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(249, 115, 22, 0.45),
-    transparent
-  );
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(249, 115, 22, 0.45),
+      transparent);
   pointer-events: none;
 }
 
@@ -2585,16 +2581,15 @@ textarea.input {
 
 /* Grille couleurs */
 .color-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 12px;
-  align-items: stretch;
 }
 
 /* Boutons couleurs */
 .color-choice {
-  width: 100%;
-  min-height: 48px;
+  flex: 0 1 auto;
+  min-width: 180px;
 
   display: inline-flex;
   align-items: center;
@@ -2606,11 +2601,9 @@ textarea.input {
   border-radius: 999px;
   border: 1px solid rgba(148, 163, 184, 0.26);
 
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.07),
-    rgba(255, 255, 255, 0.035)
-  );
+  background: linear-gradient(180deg,
+      rgba(255, 255, 255, 0.07),
+      rgba(255, 255, 255, 0.035));
 
   color: #f8fafc;
 
@@ -2636,11 +2629,9 @@ textarea.input {
 .color-choice.active {
   border-color: rgba(249, 115, 22, 0.95);
 
-  background: linear-gradient(
-    180deg,
-    rgba(249, 115, 22, 0.2),
-    rgba(249, 115, 22, 0.08)
-  );
+  background: linear-gradient(180deg,
+      rgba(249, 115, 22, 0.2),
+      rgba(249, 115, 22, 0.08));
 
   box-shadow:
     0 0 0 1px rgba(249, 115, 22, 0.34),
@@ -2679,11 +2670,9 @@ textarea.input {
 .color-choice:disabled {
   cursor: not-allowed;
 
-  background: linear-gradient(
-    180deg,
-    rgba(239, 68, 68, 0.11),
-    rgba(127, 29, 29, 0.08)
-  );
+  background: linear-gradient(180deg,
+      rgba(239, 68, 68, 0.11),
+      rgba(127, 29, 29, 0.08));
 
   border-color: rgba(248, 113, 113, 0.34);
   color: rgba(255, 255, 255, 0.62);
@@ -2695,11 +2684,9 @@ textarea.input {
 .color-choice:disabled:hover {
   transform: none;
   box-shadow: none;
-  background: linear-gradient(
-    180deg,
-    rgba(239, 68, 68, 0.11),
-    rgba(127, 29, 29, 0.08)
-  );
+  background: linear-gradient(180deg,
+      rgba(239, 68, 68, 0.11),
+      rgba(127, 29, 29, 0.08));
   border-color: rgba(248, 113, 113, 0.34);
 }
 
@@ -2730,11 +2717,9 @@ textarea.input {
   justify-content: space-between;
   align-items: center;
 
-  background: linear-gradient(
-    180deg,
-    rgba(17, 24, 39, 0.95),
-    rgba(11, 15, 24, 0.95)
-  );
+  background: linear-gradient(180deg,
+      rgba(17, 24, 39, 0.95),
+      rgba(11, 15, 24, 0.95));
 
   border: 1px solid rgba(148, 163, 184, 0.18);
   border-radius: 18px;
@@ -2797,8 +2782,9 @@ textarea.input {
   .color-choice {
     min-height: 46px;
   }
-}ƒ
+}
 
+ƒ
 /* =========================================================
    ACCOUNT DELETE
 ========================================================= */
