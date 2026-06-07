@@ -111,8 +111,9 @@ export default function ProductCustomizer({ product }: { product: Product }) {
               <button
                 key={pack.label}
                 type="button"
-                className={`color-choice ${selectedPack?.label === pack.label ? "active" : ""
-                  }`}
+                className={`color-choice ${
+                  selectedPack?.label === pack.label ? "active" : ""
+                }`}
                 onClick={() => setSelectedPack(pack)}
               >
                 {pack.label} — {Number(pack.price).toFixed(2)} €
@@ -131,8 +132,9 @@ export default function ProductCustomizer({ product }: { product: Product }) {
               <button
                 key={`${color.name}-${color.hex}`}
                 type="button"
-                className={`color-choice ${selectedColor?.name === color.name ? "active" : ""
-                  }`}
+                className={`color-choice ${
+                  selectedColor?.name === color.name ? "active" : ""
+                }`}
                 onClick={() => setSelectedColor(color)}
               >
                 <span
@@ -154,39 +156,56 @@ export default function ProductCustomizer({ product }: { product: Product }) {
             <div key={zone} className="zone-selector">
               <label className="input-label">{zone}</label>
 
-              <select
-                className="input"
-                value={selectedColors[zone] || ""}
-                onChange={(e) => {
-                  const selectedName = e.target.value;
-                  const selectedColorData =
-                    availableColors.find((c) => c.name === selectedName) ||
-                    null;
-
-                  setSelectedColors({
-                    ...selectedColors,
-                    [zone]: selectedName,
-                  });
-
-                  if (selectedColorData) {
-                    setSelectedColor(selectedColorData);
-                  }
-                }}
-              >
-                <option value="">Choisir une couleur</option>
-
+              <div className="color-grid">
                 {availableColors.map((color) => (
-                  <option key={`${zone}-${color.name}`} value={color.name}>
-                    {color.name}
-                  </option>
+                  <button
+                    key={`${zone}-${color.name}`}
+                    type="button"
+                    className={`color-choice ${
+                      selectedColors[zone] === color.name ? "active" : ""
+                    }`}
+                    onClick={() => {
+                      setSelectedColors({
+                        ...selectedColors,
+                        [zone]: color.name,
+                      });
+
+                      setSelectedColor(color);
+                    }}
+                  >
+                    <span
+                      className="color-dot"
+                      style={{ background: color.hex }}
+                    />
+                    <span>{color.name}</span>
+                  </button>
                 ))}
-              </select>
+              </div>
+
+              {unavailableColors.length > 0 && (
+                <div className="color-grid mt-2">
+                  {unavailableColors.map((color) => (
+                    <button
+                      key={`${zone}-${color.name}-${color.hex}-disabled`}
+                      type="button"
+                      className="color-choice disabled"
+                      disabled
+                    >
+                      <span
+                        className="color-dot"
+                        style={{ background: color.hex }}
+                      />
+                      <span>{color.name}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           ))}
         </div>
       )}
 
-      {unavailableColors.length > 0 && (
+      {unavailableColors.length > 0 && !hasColorZones && (
         <div className="product-option-block">
           <h3>Couleur(s) non disponible(s)</h3>
 
@@ -215,7 +234,9 @@ export default function ProductCustomizer({ product }: { product: Product }) {
 
           <p className="text-muted">
             {product.customizationPrice > 0
-              ? `Ajout d’un texte personnalisé : +${product.customizationPrice.toFixed(2)} €.`
+              ? `Ajout d’un texte personnalisé : +${product.customizationPrice.toFixed(
+                  2
+                )} €.`
               : "Texte personnalisé inclus dans le prix."}
           </p>
 
