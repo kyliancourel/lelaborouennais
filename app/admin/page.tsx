@@ -47,6 +47,15 @@ export default function AdminPage() {
             <p>Créer et gérer les codes de réduction</p>
           </div>
         </Link>
+
+        <Link href="/admin/colors" className="admin-card">
+          <div className="admin-card-icon">🎨</div>
+
+          <div>
+            <h2>Couleurs globales</h2>
+            <p>Gérer les couleurs disponibles pour les produits personnalisables</p>
+          </div>
+        </Link>
       </div>
     </div>
   );

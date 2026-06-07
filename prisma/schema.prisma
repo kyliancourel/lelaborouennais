@@ -302,3 +302,14 @@ model PromoCodeUsage {
 
   @@unique([promoCodeId, userId])
 }
+
+model ColorOption {
+  id        String   @id @default(cuid())
+  name      String
+  hex       String
+  isActive  Boolean  @default(true)
+  inStock   Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

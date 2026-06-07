@@ -65,6 +65,28 @@ export default async function ProductPage({
   const packOptions = normalizePackOptions(product.packOptions);
   const displayPrice = packOptions.length > 0 ? packOptions[0].price : product.price;
 
+  const isCustomizableProduct =
+  product.customizableText || normalizeStringArray(product.colorZones).length > 0;
+
+const globalColors = isCustomizableProduct
+  ? await prisma.colorOption.findMany({
+      where: {
+        isActive: true,
+      },
+      orderBy: {
+        name: "asc",
+      },
+    })
+  : [];
+
+const globalAvailableColors = globalColors
+  .filter((color) => color.inStock)
+  .map((color) => `${color.name}|${color.hex}`);
+
+const globalUnavailableColors = globalColors
+  .filter((color) => !color.inStock)
+  .map((color) => `${color.name}|${color.hex}`);
+
   return (
     <div className="product-page">
       <div className="product-grid">
@@ -76,8 +98,12 @@ export default async function ProductPage({
             image: product.image ?? undefined,
             customizableText: product.customizableText,
             customizationPrice: product.customizationPrice,
-            availableColors: normalizeStringArray(product.availableColors),
-            unavailableColors: normalizeStringArray(product.unavailableColors),
+            availableColors: isCustomizableProduct
+            ? globalAvailableColors
+            : normalizeStringArray(product.availableColors),
+            unavailableColors: isCustomizableProduct
+            ? globalUnavailableColors
+            : normalizeStringArray(product.unavailableColors),
             colorZones: normalizeStringArray(product.colorZones),
             packOptions,
             inStock: product.inStock,
