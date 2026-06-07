@@ -139,7 +139,7 @@ export default function ProductCustomizer({ product }: { product: Product }) {
                   className="color-dot"
                   style={{ background: color.hex }}
                 />
-                {color.name}
+                <span>{color.name}</span>
               </button>
             ))}
           </div>
@@ -202,7 +202,7 @@ export default function ProductCustomizer({ product }: { product: Product }) {
                   className="color-dot"
                   style={{ background: color.hex }}
                 />
-                {color.name}
+                <span>{color.name}</span>
               </button>
             ))}
           </div>
