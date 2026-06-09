@@ -63,9 +63,6 @@ export default async function ProductPage({
   }
 
   const packOptions = normalizePackOptions(product.packOptions);
-  const displayPrice =
-    packOptions.length > 0 ? packOptions[0].price : product.price;
-
   const colorZones = normalizeStringArray(product.colorZones);
 
   const isCustomizableProduct =
@@ -93,25 +90,13 @@ export default async function ProductPage({
   return (
     <div className="product-page">
       <div className="product-grid">
-        <ProductCustomizer
-          product={{
-            id: product.id,
-            name: product.name,
-            price: product.price,
-            image: product.image ?? undefined,
-            customizableText: product.customizableText,
-            customizationPrice: product.customizationPrice,
-            availableColors: isCustomizableProduct
-              ? globalAvailableColors
-              : normalizeStringArray(product.availableColors),
-            unavailableColors: isCustomizableProduct
-              ? globalUnavailableColors
-              : normalizeStringArray(product.unavailableColors),
-            colorZones,
-            packOptions,
-            inStock: product.inStock,
-          }}
-        />
+        <div className="product-media-panel">
+          <img
+            src={product.image || "/placeholder.png"}
+            alt={product.name}
+            className="product-main-image"
+          />
+        </div>
 
         <div className="product-info-panel">
           {product.category && (
@@ -122,11 +107,26 @@ export default async function ProductPage({
 
           {product.description && <p>{product.description}</p>}
 
-          <h2>
-            {packOptions.length > 0
-              ? `À partir de ${Number(displayPrice).toFixed(2)} €`
-              : `${Number(product.price).toFixed(2)} €`}
-          </h2>
+          <ProductCustomizer
+            showPreview={false}
+            product={{
+              id: product.id,
+              name: product.name,
+              price: product.price,
+              image: product.image ?? undefined,
+              customizableText: product.customizableText,
+              customizationPrice: product.customizationPrice,
+              availableColors: isCustomizableProduct
+                ? globalAvailableColors
+                : normalizeStringArray(product.availableColors),
+              unavailableColors: isCustomizableProduct
+                ? globalUnavailableColors
+                : normalizeStringArray(product.unavailableColors),
+              colorZones,
+              packOptions,
+              inStock: product.inStock,
+            }}
+          />
         </div>
       </div>
     </div>

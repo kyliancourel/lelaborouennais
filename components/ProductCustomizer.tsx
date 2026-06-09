@@ -27,6 +27,11 @@ type Product = {
   inStock: boolean;
 };
 
+type Props = {
+  product: Product;
+  showPreview?: boolean;
+};
+
 function parseColor(value: string): ColorOption {
   const [name, hex] = value.split("|").map((part) => part.trim());
 
@@ -36,7 +41,10 @@ function parseColor(value: string): ColorOption {
   };
 }
 
-export default function ProductCustomizer({ product }: { product: Product }) {
+export default function ProductCustomizer({
+  product,
+  showPreview = true,
+}: Props) {
   const availableColors = product.availableColors.map(parseColor);
   const unavailableColors = product.unavailableColors.map(parseColor);
 
@@ -84,23 +92,25 @@ export default function ProductCustomizer({ product }: { product: Product }) {
 
   return (
     <div className="product-customizer">
-      <div
-        className="product-preview-frame"
-        style={{
-          background: `
-            radial-gradient(circle at center, ${previewColor}cc 0%, ${previewColor}88 35%, transparent 72%),
-            linear-gradient(135deg, ${previewColor}55, rgba(255,255,255,0.04))
-          `,
-          borderColor: previewColor,
-          boxShadow: `0 0 45px ${previewColor}88`,
-        }}
-      >
-        <img
-          src={product.image || "/placeholder.png"}
-          alt={product.name}
-          className="product-image"
-        />
-      </div>
+      {showPreview && (
+        <div
+          className="product-preview-frame"
+          style={{
+            background: `
+              radial-gradient(circle at center, ${previewColor}cc 0%, ${previewColor}88 35%, transparent 72%),
+              linear-gradient(135deg, ${previewColor}55, rgba(255,255,255,0.04))
+            `,
+            borderColor: previewColor,
+            boxShadow: `0 0 45px ${previewColor}88`,
+          }}
+        >
+          <img
+            src={product.image || "/placeholder.png"}
+            alt={product.name}
+            className="product-image"
+          />
+        </div>
+      )}
 
       {product.packOptions.length > 0 && (
         <div className="product-option-block">
