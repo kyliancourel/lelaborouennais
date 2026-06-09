@@ -63,29 +63,32 @@ export default async function ProductPage({
   }
 
   const packOptions = normalizePackOptions(product.packOptions);
-  const displayPrice = packOptions.length > 0 ? packOptions[0].price : product.price;
+  const displayPrice =
+    packOptions.length > 0 ? packOptions[0].price : product.price;
+
+  const colorZones = normalizeStringArray(product.colorZones);
 
   const isCustomizableProduct =
-  product.customizableText || normalizeStringArray(product.colorZones).length > 0;
+    product.customizableText || colorZones.length > 0;
 
-const globalColors = isCustomizableProduct
-  ? await prisma.colorOption.findMany({
-      where: {
-        isActive: true,
-      },
-      orderBy: {
-        name: "asc",
-      },
-    })
-  : [];
+  const globalColors = isCustomizableProduct
+    ? await prisma.colorOption.findMany({
+        where: {
+          isActive: true,
+        },
+        orderBy: {
+          name: "asc",
+        },
+      })
+    : [];
 
-const globalAvailableColors = globalColors
-  .filter((color) => color.inStock)
-  .map((color) => `${color.name}|${color.hex}`);
+  const globalAvailableColors = globalColors
+    .filter((color) => color.inStock)
+    .map((color) => `${color.name}|${color.hex}`);
 
-const globalUnavailableColors = globalColors
-  .filter((color) => !color.inStock)
-  .map((color) => `${color.name}|${color.hex}`);
+  const globalUnavailableColors = globalColors
+    .filter((color) => !color.inStock)
+    .map((color) => `${color.name}|${color.hex}`);
 
   return (
     <div className="product-page">
@@ -99,18 +102,18 @@ const globalUnavailableColors = globalColors
             customizableText: product.customizableText,
             customizationPrice: product.customizationPrice,
             availableColors: isCustomizableProduct
-            ? globalAvailableColors
-            : normalizeStringArray(product.availableColors),
+              ? globalAvailableColors
+              : normalizeStringArray(product.availableColors),
             unavailableColors: isCustomizableProduct
-            ? globalUnavailableColors
-            : normalizeStringArray(product.unavailableColors),
-            colorZones: normalizeStringArray(product.colorZones),
+              ? globalUnavailableColors
+              : normalizeStringArray(product.unavailableColors),
+            colorZones,
             packOptions,
             inStock: product.inStock,
           }}
         />
 
-        <div>
+        <div className="product-info-panel">
           {product.category && (
             <p className="product-category">{product.category}</p>
           )}
