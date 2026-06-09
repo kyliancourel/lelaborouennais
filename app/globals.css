@@ -2589,7 +2589,7 @@ textarea.input {
 /* Boutons couleurs */
 .color-choice {
   flex: 0 1 auto;
-  min-width: 180px;
+  min-width: 150px;
 
   display: inline-flex;
   align-items: center;
@@ -2756,8 +2756,8 @@ textarea.input {
 
 /* Responsive */
 @media (max-width: 980px) {
-  .color-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .color-choice {
+    min-width: 160px;
   }
 }
 
@@ -2776,15 +2776,16 @@ textarea.input {
   }
 
   .color-grid {
-    grid-template-columns: 1fr;
+    gap: 10px;
   }
 
   .color-choice {
+    min-width: 100%;
     min-height: 46px;
   }
 }
 
-ƒ
+
 /* =========================================================
    ACCOUNT DELETE
 ========================================================= */
