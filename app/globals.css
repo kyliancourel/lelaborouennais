@@ -1012,8 +1012,16 @@ textarea.input {
 
 .product-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 60px;
+  gap: 40px;
+  align-items: flex-start;
+}
+
+.product-grid > *:first-child {
+  flex: 0 0 600px;
+}
+
+.product-grid > *:last-child {
+  flex: 1;
 }
 
 .product-image {
