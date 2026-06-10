@@ -7,6 +7,7 @@ function getStatusLabel(status: string) {
   const labels: Record<string, string> = {
     PENDING: "En attente",
     PAID: "Payée",
+    PREPARING: "En préparation",
     SHIPPED: "Expédiée",
     COMPLETED: "Terminée",
     CANCELLED: "Annulée",
@@ -126,6 +127,7 @@ export default async function AdminOrderDetailPage({
           <select name="status" defaultValue={order.status} className="input">
             <option value="PENDING">En attente</option>
             <option value="PAID">Payée</option>
+            <option value="PREPARING">En préparation</option>
             <option value="SHIPPED">Expédiée</option>
             <option value="COMPLETED">Terminée</option>
             <option value="CANCELLED">Annulée</option>

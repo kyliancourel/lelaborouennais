@@ -7,6 +7,7 @@ import Button from "@/components/ui/Button";
 type OrderStatus =
   | "PENDING"
   | "PAID"
+  | "PREPARING"
   | "SHIPPED"
   | "COMPLETED"
   | "CANCELLED";
@@ -29,6 +30,7 @@ export default function OrderItem({
   const statusLabel = {
     PENDING: "En attente",
     PAID: "Payée",
+    PREPARING : "En préparation",
     SHIPPED: "Expédiée",
     COMPLETED: "Terminée",
     CANCELLED: "Annulée",

@@ -1925,6 +1925,11 @@ textarea.input {
   color: var(--warning);
 }
 
+.status-preparing {
+  background: rgba(249, 115, 22, 0.15);
+  color: #f97316;
+}
+
 .status-canceled,
 .status-cancelled {
   background: rgba(255, 77, 77, 0.12);

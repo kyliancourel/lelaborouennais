@@ -19,6 +19,7 @@ function getStatusLabel(status: string) {
   const labels: Record<string, string> = {
     PENDING: "En attente",
     PAID: "Payée",
+    PREPARING: "En préparation",
     SHIPPED: "Expédiée",
     COMPLETED: "Terminée",
     CANCELLED: "Annulée",
