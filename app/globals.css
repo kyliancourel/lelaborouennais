@@ -1374,7 +1374,7 @@ textarea.input {
   margin-bottom: 5px;
 }
 
-/* icône centrée et plus nette */
+/* icÃ´ne centrÃ©e et plus nette */
 .cart-remove-btn {
   font-size: 16px;
   line-height: 1;
@@ -1393,7 +1393,7 @@ textarea.input {
   transform: scale(0.92);
 }
 
-/* focus accessibilité */
+/* focus accessibilitÃ© */
 .cart-remove-btn:focus-visible {
   outline: 2px solid rgba(255, 77, 77, 0.4);
   outline-offset: 2px;
@@ -1715,6 +1715,7 @@ textarea.input {
   transform: translateY(-2px);
 }
 
+
 /* =========================================================
    ADMIN PRODUCTS PAGE
 ========================================================= */
@@ -1896,31 +1897,6 @@ textarea.input {
   color: var(--text-secondary);
 }
 
-@media (max-width: 1100px) {
-  .admin-products-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .admin-products-stats {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 680px) {
-  .admin-products-hero {
-    flex-direction: column;
-  }
-
-  .admin-products-hero .btn {
-    width: 100%;
-  }
-
-  .admin-products-grid,
-  .admin-products-stats {
-    grid-template-columns: 1fr;
-  }
-}
-
 /* =========================================================
    BADGES
 ========================================================= */
@@ -2061,21 +2037,6 @@ textarea.input {
   font-weight: 600;
 }
 
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid var(--border);
-  border-top: 3px solid white;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 .success-page {
   max-width: 600px;
   margin: 80px auto;
@@ -2160,31 +2121,6 @@ textarea.input {
   font-weight: 600;
 }
 
-/* STATUS BADGES */
-
-.status-badge {
-  padding: 6px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.status-paid {
-  background: rgba(34, 197, 94, 0.1);
-  color: #22c55e;
-}
-
-.status-pending {
-  background: rgba(245, 158, 11, 0.1);
-  color: #f59e0b;
-}
-
-.status-cancelled {
-  background: rgba(239, 68, 68, 0.1);
-  color: #ef4444;
-}
-
 /* =========================
    CART QUANTITY BUTTONS
 ========================= */
@@ -2242,12 +2178,6 @@ textarea.input {
   margin-bottom: 30px;
 }
 
-.card {
-  padding: 20px;
-  border-radius: 12px;
-  background: #111;
-  color: white;
-}
 
 .rewards-grid {
   display: grid;
@@ -3024,7 +2954,7 @@ textarea.input {
   font-weight: 950;
 }
 
-/* Catégorie */
+/* CatÃ©gorie */
 .product-category {
   display: inline-flex;
   margin-bottom: 14px;
@@ -3361,6 +3291,34 @@ textarea.input {
 /* =========================================================
    RESPONSIVE
 ========================================================= */
+
+
+@media (max-width: 1100px) {
+  .admin-products-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .admin-products-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 680px) {
+  .admin-products-hero {
+    flex-direction: column;
+  }
+
+  .admin-products-hero .btn {
+    width: 100%;
+  }
+
+  .admin-products-grid,
+  .admin-products-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+
 
 @media (max-width: 1024px) {
   .products-grid {
